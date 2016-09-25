@@ -124,7 +124,9 @@ namespace TAK {
     bitboard group(bitboard b,bitboard start);
     //std::ostream&operator<<(std::ostream&,move m);
 
-    extern int ***slides;
+    extern int slides[9][9][35];
+    extern int count_slides[9][9];
+    void initSlides();
 
 
     template<int n>

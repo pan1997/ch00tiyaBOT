@@ -251,8 +251,6 @@ namespace TAK {
                                                                                                                 t)]];
             }
             setTopbb(s, top(s));
-            //xor_bitboard(s, top(s));//add prev
-            //std::cout << "move move not implemented\n";
         }
     }
 }

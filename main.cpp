@@ -164,8 +164,9 @@ int main() {
     using namespace std;
     srand(time(NULL));
     TAK::initGroups(5);
+    TAK::initSlides();
     TAK::boardstate<5> board;
-    test(board);
+    //test(board);
     //test3(board);
     //test_groups();
     cout << "Hello, World!123" << endl;
