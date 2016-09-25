@@ -5,12 +5,9 @@
 #ifndef BASIC_H
 #define BASIC_H
 #include <iostream>
-namespace TAK {
-
-
 #define row 255ULL
 #define col 72340172838076673ULL
-
+namespace TAK {
     enum player {
         BLACK = 0, WHITE = 1
     };
@@ -117,15 +114,19 @@ namespace TAK {
     int popcnt(bitboard i);
 
     inline bitboard neighbours(bitboard b) {
-        return (b << 1) | (b >> 1) | (b << 8) | (b >> 8);
+        return ((b & ~(col << 7)) << 1) | ((b & ~col) >> 1) | (b << 8) | (b >> 8);
     }
-    int countRows(bitboard b,int n);
-    int countCols(bitboard b,int n);
-    bitboard group(bitboard b,bitboard start);
+
+    int countRows(bitboard b, int n);
+
+    int countCols(bitboard b, int n);
+
+    bitboard group(bitboard b, bitboard start);
     //std::ostream&operator<<(std::ostream&,move m);
 
     extern int slides[9][9][35];
     extern int count_slides[9][9];
+
     void initSlides();
 
 

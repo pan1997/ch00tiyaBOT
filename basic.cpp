@@ -11,26 +11,17 @@ namespace TAK {
     int slides[9][9][35];
     int count_slides[9][9];
 
-    int ncr(int n, int r) {
-        int answer = 1;
-        for (int ind = r + 1; ind <= n; ind++)
-            answer *= ind;
-        for (int i = 1; i <= r; i++)
-            answer /= r;
-        return answer;
-    }
-
-    void append_splits(int i,int j,int*splits){
-        slides[i][j][count_slides[i][j]]=0;
-        int left=i;
-        for(;left>0;){
-            slides[i][j][count_slides[i][j]]=((slides[i][j][count_slides[i][j]]<<3)|(*splits));
-            left-=*(splits++);
+    void append_splits(int i, int j, int *splits) {
+        slides[i][j][count_slides[i][j]] = 0;
+        int left = i;
+        for (; left > 0;) {
+            slides[i][j][count_slides[i][j]] = ((slides[i][j][count_slides[i][j]] << 3) | (*splits));
+            left -= *(splits++);
         }
         count_slides[i][j]++;
     }
 
-    void split_rec(int n,int k,int left,int d,int *splits) {
+    void split_rec(int n, int k, int left, int d, int *splits) {
         if (d == k) {
             splits[d - 1] = left;
             append_splits(n, k, splits);
@@ -41,21 +32,15 @@ namespace TAK {
             }
         }
     }
-    //split i into j peices (iCj)
+
     void initSlides() {
-        for(int i=0;i<=8;i++)
-            for(int j=0;j<=8;j++)
-                count_slides[i][j]=0;
+        for (int i = 0; i <= 8; i++)
+            for (int j = 0; j <= 8; j++)
+                count_slides[i][j] = 0;
         int tmp[9];
-        for(int n=1;n<=8;n++)
-            for(int r=1;r<=n;r++) {
+        for (int n = 1; n <= 8; n++)
+            for (int r = 1; r <= n; r++)
                 split_rec(n, r, n, 1, tmp);
-                //std::cout<<n<<" split into "<<r<<" in "<<count_slides[n][r]<<" ways\n";
-            }
-        //int n=8,r=2;
-        //for(int i=0;i<count_slides[n][r];i++){
-        //    std::cout<<std::bitset<32>(slides[n][r][i])<<' '<<slides[n][r][i]<<'\n';
-        //}
     }
 
     void printSquare(std::ostream &o, square s) {

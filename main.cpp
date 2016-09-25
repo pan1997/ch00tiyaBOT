@@ -9,28 +9,6 @@
 #include "d1_player.h"
 #include <stack>
 
-void test1(TAK::boardstate<5>&bs){
-    using namespace TAK;
-    bs.playMove(construct_place_move(getSquare(2,2),BLACK_FLAT));
-    bs.playMove(construct_place_move(getSquare(2,3),WHITE_FLAT));
-    std::cout<<bs<<'\n';
-    bs.playMove(construct_place_move(getSquare(2,1),WHITE_FLAT));
-    bs.flipTurn();
-    std::cout<<bs<<'\n';
-    int tmp[5];
-    tmp[0]=1;
-    bs.playMove(construct_move_move(getSquare(2,2),LEFT,1,tmp));
-    bs.flipTurn();
-    std::cout<<bs<<'\n';
-    bs.playMove(construct_place_move(getSquare(2,2),WHITE_FLAT));
-    bs.flipTurn();
-    std::cout<<bs<<'\n';
-    tmp[0]=2;
-    bs.playMove(construct_move_move(getSquare(2,1),RIGHT,2,tmp));
-    bs.flipTurn();
-    std::cout<<bs<<'\n';
-}
-
 void test(TAK::boardstate<5>&bs) {
     using namespace TAK;
     bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
@@ -99,26 +77,8 @@ void test(TAK::boardstate<5>&bs) {
             moves.pop();
         }
     }
-    /*
-
-    std::cout << bs << '\n';
-    bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
-    bs.playMove(construct_place_move(getRandomEmptySquare(bs), WHITE_FLAT));
-    std::cout << bs << '\n';
-    std::cout << "eval:" << evaluate(bs) / (double) scale << '\n';
-
-    int max = 0;
-    bs.playMove(d1_getMove(bs, max));
-    bs.flipTurn();
-    std::cout << bs << '\n';
-    std::cout << "eval:" << evaluate(bs) / (double) scale << '\n';
-    max = 0;
-    bs.playMove(d1_getMove(bs, max));
-    bs.flipTurn();
-    std::cout << bs << '\n';
-    std::cout << "eval:" << evaluate(bs) / (double) scale << '\n';
-     */
 }
+/*
 void test_groups() {
     using namespace TAK;
     bitboard b = 8799704242778;
@@ -147,18 +107,7 @@ void test_groups() {
                 std::cout<<"count "<<countRows(g,8)<<countCols(g,8)<<'\n';
                 std::cout<<'\n';
             }
-}
-int test3(TAK::boardstate<5>&b){
-    using namespace TAK;
-    b.playMove(construct_place_move(getRandomEmptySquare(b), BLACK_FLAT));
-    b.playMove(construct_place_move(getRandomEmptySquare(b), WHITE_FLAT));
-    std::cout << b << '\n';
-    std::cout << "eval:" << evaluate(b) / (double) scale << '\n';
-    int mx = 0;
-    d1_getMove(b, mx);
-    std::cout<<"D1 "<<mx<<'\n';
-    return 0;
-}
+}*/
 
 int main() {
     using namespace std;
