@@ -6,7 +6,7 @@ namespace TAK {
     int scale = 100;
     int move_advantage = 50;
     int standingU = 50;
-    int capstoneU = 75;
+    int capstoneU = 101;
     int pair = 2;
     int groupU[8];
 

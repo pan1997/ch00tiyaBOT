@@ -128,6 +128,7 @@ namespace TAK {
                 if (height[i][j] > mh)
                     mh = height[i][j];
         for (int i = 0; i < n; i++) {
+            o<<"  ";
             o << '+';
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < mh; k++)
@@ -135,6 +136,7 @@ namespace TAK {
                 o << '+';
             }
             o << '\n';
+            o << n-i << ' ';
             o << '|';
             for (int j = 0; j < n; j++) {
                 int k = 0;
@@ -146,12 +148,21 @@ namespace TAK {
             }
             o << '\n';
         }
+        o<<"  ";
         o << '+';
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < mh; k++)
                 o << '-';
             o << '+';
         }
+        o << "\n  ";
+        for (int i = 0; i < n; i++) {
+            o << ' ';
+            o << (char)(i + 'a');
+            for (int k = 1; k < mh; k++)
+                o << ' ';
+        }
+        o<<'\n';
         o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << "\n";
 
         for (int i = 0; i < 8; i++) {
@@ -174,15 +185,14 @@ namespace TAK {
                 o << ((BC & getBitboard(getSquare(i, j))) != 0);
             o << '\n';
         }
-        for(int i=0;i<8;i++){
-            o<<group_count_W[i]<<'\t';
+        for (int i = 0; i < 8; i++) {
+            o << group_count_W[i] << '\t';
         }
-        o<<'\n';
-        for(int i=0;i<8;i++){
-            o<<group_count_B[i]<<'\t';
+        o << '\n';
+        for (int i = 0; i < 8; i++) {
+            o << group_count_B[i] << '\t';
         }
-        o<<'\n';
-
+        o << '\n';
     }
 
     template<int n>
@@ -195,16 +205,13 @@ namespace TAK {
             int pick = getPickCount(m);
             m >>= 12;
             unsetTopbb(s, top(s));
-            //xor_bitboard(s, top(s));//remove prev
             height[getRow(s)][getCol(s)] -= pick;
-            //std::cout << "picked " << pick << "\n";
             if (height[getRow(s)][getCol(s)] == 0)
                 nempty++;
-            else setTopbb(s, top(s));
-            // xor_bitboard(s, top(s));//add new
             int index = height[getRow(s)][getCol(s)];
             square t = s;
-            for (; pick > 0;) {
+            int count = 0;
+            for (; pick > 0; count++) {
                 int drop = m & 7;
                 //std::cout << "dropped " << drop << '\n';
                 pick -= drop;
@@ -213,11 +220,15 @@ namespace TAK {
                 if (empty(t))
                     nempty--;
                 else unsetTopbb(t, top(t));
-                //xor_bitboard(t, top(t));//remove prev
                 for (int i = 0; i < drop; i++)
                     bs[getRow(t)][getCol(t)][height[getRow(t)][getCol(t)]++] = bs[getRow(s)][getCol(s)][index++];
-                setTopbb(t, top(t));
-                //xor_bitboard(t, top(t));//add new
+                //setTopbb(t, top(t));
+            }
+            d = direction(d ^ 1);
+            for (; count >= 0; count--) {
+                if (!empty(t))
+                    setTopbb(t, top(t));
+                t = squareAt(t, d);
             }
         }
     }
@@ -230,12 +241,14 @@ namespace TAK {
             square s = m;
             direction d = getDirection(m);
             int pick = getPickCount(m);
+            //unsetTopbb(s,top(s));
             if (height[getRow(s)][getCol(s)] == 0)
                 nempty--;
-            else unsetTopbb(s, top(s));//xor_bitboard(s, top(s));//remove new
+            else unsetTopbb(s, top(s));
             m >>= 12;
             square t = s;
-            while (pick > 0) {
+            int count;
+            for (count = 0; pick > 0; count++) {
                 int drop = m & 7;
                 pick -= drop;
                 m >>= 3;
@@ -244,14 +257,19 @@ namespace TAK {
                 height[getRow(t)][getCol(t)] -= drop;
                 if (height[getRow(t)][getCol(t)] == 0)
                     nempty++;
-                else setTopbb(t, top(t));//xor_bitboard(t, top(t));//add prev
+                //else setTopbb(t, top(t));//xor_bitboard(t, top(t));//add prev
                 for (int i = 0; i < drop; i++)
                     bs[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)]++] = bs[getRow(t)][getCol(t)][i +
                                                                                                         height[getRow(
                                                                                                                 t)][getCol(
                                                                                                                 t)]];
             }
-            setTopbb(s, top(s));
+            d = direction(d ^ 1);
+            for (; count >= 0; count--) {
+                if (!empty(t))
+                    setTopbb(t, top(t));
+                t = squareAt(t, d);
+            }
         }
     }
 }

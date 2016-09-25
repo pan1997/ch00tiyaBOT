@@ -34,34 +34,47 @@ namespace TAK {
         inline void setTopbb(square s, peice p) {
             if (!isStanding(p)) {
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
-                if (g1 != 0) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g1, n)]--;
-                else group_count_B[countRows(g1, n)]--;
-                if (g1 != 0) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g1, n)]--;
-                else group_count_B[countCols(g1, n)]--;
+                if (g1 != 0) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g1, n)]--;
+                    else group_count_B[countRows(g1, n)]--;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g1, n)]--;
+                    else group_count_B[countCols(g1, n)]--;
+                }
+
                 bitboard g2 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, DOWN)));
-                if (g2 != 0 && g2 != g1) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g2, n)]--;
-                else group_count_B[countRows(g2, n)]--;
-                if (g2 != 0 && g2 != g1) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g2, n)]--;
-                else group_count_B[countCols(g2, n)]--;
+                if (g2 != 0 && g2 != g1) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g2, n)]--;
+                    else group_count_B[countRows(g2, n)]--;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g2, n)]--;
+                    else group_count_B[countCols(g2, n)]--;
+                }
+
                 bitboard g3 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, LEFT)));
-                if (g3 != 0 && g3 != g1 && g3 != g2) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g3, n)]--;
-                else group_count_B[countRows(g3, n)]--;
-                if (g3 != 0 && g3 != g1 && g3 != g2) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g3, n)]--;
-                else group_count_B[countCols(g3, n)]--;
+                if (g3 != 0 && g3 != g1 && g3 != g2) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g3, n)]--;
+                    else group_count_B[countRows(g3, n)]--;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g3, n)]--;
+                    else group_count_B[countCols(g3, n)]--;
+                }
+
                 bitboard g4 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, RIGHT)));
-                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g4, n)]--;
-                else group_count_B[countRows(g4, n)]--;
-                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g4, n)]--;
-                else group_count_B[countCols(g4, n)]--;
+                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g4, n)]--;
+                    else group_count_B[countRows(g4, n)]--;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g4, n)]--;
+                    else group_count_B[countCols(g4, n)]--;
+                }
+
                 xor_bitboard(s, p);
+
                 bitboard gr = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(s));
                 if (color_of(p) == WHITE)
                     group_count_W[countRows(gr, n)]++;
@@ -81,35 +94,48 @@ namespace TAK {
                 if (color_of(p) == WHITE)
                     group_count_W[countCols(gr, n)]--;
                 else group_count_B[countCols(gr, n)]--;
+
                 xor_bitboard(s, p);
+
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
-                if (g1 != 0) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g1, n)]++;
-                else group_count_B[countRows(g1, n)]++;
-                if (g1 != 0) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g1, n)]++;
-                else group_count_B[countCols(g1, n)]++;
+                if (g1 != 0) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g1, n)]++;
+                    else group_count_B[countRows(g1, n)]++;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g1, n)]++;
+                    else group_count_B[countCols(g1, n)]++;
+                }
+
                 bitboard g2 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, DOWN)));
-                if (g2 != 0 && g2 != g1) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g2, n)]++;
-                else group_count_B[countRows(g2, n)]++;
-                if (g2 != 0 && g2 != g1) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g2, n)]++;
-                else group_count_B[countCols(g2, n)]++;
+                if (g2 != 0 && g2 != g1) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g2, n)]++;
+                    else group_count_B[countRows(g2, n)]++;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g2, n)]++;
+                    else group_count_B[countCols(g2, n)]++;
+                }
+
                 bitboard g3 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, LEFT)));
-                if (g3 != 0 && g3 != g1 && g3 != g2) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g3, n)]++;
-                else group_count_B[countRows(g3, n)]++;
-                if (g3 != 0 && g3 != g1 && g3 != g2) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g3, n)]++;
-                else group_count_B[countCols(g3, n)]++;
+                if (g3 != 0 && g3 != g1 && g3 != g2) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g3, n)]++;
+                    else group_count_B[countRows(g3, n)]++;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g3, n)]++;
+                    else group_count_B[countCols(g3, n)]++;
+                }
+
                 bitboard g4 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, RIGHT)));
-                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) if (color_of(p) == WHITE)
-                    group_count_W[countRows(g4, n)]++;
-                else group_count_B[countRows(g4, n)]++;
-                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) if (color_of(p) == WHITE)
-                    group_count_W[countCols(g4, n)]++;
-                else group_count_B[countCols(g4, n)]++;
+                if (g4 != 0 && g4 != g1 && g4 != g2 && g4 != g3) {
+                    if (color_of(p) == WHITE)
+                        group_count_W[countRows(g4, n)]++;
+                    else group_count_B[countRows(g4, n)]++;
+                    if (color_of(p) == WHITE)
+                        group_count_W[countCols(g4, n)]++;
+                    else group_count_B[countCols(g4, n)]++;
+                }
             }
             else xor_bitboard(s, p);
         }

@@ -44,7 +44,7 @@ namespace TAK {
     }
 
     void printSquare(std::ostream &o, square s) {
-        o << (char) (getRow(s) + 'a') << getCol(s);
+        o << (char) (getCol(s) + 'a') << squareAtLim - getRow(s);
     }
 
     void printMove(std::ostream &o, move m) {
@@ -163,5 +163,42 @@ namespace TAK {
 
     void initbasic(int n) {
         squareAtLim = n - 1;
+    }
+
+    move readMove(char *ch, player turn) {
+        if (ch[0] <= '9' && ch[0] >= '0') {
+            int list[8];
+            int pick = ch[0] - '0';
+            direction d;
+            square start = readSquare(ch + 1);
+            switch (ch[3]) {
+                case '>':
+                    d = RIGHT;
+                    break;
+                case '<':
+                    d = LEFT;
+                    break;
+                case '+':
+                    d = UP;
+                    break;
+                case '-':
+                    d = DOWN;
+                    break;
+            }
+            int s = pick;
+            ch += 4;
+            for (int i = 0; s > 0; i++)
+                s -= (list[i] = (*ch++) - '0');
+            return construct_move_move(start, d, pick, list);
+        } else {
+            switch (ch[0]) {
+                case 'C':
+                    return construct_place_move(readSquare(ch + 1), peice(6 | turn));
+                case 'S':
+                    return construct_place_move(readSquare(ch + 1), peice(4 | turn));
+                default:
+                    return construct_place_move(readSquare(ch + 1), peice(2 | turn));
+            }
+        }
     }
 }

@@ -42,7 +42,7 @@ namespace TAK {
 
     move construct_move_move(square s, direction d, int pick, int *drop);
 
-    move construct_move_move(square s,direction d,int pick,int drops);
+    move construct_move_move(square s, direction d, int pick, int drops);
 
     inline direction getDirection(move m) {
         return (direction) ((m >> 7) & 3);
@@ -89,7 +89,9 @@ namespace TAK {
     }
 
     void initbasic(int bsize);
+
     extern int squareAtLim;
+
     inline square squareAt(square s, direction d) {
         switch (d) {
             case UP:
@@ -99,7 +101,7 @@ namespace TAK {
             case LEFT:
                 return ((s & 56) != 0) ? s - 8 : 0;
             case RIGHT:
-                return ((s & 56) != (squareAtLim<<3)) ? s + 8 : 0;
+                return ((s & 56) != (squareAtLim << 3)) ? s + 8 : 0;
         }
         return 0;
     }
@@ -133,6 +135,11 @@ namespace TAK {
 
     void initSlides();
 
+    move readMove(char*ch,player turn);
+
+    inline square readSquare(char *ch) {
+        return getSquare(squareAtLim-(ch[1] - '1'), ch[0] - 'a');
+    }
 
     template<int n>
     class boardstate;
