@@ -37,7 +37,12 @@ namespace TAK {
     int terminalEval(const boardstate<n> &b) {
         int score = 0;
         if (b.getGCW()[n] != 0 || b.getGCW()[n] != 0) {
-            if (b.getTurn() == BLACK)//ie white has moved
+            //road
+            if (b.getGCW()[n] == 0)
+                score = -groupU[n];
+            else if (b.getGCB()[n] == 0)
+                score = groupU[n];
+            else if (b.getTurn() == BLACK)//ie white has moved
                 score = groupU[n];
             else score = -groupU[n];
         }

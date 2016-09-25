@@ -182,6 +182,7 @@ namespace TAK {
             o<<group_count_B[i]<<'\t';
         }
         o<<'\n';
+
     }
 
     template<int n>
