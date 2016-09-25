@@ -154,10 +154,10 @@ int main() {
     TAK::initSlides();
     TAK::initbasic(5);
     TAK::boardstate<5> board;
-    //test(board);
+    test(board);
     //test3(board);
     //test_groups();
-    testbug(board);
+    //testbug(board);
     cout << "Hello, World!123" << endl;
     return 0;
 

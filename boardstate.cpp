@@ -98,6 +98,9 @@ namespace TAK {
 
     template<int n>
     void boardstate<n>::xor_bitboard(square s, peice bb) {
+        if(s==-1){
+            std::cout<<"xoring a -1 bitboard\n";
+        }
         switch (bb) {
             case WHITE_FLAT:
                 WF ^= getBitboard(s);

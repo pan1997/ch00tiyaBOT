@@ -32,6 +32,9 @@ namespace TAK {
         inline void removeTop(square s);
 
         inline void setTopbb(square s, peice p) {
+            if(s==-1){
+                std::cout<<"settopbb -1\n";
+            }
             if (isCap(p)||isFlat(p)) {
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
                 if (g1 != 0) {
@@ -86,6 +89,9 @@ namespace TAK {
         }
 
         inline void unsetTopbb(square s, peice p) {
+            if(s==-1){
+                std::cout<<"settopbb -1\n";
+            }
             if (isFlat(p)||isCap(p)) {
                 bitboard gr = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(s));
                 if (color_of(p) == WHITE)

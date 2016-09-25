@@ -54,7 +54,7 @@ namespace TAK {
                         int lr = 0;
                         square t = getSquare(i, j);
                         t = squareAt(t, dir);
-                        for (int k = 0; k < n && (t != 0) && (b.empty(t) || (!isCap(b.top(t)) &&
+                        for (int k = 0; k < n && (t != -1) && (b.empty(t) || (!isCap(b.top(t)) &&
                                                                              (!isStanding(b.top(t)) ||
                                                                               iscap))); t = squareAt(t, dir))
                             lr++;
@@ -143,7 +143,7 @@ namespace TAK {
                         int lr = 0;
                         square t = getSquare(i, j);
                         t = squareAt(t, dir);
-                        for (int k = 0; k < n && (t != 0) && (b.empty(t) || (!isCap(b.top(t)) &&
+                        for (int k = 0; k < n && (t != -1) && (b.empty(t) || (!isCap(b.top(t)) &&
                                                                              (!isStanding(b.top(t)) ||
                                                                               iscap))); t = squareAt(t, dir))
                             lr++;
