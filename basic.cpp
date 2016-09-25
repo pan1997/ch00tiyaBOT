@@ -44,7 +44,7 @@ namespace TAK {
     }
 
     void printSquare(std::ostream &o, square s) {
-        o << (char) (getCol(s) + 'a') << squareAtLim - getRow(s);
+        o << (char) (getCol(s) + 'a') << squareAtLim +1 - getRow(s);
     }
 
     void printMove(std::ostream &o, move m) {

@@ -8,6 +8,7 @@
 #include "evaluate.h"
 #include "d1_player.h"
 #include <stack>
+#include <cstring>
 
 void test(TAK::boardstate<5>&bs) {
     using namespace TAK;
@@ -124,6 +125,28 @@ void test_groups() {
             }
 }*/
 
+void testbug(TAK::boardstate<5> b){
+    char mv[20][20];
+    std::strcpy(mv[0],"d3");
+    std::strcpy(mv[1],"a5");
+    std::strcpy(mv[2],"Fb5");
+    std::strcpy(mv[3],"Fc5");
+    std::strcpy(mv[4],"Fd5");
+
+    b.playMove(TAK::construct_place_move(TAK::readSquare(mv[0]),TAK::BLACK_FLAT));
+    std::cout<<b<<'\n';
+    b.playMove(TAK::construct_place_move(TAK::readSquare(mv[1]),TAK::WHITE_FLAT));
+    std::cout<<b<<'\n';
+    for(int i=2;i<4;i++){
+        b.playMove(TAK::readMove(mv[i],b.getTurn()));
+        b.flipTurn();
+        std::cout<<b<<'\n';
+    }
+    b.playMove(TAK::readMove(mv[4],b.getTurn()));
+    b.flipTurn();
+    std::cout<<b<<'\n';
+}
+
 int main() {
     using namespace std;
     srand(time(NULL));
@@ -131,9 +154,10 @@ int main() {
     TAK::initSlides();
     TAK::initbasic(5);
     TAK::boardstate<5> board;
-    test(board);
+    //test(board);
     //test3(board);
     //test_groups();
+    testbug(board);
     cout << "Hello, World!123" << endl;
     return 0;
 

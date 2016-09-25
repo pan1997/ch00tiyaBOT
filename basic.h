@@ -95,13 +95,13 @@ namespace TAK {
     inline square squareAt(square s, direction d) {
         switch (d) {
             case UP:
-                return ((s & 7) != 0) ? s - 1 : 0;
+                return ((s & 7) != 0) ? s - 1 : -1;
             case DOWN:
-                return ((s & 7) != squareAtLim) ? s + 1 : 0;
+                return ((s & 7) != squareAtLim) ? s + 1 : -1;
             case LEFT:
-                return ((s & 56) != 0) ? s - 8 : 0;
+                return ((s & 56) != 0) ? s - 8 : -1;
             case RIGHT:
-                return ((s & 56) != (squareAtLim << 3)) ? s + 8 : 0;
+                return ((s & 56) != (squareAtLim << 3)) ? s + 8 : -1;
         }
         return 0;
     }
@@ -114,7 +114,10 @@ namespace TAK {
     std::ostream &operator<<(std::ostream &, peice);
 
     inline bitboard getBitboard(square a) {
-        return 1ULL << (getRow(a) * 8 + getCol(a));
+        if (a == -1)
+            return 0ULL;
+        else
+            return 1ULL << (getRow(a) * 8 + getCol(a));
     }
 
     int popcnt(bitboard i);
