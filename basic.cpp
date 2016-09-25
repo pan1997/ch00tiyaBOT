@@ -135,6 +135,13 @@ namespace TAK {
         return ans;
     }
 
+    move construct_move_move(square s, direction d, int pick, int drops) {
+        move ans = s | (d << 7);
+        ans |= (pick << 9);
+        ans |= (drops << 12);
+        return ans;
+    }
+
     int countRows(bitboard b, int n) {
         int cnt = 0;
         for (int i = 0; i < n; i++)
@@ -150,5 +157,11 @@ namespace TAK {
                 cnt++;
 
         return cnt;
+    }
+
+    int squareAtLim;
+
+    void initbasic(int n) {
+        squareAtLim = n - 1;
     }
 }

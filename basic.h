@@ -42,6 +42,8 @@ namespace TAK {
 
     move construct_move_move(square s, direction d, int pick, int *drop);
 
+    move construct_move_move(square s,direction d,int pick,int drops);
+
     inline direction getDirection(move m) {
         return (direction) ((m >> 7) & 3);
     }
@@ -86,16 +88,18 @@ namespace TAK {
         return (p & 6) == 6;
     }
 
+    void initbasic(int bsize);
+    extern int squareAtLim;
     inline square squareAt(square s, direction d) {
         switch (d) {
             case UP:
-                return s - 1;
+                return ((s & 7) != 0) ? s - 1 : 0;
             case DOWN:
-                return s + 1;
+                return ((s & 7) != squareAtLim) ? s + 1 : 0;
             case LEFT:
-                return s - 8;
+                return ((s & 56) != 0) ? s - 8 : 0;
             case RIGHT:
-                return s + 8;
+                return ((s & 56) != (squareAtLim<<3)) ? s + 8 : 0;
         }
         return 0;
     }

@@ -196,7 +196,7 @@ namespace TAK {
             unsetTopbb(s, top(s));
             //xor_bitboard(s, top(s));//remove prev
             height[getRow(s)][getCol(s)] -= pick;
-            std::cout << "picked " << pick << "\n";
+            //std::cout << "picked " << pick << "\n";
             if (height[getRow(s)][getCol(s)] == 0)
                 nempty++;
             else setTopbb(s, top(s));
@@ -205,7 +205,7 @@ namespace TAK {
             square t = s;
             for (; pick > 0;) {
                 int drop = m & 7;
-                std::cout << "dropped " << drop << '\n';
+                //std::cout << "dropped " << drop << '\n';
                 pick -= drop;
                 m >>= 3;
                 t = squareAt(t, d);
@@ -232,7 +232,7 @@ namespace TAK {
             if (height[getRow(s)][getCol(s)] == 0)
                 nempty--;
             else unsetTopbb(s, top(s));//xor_bitboard(s, top(s));//remove new
-            m >>= 9;
+            m >>= 12;
             square t = s;
             while (pick > 0) {
                 int drop = m & 7;
