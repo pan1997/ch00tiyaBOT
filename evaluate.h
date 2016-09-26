@@ -15,6 +15,8 @@ namespace TAK {
     extern int move_advantage;
     extern int standingU;
     extern int capstoneU;
+    extern int captureU;
+    extern int reserveU;
     extern int groupU[8];
 
     void initGroups(int n);
@@ -121,6 +123,13 @@ namespace TAK {
 
     template<int n>
     int evaluateStacks(const boardstate<n> &b) {
+        int score=0;
+        for(int i=0;i<n;i++)
+            for(int j=0;j<n;j++)
+                if(b.getHeight(getSquare(i,j))>1){
+                    int cnt=b.countStacked(getSquare(i,j),std::min(n,b.getHeight(getSquare(i,j))),color_of(b.top(getSquare(i,j))));
+                    score+=((std::min(n,b.getHeight(getSquare(i,j)))-cnt)*captureU+cnt*reserveU)*(color_of(b.top(getSquare(i,j)))==WHITE?1:-1);
+                }
         return 0;
     }
 

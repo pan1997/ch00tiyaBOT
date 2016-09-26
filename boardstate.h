@@ -169,6 +169,18 @@ namespace TAK {
 
         bitboard getBC() const { return BC; }
 
+        //does not include top
+        int countStacked(square s,int k,player p)const{
+            int r=getRow(s);
+            int c=getCol(s);
+            int i=height[r][c]-k-1;
+            int cnt=0;
+            for(int j=1;j<k;j++)
+                if(color_of(bs[r][c][j+i])==p)
+                    cnt++;
+            return cnt;
+        }
+
         int getWhiteLeft() const { return leftover_capstones_white; }
 
         int getWhileCapLeft() const { return leftover_capstones_white; }
