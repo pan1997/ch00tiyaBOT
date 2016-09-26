@@ -18,9 +18,9 @@ namespace TAK {
         int nempty;
         int group_count_W[8];
         int group_count_B[8];
-
         //std::set<bitboard> WG,BG;
         //bitboard groups[n][n];//which group does this square belong to
+        unsigned long long hash;
 
         int leftover_stones_white;
         int leftover_stones_black;
@@ -170,13 +170,13 @@ namespace TAK {
         bitboard getBC() const { return BC; }
 
         //does not include top. no. of peices of color p
-        int countStacked(square s,int k,player p)const{
-            int r=getRow(s);
-            int c=getCol(s);
-            int i=height[r][c]-k-1;
-            int cnt=0;
-            for(int j=1;j<k;j++)
-                if(color_of(bs[r][c][j+i])==p)
+        int countStacked(square s, int k, player p) const {
+            int r = getRow(s);
+            int c = getCol(s);
+            int i = height[r][c] - k - 1;
+            int cnt = 0;
+            for (int j = 1; j < k; j++)
+                if (color_of(bs[r][c][j + i]) == p)
                     cnt++;
             return cnt;
         }
@@ -208,9 +208,14 @@ namespace TAK {
 
         void undoMove(move m);
 
-        void flipTurn() { if (turn == BLACK) turn = WHITE; else turn = BLACK; }
+        void flipTurn() {
+            if (turn == BLACK) turn = WHITE; else turn = BLACK;
+            hash ^= white_to_move;
+        }
 
         void printTo(std::ostream &o) const;
+
+        unsigned long long getHash() const { return hash; }
     };
 
 

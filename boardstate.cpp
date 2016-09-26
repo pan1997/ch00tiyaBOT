@@ -2,6 +2,7 @@
 // Created by pankaj on 20/9/16.
 //
 
+#include <bitset>
 #include "boardstate.h"
 #include "basic.h"
 namespace TAK {
@@ -98,8 +99,8 @@ namespace TAK {
 
     template<int n>
     void boardstate<n>::xor_bitboard(square s, peice bb) {
-        if(s==-1){
-            std::cout<<"xoring a -1 bitboard\n";
+        if (s == -1) {
+            std::cout << "xoring a -1 bitboard\n";
         }
         switch (bb) {
             case WHITE_FLAT:
@@ -131,7 +132,7 @@ namespace TAK {
                 if (height[i][j] > mh)
                     mh = height[i][j];
         for (int i = 0; i < n; i++) {
-            o<<"  ";
+            o << "  ";
             o << '+';
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < mh; k++)
@@ -139,7 +140,7 @@ namespace TAK {
                 o << '+';
             }
             o << '\n';
-            o << n-i << ' ';
+            o << n - i << ' ';
             o << '|';
             for (int j = 0; j < n; j++) {
                 int k = 0;
@@ -151,7 +152,7 @@ namespace TAK {
             }
             o << '\n';
         }
-        o<<"  ";
+        o << "  ";
         o << '+';
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < mh; k++)
@@ -161,12 +162,13 @@ namespace TAK {
         o << "\n  ";
         for (int i = 0; i < n; i++) {
             o << ' ';
-            o << (char)(i + 'a');
+            o << (char) (i + 'a');
             for (int k = 1; k < mh; k++)
                 o << ' ';
         }
-        o<<'\n';
-        o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left ("<<leftover_stones_white<<','<<leftover_stones_black<<")\n";
+        o << '\n';
+        o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left (" <<
+        leftover_stones_white << ',' << leftover_stones_black << ") hash "<<std::bitset<64>(hash)<<"\n";
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
@@ -200,8 +202,10 @@ namespace TAK {
 
     template<int n>
     void boardstate<n>::playMove(move m) {
-        if (isPlaceMove(m))
+        if (isPlaceMove(m)) {
+            hash ^= zobristTable[getRow(m)][getCol(m)][getHeight(m)][getPlacePeice(m)];
             place(m, getPlacePeice(m));
+        }
         else {
             square s = m;
             direction d = getDirection(m);
@@ -223,8 +227,12 @@ namespace TAK {
                 if (empty(t))
                     nempty--;
                 else unsetTopbb(t, top(t));
-                for (int i = 0; i < drop; i++)
+                for (int i = 0; i < drop; i++) {
+                    hash ^= zobristTable[getRow(s)][getCol(s)][index][bs[getRow(s)][getCol(s)][index]];
+                    hash ^= zobristTable[getRow(t)][getCol(t)][height[getRow(t)][getCol(t)]][bs[getRow(s)][getCol(
+                            s)][index]];
                     bs[getRow(t)][getCol(t)][height[getRow(t)][getCol(t)]++] = bs[getRow(s)][getCol(s)][index++];
+                }
                 //setTopbb(t, top(t));
             }
             d = direction(d ^ 1);
@@ -238,8 +246,10 @@ namespace TAK {
 
     template<int n>
     void boardstate<n>::undoMove(move m) {
-        if (isPlaceMove(m))
+        if (isPlaceMove(m)) {
             removeTop(m);
+            hash ^= zobristTable[getRow(m)][getCol(m)][getHeight(m)][getPlacePeice(m)];
+        }
         else {
             square s = m;
             direction d = getDirection(m);
@@ -261,11 +271,17 @@ namespace TAK {
                 if (height[getRow(t)][getCol(t)] == 0)
                     nempty++;
                 //else setTopbb(t, top(t));//xor_bitboard(t, top(t));//add prev
-                for (int i = 0; i < drop; i++)
+                for (int i = 0; i < drop; i++) {
+                    hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)]][bs[getRow(t)][getCol(t)][
+                            i + height[getRow(t)][getCol(t)]]];
+                    hash ^= zobristTable[getRow(t)][getCol(t)][i+height[getRow(t)][getCol(t)]][bs[getRow(t)][getCol(
+                            t)][
+                            i + height[getRow(t)][getCol(t)]]];
                     bs[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)]++] = bs[getRow(t)][getCol(t)][i +
                                                                                                         height[getRow(
                                                                                                                 t)][getCol(
                                                                                                                 t)]];
+                }
             }
             d = direction(d ^ 1);
             for (; count >= 0; count--) {

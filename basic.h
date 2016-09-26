@@ -145,5 +145,10 @@ namespace TAK {
 
     template<int n>
     class boardstate;
+
+    extern unsigned long long zobristTable[8][8][64][8];
+    extern unsigned long long white_to_move;
+
+    void initZobrist();
 }
 #endif // BASIC_H
