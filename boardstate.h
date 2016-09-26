@@ -169,7 +169,7 @@ namespace TAK {
 
         bitboard getBC() const { return BC; }
 
-        //does not include top
+        //does not include top. no. of peices of color p
         int countStacked(square s,int k,player p)const{
             int r=getRow(s);
             int c=getCol(s);
@@ -236,5 +236,7 @@ namespace TAK {
 
     template
     class boardstate<5>;
+    template
+    class boardstate<6>;
 }
 #endif // BOARDSTATE_H

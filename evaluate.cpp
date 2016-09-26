@@ -8,8 +8,9 @@ namespace TAK {
     int standingU = 50;
     int capstoneU = 101;
     int groupU[8];
-    int captureU=-50;
-    int reserveU=80;
+    int captureU = -50;
+    int reserveU = 80;
+
     void initGroups(int n) {
         switch (n) {
             case 4:

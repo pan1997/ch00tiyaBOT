@@ -37,74 +37,75 @@ namespace TAK {
 
     template<int n>
     int terminalEval(const boardstate<n> &b) {
-        int score=0;
+        int score = 0;
         bool roadwin = false;
-        int winner=-1;
+        int winner = -1;
         if (b.getGCW()[n] != 0 || b.getGCB()[n] != 0) {
             roadwin = true;
             //road
             if (b.getGCW()[n] == 0) {
-                winner=BLACK;
+                winner = BLACK;
                 score = -1;
             }
             else if (b.getGCB()[n] == 0) {
-                winner=WHITE;
-                score =1;
+                winner = WHITE;
+                score = 1;
             }
             else if (b.getTurn() == BLACK) {//ie white has moved
                 score = groupU[n];
-                winner=WHITE;
+                winner = WHITE;
             }
             else {
-                winner=BLACK;
+                winner = BLACK;
                 score = -1;
             }
-            score*=n*n;
+            score *= n * n;
         }
         int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
         if (!roadwin)
-            winner = ns > 0?WHITE:BLACK;
+            winner = ns > 0 ? WHITE : BLACK;
         score += ns;
-        score += (winner==BLACK ? -b.getBlackLeft() : winner==WHITE?b.getWhiteLeft():0);
-        return score*scale*100;
+        score += (winner == BLACK ? -b.getBlackLeft() : winner == WHITE ? b.getWhiteLeft() : 0);
+        return score * scale * 100;
     }
 
     template<int n>
     int terminalEvalVerbose(const boardstate<n> &b) {
-        int score=0;
+        int score = 0;
         bool roadwin = false;
-        int winner=-1;
+        int winner = -1;
         if (b.getGCW()[n] != 0 || b.getGCB()[n] != 0) {
             roadwin = true;
             //road
             if (b.getGCW()[n] == 0) {
-                winner=BLACK;
+                winner = BLACK;
                 score = -1;
             }
             else if (b.getGCB()[n] == 0) {
-                winner=WHITE;
-                score =1;
+                winner = WHITE;
+                score = 1;
             }
             else if (b.getTurn() == BLACK) {//ie white has moved
                 score = groupU[n];
-                winner=WHITE;
+                winner = WHITE;
             }
             else {
-                winner=BLACK;
+                winner = BLACK;
                 score = -1;
             }
-            score*=n*n;
+            score *= n * n;
         }
         int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
         if (!roadwin)
-            winner = ns > 0?WHITE:BLACK;
+            winner = ns > 0 ? WHITE : BLACK;
         score += ns;
-        score += (winner==BLACK ? -b.getBlackLeft() : winner==WHITE?b.getWhiteLeft():0);
-        if(score*(winner==BLACK?-1:1)<=0)
-            std::cout<<"Error "<<score*winner<<"\n";
-        std::cout<<(roadwin?"R":"F");
-        std::cout<<" winner :"<<(winner==WHITE?"WHITE":winner==BLACK?"BLACK":"DRAW")<<" own diff "<<ns<<'\n';
-        return score*scale*100;
+        score += (winner == BLACK ? -b.getBlackLeft() : winner == WHITE ? b.getWhiteLeft() : 0);
+        if (score * (winner == BLACK ? -1 : 1) <= 0)
+            std::cout << "Error " << score * winner << "\n";
+        std::cout << (roadwin ? "R" : "F");
+        std::cout << " winner :" << (winner == WHITE ? "WHITE" : winner == BLACK ? "BLACK" : "DRAW") << " own diff " <<
+        ns << '\n';
+        return score * scale * 100;
     }
 
     template<int n>
@@ -123,12 +124,14 @@ namespace TAK {
 
     template<int n>
     int evaluateStacks(const boardstate<n> &b) {
-        int score=0;
-        for(int i=0;i<n;i++)
-            for(int j=0;j<n;j++)
-                if(b.getHeight(getSquare(i,j))>1){
-                    int cnt=b.countStacked(getSquare(i,j),std::min(n,b.getHeight(getSquare(i,j))),color_of(b.top(getSquare(i,j))));
-                    score+=((std::min(n,b.getHeight(getSquare(i,j)))-cnt)*captureU+cnt*reserveU)*(color_of(b.top(getSquare(i,j)))==WHITE?1:-1);
+        int score = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                if (b.getHeight(getSquare(i, j)) > 1) {
+                    int cnt = b.countStacked(getSquare(i, j), std::min(n, b.getHeight(getSquare(i, j))),
+                                             color_of(b.top(getSquare(i, j))));
+                    score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * captureU + cnt * reserveU) *
+                             (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                 }
         return 0;
     }

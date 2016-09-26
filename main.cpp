@@ -10,7 +10,8 @@
 #include <stack>
 #include <cstring>
 
-void test(TAK::boardstate<5>&bs) {
+template <int n>
+void test(TAK::boardstate<n>&bs) {
     using namespace TAK;
     //bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
     std::cout << bs << '\n';
