@@ -9,6 +9,7 @@
 #include "boardstate.h"
 #include "evaluate.h"
 #include <chrono>
+#include <cmath>
 namespace TAK {
 
     struct searchInfo {
@@ -28,7 +29,7 @@ namespace TAK {
 
         //first flat, then standing then cap
         for (int p = 1; p <= 3; p++)
-            if (p != 3 || (b.getTurn() == WHITE ? b.getWC() : b.getBC()) > 0) {
+            if (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0) {
                 for (int i = 0; i < n; i++)
                     for (int j = 0; j < n; j++)
                         if (b.empty(getSquare(i, j))) {
@@ -59,7 +60,7 @@ namespace TAK {
                         int lr = 0;
                         square t = getSquare(i, j);
                         t = squareAt(t, dir);
-                        for (int k = 0; k < n && (t != -1) &&(b.empty(t) || isFlat(b.top(t))); t = squareAt(t,dir))
+                        for (int k = 0; k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
                             lr++; //capstone at end
                         for (int h = 1; h <= lh; h++)
                             for (int r = 1; r <= lr; r++) {
@@ -99,10 +100,10 @@ namespace TAK {
         info.depth_limit = depth_of_d1;
         info.nodes = 1;
         auto start = std::chrono::system_clock::now();
-        int nl=0;
+        int nl = 0;
         //first flat, then standing then cap
         for (int p = 1; p <= 3; p++)
-            if (p != 3 || (b.getTurn() == WHITE ? b.getWC() : b.getBC()) > 0) {
+            if (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0) {
                 for (int i = 0; i < n; i++)
                     for (int j = 0; j < n; j++)
                         if (b.empty(getSquare(i, j))) {
@@ -113,7 +114,7 @@ namespace TAK {
                             int ms;
                             if (b.end()) {
                                 ms = neg * terminalEvalVerbose(b);
-                                std::cout<<'E';
+                                std::cout << 'E';
                             }
                             else if (depth_of_d1 > 1)
                                 ms = -minimax(b, &info, 1);
@@ -125,9 +126,9 @@ namespace TAK {
                             }
                             b.undoMove(m);
                             b.flipTurn();
-                            std::cout<<'\t';
-                            printMove(std::cout,m);
-                            std::cout<<"\tscore="<<ms<<'\n';
+                            std::cout << '\t';
+                            printMove(std::cout, m);
+                            std::cout << "\tscore=" << ms << '\n';
                         }
             }
 
@@ -141,7 +142,7 @@ namespace TAK {
                         int lr = 0;
                         square t = getSquare(i, j);
                         t = squareAt(t, dir);
-                        for (int k = 0; k < n && (t != -1) &&(b.empty(t) || isFlat(b.top(t))); t = squareAt(t,dir))
+                        for (int k = 0; k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
                             lr++; //capstone at end
                         for (int h = 1; h <= lh; h++)
                             for (int r = 1; r <= lr; r++) {
@@ -151,9 +152,9 @@ namespace TAK {
                                     b.playMove(m);
                                     b.flipTurn();
                                     int ms;
-                                    if (b.end()){
+                                    if (b.end()) {
                                         ms = neg * terminalEvalVerbose(b);
-                                        std::cout<<'E';
+                                        std::cout << 'E';
                                     }
                                     else if (depth_of_d1 > 1)
                                         ms = -minimax(b, &info, 1);
@@ -164,20 +165,21 @@ namespace TAK {
                                     }
                                     b.undoMove(m);
                                     b.flipTurn();
-                                    std::cout<<'\t';
-                                    printMove(std::cout,m);
-                                    std::cout<<"\tscore="<<ms<<'\n';
+                                    std::cout << '\t';
+                                    printMove(std::cout, m);
+                                    std::cout << "\tscore=" << ms << '\n';
                                 }
                             }
                     }
                     //up donefor (int k = i - 1; k >= 0; k--)
                 }
         auto end = std::chrono::system_clock::now();
-        std::cout << info.nodes << " nodes searched "<<nl<<" legal moves :BEST ";
-        printMove(std::cout,bm);
-        std::cout<<'\n';
+        std::cout << info.nodes << " nodes searched " << nl << " legal moves :BEST ";
+        printMove(std::cout, bm);
+        std::cout << '\n';
         int tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         std::cout << tm << " millis =" << info.nodes / tm << " kNps\n";
+        std::cout << "EBF~=" << std::pow(info.nodes, 1.0 / depth_of_d1)<<'\n';
         return bm;
     }
 }

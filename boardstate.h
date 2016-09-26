@@ -32,10 +32,10 @@ namespace TAK {
         inline void removeTop(square s);
 
         inline void setTopbb(square s, peice p) {
-            if(s==-1){
-                std::cout<<"settopbb -1\n";
+            if (s == -1) {
+                std::cout << "settopbb -1\n";
             }
-            if (isCap(p)||isFlat(p)) {
+            if (isCap(p) || isFlat(p)) {
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
                 if (g1 != 0) {
                     if (color_of(p) == WHITE)
@@ -89,10 +89,10 @@ namespace TAK {
         }
 
         inline void unsetTopbb(square s, peice p) {
-            if(s==-1){
-                std::cout<<"settopbb -1\n";
+            if (s == -1) {
+                std::cout << "settopbb -1\n";
             }
-            if (isFlat(p)||isCap(p)) {
+            if (isFlat(p) || isCap(p)) {
                 bitboard gr = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(s));
                 if (color_of(p) == WHITE)
                     group_count_W[countRows(gr, n)]--;
@@ -155,7 +155,7 @@ namespace TAK {
 
         bool empty(square s) const;
 
-        int countEmpty() const{return nempty;}
+        int countEmpty() const { return nempty; }
 
         bitboard getWS() const { return WS; }
 
@@ -170,6 +170,10 @@ namespace TAK {
         bitboard getBC() const { return BC; }
 
         int getWhiteLeft() const { return leftover_capstones_white; }
+
+        int getWhileCapLeft() const { return leftover_capstones_white; }
+
+        int getBlackCapLeft() const { return leftover_capstones_black; }
 
         int getBlackLeft() const { return leftover_capstones_black; }
 
