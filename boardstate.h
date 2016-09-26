@@ -155,6 +155,8 @@ namespace TAK {
 
         bool empty(square s) const;
 
+        int countEmpty() const{return nempty;}
+
         bitboard getWS() const { return WS; }
 
         bitboard getBS() const { return BS; }

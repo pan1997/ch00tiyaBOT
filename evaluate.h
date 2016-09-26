@@ -15,12 +15,12 @@ namespace TAK {
     extern int move_advantage;
     extern int standingU;
     extern int capstoneU;
-    extern int pair;
     extern int groupU[8];
 
     void initGroups(int n);
 
     /*
+     * flatstone importance increases as no.of empty squares decreases
      * flatstone count :scale
      * capsdtone count :capstoneU
      * standing stones :standingU
@@ -46,7 +46,7 @@ namespace TAK {
                 score = groupU[n];
             else score = -groupU[n];
         }
-        int ns = popcnt(b.getWF()) - popcnt(b.getBF());
+        int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
         score += ns * scale * 100;
         score += ((b.getTurn() == WHITE) ? -b.getBlackLeft() : b.getWhiteLeft()) * scale * 100;
         return score;
@@ -67,9 +67,15 @@ namespace TAK {
     }
 
     template<int n>
+    int evaluateStacks(const boardstate<n> &b) {
+        return 0;
+    }
+
+    template<int n>
     int evaluate(const boardstate<n> &b) {
-        int score = evaluateTop(b);
+        int score = 2 * n * evaluateTop(b) / (n * n + b.countEmpty());
         score += evaluateGroups(b);
+        score += evaluateStacks(b);
         if (b.getTurn() == WHITE)
             score += move_advantage;
         else

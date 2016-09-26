@@ -12,15 +12,40 @@
 
 void test(TAK::boardstate<5>&bs) {
     using namespace TAK;
-    bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
+    //bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
     std::cout << bs << '\n';
-    std::cout << "ENTER square:";
+    std::cout << "ENTER black square:";
     int r, c, f;
     char tm[20];
     std::cin >> tm;
+    bs.playMove(construct_place_move(readSquare(tm), BLACK_FLAT));
+    std::cout << bs << '\n';
+    std::cout << "ENTER white square:";
+    std::cin >> tm;
     bs.playMove(construct_place_move(readSquare(tm), WHITE_FLAT));
     std::stack<move> moves;
+    std::cout<<"enter 0 for cpu white:";
+    std::cin>>f;
     move m;
+    for(int i=0;;i++){
+        int mx = 0;
+        if(i%2==f)
+            m = d1_getMove(bs, mx);
+        else{
+            std::cout<<"WAiting for move:";
+            std::cin>>tm;
+            m=readMove(tm,bs.getTurn());
+        };
+        moves.push(m);
+        bs.playMove(m);
+        bs.flipTurn();
+        std::cout << bs << '\n';
+        std::cout << "static eval:" << evaluate(bs) / (double) scale << " player eval:"<<mx<<'\n';
+        if(bs.end()){
+            std::cout<<"END\n";
+            return;
+        }
+    }
     for (; !bs.end();) {
         std::cout << bs << '\n';
         std::cout << "eval:" << evaluate(bs) / (double) scale << '\n';
@@ -42,10 +67,6 @@ void test(TAK::boardstate<5>&bs) {
         moves.push(m);
         bs.playMove(m);
         bs.flipTurn();
-        std::cout << bs << '\n';
-        std::cout << "eval:" << evaluate(bs) / (double) scale<<' ';
-        printMove(std::cout,m);
-        std::cout<<" ret d1->" << mx << '\n';
         if (bs.end()) {
             std::cout << "END\n";
             return;
