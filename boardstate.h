@@ -181,13 +181,13 @@ namespace TAK {
             return cnt;
         }
 
-        int getWhiteLeft() const { return leftover_capstones_white; }
+        int getWhiteLeft() const { return leftover_stones_white; }
 
         int getWhileCapLeft() const { return leftover_capstones_white; }
 
         int getBlackCapLeft() const { return leftover_capstones_black; }
 
-        int getBlackLeft() const { return leftover_capstones_black; }
+        int getBlackLeft() const { return leftover_stones_black; }
 
         const int *const getGCW() const { return group_count_W; }
 

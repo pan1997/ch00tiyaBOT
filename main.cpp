@@ -6,7 +6,7 @@
 #include "basic.h"
 #include "boardstate.h"
 #include "evaluate.h"
-#include "d1_player.h"
+#include "search.h"
 #include <stack>
 #include <cstring>
 #include <bitset>
@@ -102,6 +102,7 @@ int main() {
     TAK::initGroups(5);
     TAK::initSlides();
     TAK::initbasic(5);
+    TAK::transpositionTableInit();
     TAK::boardstate<5> board;
     test(board);
     //test3(board);
