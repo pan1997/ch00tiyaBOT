@@ -106,7 +106,6 @@ namespace TAK {
         return 0;
     }
 
-
     void printMove(std::ostream &, move);
 
     void printSquare(std::ostream &, square);

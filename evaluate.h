@@ -35,21 +35,74 @@ namespace TAK {
 
     template<int n>
     int terminalEval(const boardstate<n> &b) {
-        int score = 0;
-        if (b.getGCW()[n] != 0 || b.getGCW()[n] != 0) {
+        int score=0;
+        bool roadwin = false;
+        int winner=-1;
+        if (b.getGCW()[n] != 0 || b.getGCB()[n] != 0) {
+            roadwin = true;
             //road
-            if (b.getGCW()[n] == 0)
-                score = -groupU[n];
-            else if (b.getGCB()[n] == 0)
+            if (b.getGCW()[n] == 0) {
+                winner=BLACK;
+                score = -1;
+            }
+            else if (b.getGCB()[n] == 0) {
+                winner=WHITE;
+                score =1;
+            }
+            else if (b.getTurn() == BLACK) {//ie white has moved
                 score = groupU[n];
-            else if (b.getTurn() == BLACK)//ie white has moved
-                score = groupU[n];
-            else score = -groupU[n];
+                winner=WHITE;
+            }
+            else {
+                winner=BLACK;
+                score = -1;
+            }
+            score*=n*n;
         }
         int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
-        score += ns * scale * 100;
-        score += ((b.getTurn() == WHITE) ? -b.getBlackLeft() : b.getWhiteLeft()) * scale * 100;
-        return score;
+        if (!roadwin)
+            winner = ns > 0?WHITE:BLACK;
+        score += ns;
+        score += (winner==BLACK ? -b.getBlackLeft() : winner==WHITE?b.getWhiteLeft():0);
+        return score*scale*100;
+    }
+
+    template<int n>
+    int terminalEvalVerbose(const boardstate<n> &b) {
+        int score=0;
+        bool roadwin = false;
+        int winner=-1;
+        if (b.getGCW()[n] != 0 || b.getGCB()[n] != 0) {
+            roadwin = true;
+            //road
+            if (b.getGCW()[n] == 0) {
+                winner=BLACK;
+                score = -1;
+            }
+            else if (b.getGCB()[n] == 0) {
+                winner=WHITE;
+                score =1;
+            }
+            else if (b.getTurn() == BLACK) {//ie white has moved
+                score = groupU[n];
+                winner=WHITE;
+            }
+            else {
+                winner=BLACK;
+                score = -1;
+            }
+            score*=n*n;
+        }
+        int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
+        if (!roadwin)
+            winner = ns > 0?WHITE:BLACK;
+        score += ns;
+        score += (winner==BLACK ? -b.getBlackLeft() : winner==WHITE?b.getWhiteLeft():0);
+        if(score*(winner==BLACK?-1:1)<=0)
+            std::cout<<"Error "<<score*winner<<"\n";
+        std::cout<<(roadwin?"R":"F");
+        std::cout<<" winner :"<<(winner==WHITE?"WHITE":winner==BLACK?"BLACK":"DRAW")<<" own diff "<<ns<<'\n';
+        return score*scale*100;
     }
 
     template<int n>
@@ -73,13 +126,11 @@ namespace TAK {
 
     template<int n>
     int evaluate(const boardstate<n> &b) {
-        int score = 2 * n * evaluateTop(b) / (n * n + b.countEmpty());
+        int score =
+                2 * n * n * (evaluateTop(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
+                (n * n + b.countEmpty());
         score += evaluateGroups(b);
         score += evaluateStacks(b);
-        if (b.getTurn() == WHITE)
-            score += move_advantage;
-        else
-            score -= move_advantage;
         return score;
     }
 }
