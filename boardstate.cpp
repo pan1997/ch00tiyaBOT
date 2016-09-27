@@ -167,7 +167,7 @@ namespace TAK {
         }
         o << '\n';
         o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left (" <<
-        leftover_stones_white << ',' << leftover_stones_black << ") hash "<<std::bitset<64>(hash)<<"\n";
+        leftover_stones_white << ',' << leftover_stones_black << ") hash " << std::bitset<64>(hash) << "\n";
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
@@ -273,7 +273,7 @@ namespace TAK {
                 for (int i = 0; i < drop; i++) {
                     hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)]][bs[getRow(t)][getCol(t)][
                             i + height[getRow(t)][getCol(t)]]];
-                    hash ^= zobristTable[getRow(t)][getCol(t)][i+height[getRow(t)][getCol(t)]][bs[getRow(t)][getCol(
+                    hash ^= zobristTable[getRow(t)][getCol(t)][i + height[getRow(t)][getCol(t)]][bs[getRow(t)][getCol(
                             t)][
                             i + height[getRow(t)][getCol(t)]]];
                     bs[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)]++] = bs[getRow(t)][getCol(t)][i +

@@ -56,28 +56,6 @@ namespace TAK {
         transpositionTable.clear();
     }
 
-    template<int n>
-    void updateEntry(const boardstate<n> &b, int l, int u, int d) {
-        if (transpositionTable.count(b.getHash())) {
-            transpositionTableEntry *ans = &transpositionTable[b.getHash()];
-            if (b.getWF() == ans->WT) {
-                ans->lower_bound = l;
-                ans->upper_bound = u;
-                ans->depth = d;
-            }
-            else {
-                collisions++;
-            }
-        }
-        else {
-            transpositionTableEntry *ans = &transpositionTable[b.getHash()];
-            ans->WT = b.getWF();
-            ans->lower_bound = l;
-            ans->upper_bound = u;
-            ans->depth = d;
-        }
-    }
-
     void transpositionTableInit();
 
     void displayTTinfo();

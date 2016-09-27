@@ -103,8 +103,8 @@ void testbug(TAK::boardstate<5> b){
 
     std::cout<<b<<'\n';
     int ms=0;
-    ms=TAK::evaluateStacks(b);
-    //TAK::move m=TAK::d1_getMove(b,ms);
+    //ms=TAK::evaluateStacks(b);
+    TAK::move m=TAK::d1_getMove(b,ms);
     std::cout<<ms<<" done\n";
 }
 int main() {

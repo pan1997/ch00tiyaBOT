@@ -12,8 +12,12 @@ namespace TAK {
     int FReserveU=50;
     int SCaptureU=-25;
     int SReserveU=75;
-    int CCaptureU=-25;
+    int CCaptureU=-20;
     int CReserveU=80;
+    int safeUF=25;
+    int unsafeUF=25;
+    int unsafeUS=50;
+    int safeUS=0;
     void initGroups(int n) {
         switch (n) {
             case 4:

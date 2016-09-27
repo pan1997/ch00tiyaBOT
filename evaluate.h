@@ -132,18 +132,40 @@ namespace TAK {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 if (b.getHeight(getSquare(i, j)) > 1) {
-                    int cnt = b.countStacked(getSquare(i, j), std::min(n*n, b.getHeight(getSquare(i, j))),
+                    int cnt = b.countStacked(getSquare(i, j), std::min(n * n, b.getHeight(getSquare(i, j))),
                                              color_of(b.top(getSquare(i, j))));
-                    int sign=(color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
-                    if(isFlat(b.top(getSquare(i,j))))
-                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
+                    int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
+                    if (isFlat(b.top(getSquare(i, j))))
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
                                  sign;
-                    else if(isCap(b.top(getSquare(i,j))))
-                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
+                    else if (isCap(b.top(getSquare(i, j))))
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
                                  sign;
                     else
-                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
                                  sign;
+                    /*switch (b.top(getSquare(i, j))) {
+                        case WHITE_FLAT:
+                            score += safeUF * popcnt((b.getWC() | b.getWF() | b.getWS()) &
+                                                     neighbours(getBitboard(getSquare(i, j)))) -
+                                     unsafeUF * popcnt((b.getBC() | b.getBF() | b.getBS()) &
+                                                       neighbours(getBitboard(getSquare(i, j))));
+                            break;
+                        case BLACK_FLAT:
+                            score -= safeUF * popcnt((b.getWC() | b.getWF() | b.getWS()) &
+                                                     neighbours(getBitboard(getSquare(i, j)))) -
+                                     unsafeUF * popcnt((b.getBC() | b.getBF() | b.getBS()) &
+                                                       neighbours(getBitboard(getSquare(i, j))));
+                            break;
+                        case WHITE_STANDING:
+                            score += safeUS * popcnt(b.getWC() & neighbours(getBitboard(getSquare(i, j)))) -
+                                     unsafeUS * popcnt(b.getBC() & neighbours(getBitboard(getSquare(i, j))));
+                            break;
+                        case BLACK_STANDING:
+                            score -= safeUS * popcnt(b.getWC() & neighbours(getBitboard(getSquare(i, j)))) -
+                                     unsafeUS * popcnt(b.getBC() & neighbours(getBitboard(getSquare(i, j))));
+                            break;
+                    }*/
                 }
         return score;
     }
