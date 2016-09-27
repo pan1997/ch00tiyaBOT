@@ -41,6 +41,17 @@ void test(TAK::boardstate<n>&bs) {
         else {
             std::cout << "WAiting for move:";
             std::cin >> tm;
+            if(strcmp(tm,"undo")==0){
+                i-=3;
+                bs.undoMove(moves.top());
+                bs.flipTurn();
+                moves.pop();
+                bs.undoMove(moves.top());
+                bs.flipTurn();
+                moves.pop();
+                std::cout<<bs<<'\n';
+                continue;
+            }
             m = readMove(tm, bs.getTurn());
         };
         moves.push(m);
@@ -92,8 +103,9 @@ void testbug(TAK::boardstate<5> b){
 
     std::cout<<b<<'\n';
     int ms=0;
-    TAK::move m=TAK::d1_getMove(b,ms);
-    std::cout<<"done\n";
+    ms=TAK::evaluateStacks(b);
+    //TAK::move m=TAK::d1_getMove(b,ms);
+    std::cout<<ms<<" done\n";
 }
 int main() {
     using namespace std;
@@ -102,12 +114,12 @@ int main() {
     TAK::initGroups(5);
     TAK::initSlides();
     TAK::initbasic(5);
-    //TAK::transpositionTableInit();
+    TAK::transpositionTableInit();
     TAK::boardstate<5> board;
-    //test(board);
+    test(board);
     //test3(board);
     //test_groups();
-    testbug(board);
+    //testbug(board);
     cout << "Hello, World!123" << endl;
     return 0;
 

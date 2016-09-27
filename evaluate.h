@@ -132,20 +132,20 @@ namespace TAK {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 if (b.getHeight(getSquare(i, j)) > 1) {
-                    int cnt = b.countStacked(getSquare(i, j), std::min(n, b.getHeight(getSquare(i, j))),
+                    int cnt = b.countStacked(getSquare(i, j), std::min(n*n, b.getHeight(getSquare(i, j))),
                                              color_of(b.top(getSquare(i, j))));
                     int sign=(color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                     if(isFlat(b.top(getSquare(i,j))))
-                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
+                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
                                  sign;
                     else if(isCap(b.top(getSquare(i,j))))
-                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
+                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
                                  sign;
                     else
-                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
+                        score += ((std::min(n*n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
                                  sign;
                 }
-        return 0;
+        return score;
     }
 
     template<int n>

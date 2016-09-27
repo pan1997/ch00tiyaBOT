@@ -152,7 +152,20 @@ namespace TAK {
         return alpha;
     }
 
-#define tl 10000
+    template <int n>
+    void printpv(boardstate<n>&b) {
+        transpositionTableEntry *transpositionTableEntry1 = getEntry(b, false);
+        if (transpositionTableEntry1 != nullptr && transpositionTableEntry1->bm != -1) {
+            printMove(std::cout,transpositionTableEntry1->bm);
+            std::cout << ' ';
+            b.playMove(transpositionTableEntry1->bm);
+            b.flipTurn();
+            printpv(b);
+            b.undoMove(transpositionTableEntry1->bm);
+            b.flipTurn();
+        }
+    }
+#define tl 1000
 
     template<int n>
     move d1_getMove(boardstate<n> &b, int &max) {
@@ -175,9 +188,10 @@ namespace TAK {
             int tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << dl << '\t' << ms << '\t';
             std::cout << info.nodes << " nodes @" << info.nodes / (tm + 1) << " kNps[" << tm << " ms] ";
-            std::cout << "EBF~=" << std::pow(info.nodes, 1.0 / dl) << " BM ";
-            printMove(std::cout, bm);
-            std::cout << " ttcuts " << info.ttcuts << " ";
+            std::cout << "EBF~=" << std::pow(info.nodes, 1.0 / dl) << " pv [";
+            //printMove(std::cout, bm);
+            printpv(b);
+            std::cout << "] ttcuts " << info.ttcuts << " ";
             displayTTinfo();
             //std::cout << '\n';
             if (tm > tl)

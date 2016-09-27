@@ -242,6 +242,8 @@ namespace TAK {
     template
     class boardstate<5>;
     template
+    class boardstate<4>;
+    template
     class boardstate<6>;
 }
 #endif // BOARDSTATE_H
