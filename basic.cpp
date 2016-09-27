@@ -9,7 +9,6 @@
 #include <functional>
 
 namespace TAK {
-
     int slides[9][9][35];
     int count_slides[9][9];
 

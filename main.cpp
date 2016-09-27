@@ -89,12 +89,12 @@ void testbug(TAK::boardstate<5> b){
         b.flipTurn();
         std::cout<<b<<'\n';
     }
+
     std::cout<<b<<'\n';
     int ms=0;
-    //TAK::move m=TAK::d1_getMove(b,ms);
-    //std::cout<<"done\n";
+    TAK::move m=TAK::d1_getMove(b,ms);
+    std::cout<<"done\n";
 }
-
 int main() {
     using namespace std;
     srand(time(NULL));
@@ -102,12 +102,12 @@ int main() {
     TAK::initGroups(5);
     TAK::initSlides();
     TAK::initbasic(5);
-    TAK::transpositionTableInit();
+    //TAK::transpositionTableInit();
     TAK::boardstate<5> board;
-    test(board);
+    //test(board);
     //test3(board);
     //test_groups();
-    //testbug(board);
+    testbug(board);
     cout << "Hello, World!123" << endl;
     return 0;
 

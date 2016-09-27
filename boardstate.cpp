@@ -6,7 +6,6 @@
 #include "boardstate.h"
 #include "basic.h"
 namespace TAK {
-
     template<int n>
     void boardstate<n>::place(square s, peice p) {
         int r = getRow(s);

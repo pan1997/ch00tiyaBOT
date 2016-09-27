@@ -137,10 +137,10 @@ namespace TAK {
 
     void initSlides();
 
-    move readMove(char*ch,player turn);
+    move readMove(char *ch, player turn);
 
     inline square readSquare(char *ch) {
-        return getSquare(squareAtLim-(ch[1] - '1'), ch[0] - 'a');
+        return getSquare(squareAtLim - (ch[1] - '1'), ch[0] - 'a');
     }
 
     template<int n>

@@ -21,11 +21,17 @@ namespace TAK {
         unsigned long long WT;
     };
 
-    extern std::unordered_map<unsigned long long, transpositionTableEntry> transpositionTable;
+    struct hasher {
+        std::size_t operator()(const unsigned long long &l) const {
+            return (size_t) (l * 1610612741);
+        }
+    };
+
+    extern std::unordered_map<unsigned long long, transpositionTableEntry, hasher> transpositionTable;
     extern int collisions;
 
     template<int n>
-    transpositionTableEntry *getEntry(const boardstate<n> &b,bool create_if_absent=false) {
+    transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
         if (transpositionTable.count(b.getHash())) {
             transpositionTableEntry *ans = &transpositionTable[b.getHash()];
             if (b.getWF() == ans->WT)
@@ -45,9 +51,11 @@ namespace TAK {
             }
         }
     }
-    inline void clearTable(){
+
+    inline void clearTable() {
         transpositionTable.clear();
     }
+
     template<int n>
     void updateEntry(const boardstate<n> &b, int l, int u, int d) {
         if (transpositionTable.count(b.getHash())) {
@@ -69,7 +77,9 @@ namespace TAK {
             ans->depth = d;
         }
     }
+
     void transpositionTableInit();
+
     void displayTTinfo();
 }
 

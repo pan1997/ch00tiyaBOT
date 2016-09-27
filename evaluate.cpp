@@ -6,11 +6,14 @@ namespace TAK {
     int scale = 100;
     int move_advantage = 50;
     int standingU = 50;
-    int capstoneU = 101;
+    int capstoneU = 100;
     int groupU[8];
-    int captureU = -50;
-    int reserveU = 80;
-
+    int FCaptureU=-50;
+    int FReserveU=50;
+    int SCaptureU=-25;
+    int SReserveU=75;
+    int CCaptureU=-25;
+    int CReserveU=80;
     void initGroups(int n) {
         switch (n) {
             case 4:

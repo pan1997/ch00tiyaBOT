@@ -15,8 +15,12 @@ namespace TAK {
     extern int move_advantage;
     extern int standingU;
     extern int capstoneU;
-    extern int captureU;
-    extern int reserveU;
+    extern int FCaptureU;
+    extern int FReserveU;
+    extern int SCaptureU;
+    extern int SReserveU;
+    extern int CCaptureU;
+    extern int CReserveU;
     extern int groupU[8];
 
     void initGroups(int n);
@@ -130,8 +134,16 @@ namespace TAK {
                 if (b.getHeight(getSquare(i, j)) > 1) {
                     int cnt = b.countStacked(getSquare(i, j), std::min(n, b.getHeight(getSquare(i, j))),
                                              color_of(b.top(getSquare(i, j))));
-                    score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * captureU + cnt * reserveU) *
-                             (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
+                    int sign=(color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
+                    if(isFlat(b.top(getSquare(i,j))))
+                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
+                                 sign;
+                    else if(isCap(b.top(getSquare(i,j))))
+                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
+                                 sign;
+                    else
+                        score += ((std::min(n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
+                                 sign;
                 }
         return 0;
     }

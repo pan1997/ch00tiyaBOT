@@ -68,6 +68,8 @@ namespace TAK {
                         for (int j = 0; j < n; j++)
                             if (b.empty(getSquare(i, j))) {
                                 move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
+                                if (bm == m)
+                                    continue;
                                 b.playMove(m);
                                 b.flipTurn();
                                 int ms;
@@ -85,7 +87,7 @@ namespace TAK {
                                     bm = m;
                                     alpha = ms;
                                     if (alpha >= beta) {
-                                        break;
+                                        goto eos;
                                     }
                                 }
                             }
@@ -108,6 +110,8 @@ namespace TAK {
                                 for (int r = 1; r <= lr; r++) {
                                     for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
                                         move m = construct_move_move(getSquare(i, j), dir, h, slides[h][r][cnt]);
+                                        if (bm == m)
+                                            continue;
                                         b.playMove(m);
                                         b.flipTurn();
                                         int ms;
@@ -125,12 +129,14 @@ namespace TAK {
                                             bm = m;
                                             alpha = ms;
                                             if (alpha >= beta)
-                                                break;
+                                                goto eos;
                                         }
                                     }
                                 }
                         }
                     }
+
+        eos:
         if (transpositionTableEntry1 != nullptr) {
             if (alpha < scale * 100)
                 transpositionTableEntry1->depth = info->depth_limit - d;
@@ -146,7 +152,7 @@ namespace TAK {
         return alpha;
     }
 
-#define tl 1000
+#define tl 10000
 
     template<int n>
     move d1_getMove(boardstate<n> &b, int &max) {
@@ -154,9 +160,10 @@ namespace TAK {
         move bm = -1;
         searchInfo info;
         info.nodes = 1;
+        info.ttcuts = 0;
         clearTable();
         auto start = std::chrono::system_clock::now();
-        for (int dl = 1; max<scale*100; dl++) {
+        for (int dl = 1; max < scale * 100; dl++) {
             max = -scale * 1000000;
             int alpha = max;
             int beta = -max;
