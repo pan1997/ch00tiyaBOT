@@ -17,7 +17,7 @@ void test(TAK::boardstate<n>&bs) {
     //bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
     std::cout << bs << '\n';
     std::cout << "ENTER black square:";
-    int r, c, f;
+    int f;
     char tm[20];
     std::cin >> tm;
     bs.playMove(construct_place_move(readSquare(tm), BLACK_FLAT));
@@ -107,9 +107,76 @@ void testbug(TAK::boardstate<5> b){
     TAK::move m=TAK::d1_getMove(b,ms);
     std::cout<<ms<<" done\n";
 }
+
+template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
+    using namespace TAK;
+    initZobrist();
+    initGroups(n);
+    initSlides();
+    initbasic(n);
+    transpositionTableInit();
+    p-=1;
+    char tm[50];
+    if(p==0) {
+        std::strcpy(tm,"Fa1");
+        std::cout <<tm<<"\n";
+        board.playMove(construct_place_move(readSquare(tm+1), BLACK_FLAT));
+        std::cin>>tm;
+        board.playMove(construct_place_move(readSquare(tm+1), WHITE_FLAT));
+    }
+    else{
+        std::cin>>tm;
+        board.playMove(construct_place_move(readSquare(tm+1), BLACK_FLAT));
+        if(std::strcmp(tm,"Fa1")!=0)
+            std::strcpy(tm,"Fa1");
+        else std::strcpy(tm,"Fe1");
+        std::cout <<tm<<"\n";
+        board.playMove(construct_place_move(readSquare(tm+1), WHITE_FLAT));
+    }
+    move m;
+    for (int i = 0; ; i++) {
+        //std::cout<<"------------------------------------------------------\n";
+        int mx = 0;
+        if (i % 2 == p) {
+            //std::cout<<std::bitset<64>(board.getHash())<<'\n';
+            m = d1_getMove(board, mx);
+            printMove(std::cout,m);
+            std::cout<<'\n';
+            //std::cout<<std::bitset<64>(bs.getHash())<<'\n';
+        }
+        else {
+            //std::cout << "WAiting for move:";
+            std::cin >> tm;
+            /*if(strcmp(tm,"undo")==0){
+                i-=3;
+                bs.undoMove(moves.top());
+                bs.flipTurn();
+                moves.pop();
+                bs.undoMove(moves.top());
+                bs.flipTurn();
+                moves.pop();
+                std::cout<<bs<<'\n';
+                continue;
+            }*/
+            m = readMove(tm, board.getTurn());
+        };
+        //moves.push(m);
+        board.playMove(m);
+        board.flipTurn();
+        //std::cout << bs << '\n';
+        //std::cout << "static eval:" << evaluate(bs) / (double) scale << " player eval:" << mx << '\n';
+        if (board.end()) {
+        //    std::cout << "END\n";
+        //    std::cout << "score " << terminalEvalVerbose(bs)<< '\n';
+            return;
+        }
+    }
+}
+
 int main() {
     using namespace std;
     srand(time(NULL));
+#ifndef ASS
     TAK::initZobrist();
     TAK::initGroups(5);
     TAK::initSlides();
@@ -120,7 +187,20 @@ int main() {
     //test3(board);
     //test_groups();
     //testbug(board);
-    cout << "Hello, World!123" << endl;
+#endif
+#ifdef ASS
+    int p,n,lim;
+    cin>>p>>n>>lim;
+    switch(n){
+        case 3:assignment(TAK::boardstate<3>(),p,lim);break;
+        case 4:assignment(TAK::boardstate<4>(),p,lim);break;
+        case 5:assignment(TAK::boardstate<5>(),p,lim);break;
+        case 6:assignment(TAK::boardstate<6>(),p,lim);break;
+        case 7:assignment(TAK::boardstate<7>(),p,lim);break;
+        case 8:assignment(TAK::boardstate<8>(),p,lim);break;
+    }
+#endif
+    //cout << "Hello, World!123" << endl;
     return 0;
 
 }

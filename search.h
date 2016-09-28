@@ -19,11 +19,17 @@ namespace TAK {
     struct searchInfo {
         int nodes;
         int ttcuts;
+        int fatt;
+        int fsucc;
         int depth_limit;
     };
 
+    enum node_type {
+        PV_NODE, CUT_NODE, ALL_NODE
+    };
+
     template<int n>
-    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta) {
+    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm) {
         info->nodes++;
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
         if (transpositionTableEntry1 != nullptr) {
@@ -32,7 +38,8 @@ namespace TAK {
                     info->ttcuts++;
                     return transpositionTableEntry1->lower_bound;
                 }
-                else if (transpositionTableEntry1->upper_bound <= alpha) {
+                else if (transpositionTableEntry1->upper_bound <= alpha ||
+                         transpositionTableEntry1->upper_bound == transpositionTableEntry1->lower_bound) {
                     info->ttcuts++;
                     return transpositionTableEntry1->upper_bound;
                 }
@@ -43,6 +50,24 @@ namespace TAK {
                 transpositionTableEntry1->upper_bound = std::numeric_limits<int>::max();
             }
         }
+
+
+        if (tp != PV_NODE) {
+            bool pruned = false;
+            if (info->depth_limit >= d + 3 && !in_nm && false) {
+                info->fatt++;
+                b.flipTurn();
+                int ms = -minimax(b, info, d + 1, -beta, -alpha, (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
+                b.flipTurn();
+                if (ms < alpha) {
+                    info->fsucc++;
+                    pruned = true;
+                }
+            }
+            if (pruned)
+                return beta;
+        }
+
         int neg = b.getTurn() == BLACK ? -1 : 1;
         move bm = -1;
         int alpha_backup = alpha;
@@ -52,7 +77,7 @@ namespace TAK {
             if (bm != -1) {
                 b.playMove(bm);
                 b.flipTurn();
-                int ms = -minimax(b, info, d + 1, -beta, -alpha);
+                int ms = -minimax(b, info, d + 1, -beta, -alpha, (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
                 b.undoMove(bm);
                 b.flipTurn();
                 if (ms > alpha)
@@ -76,9 +101,13 @@ namespace TAK {
                                 if (b.end())
                                     ms = neg * terminalEval(b);
                                 else if (d < info->depth_limit) {
-                                    ms = -minimax(b, info, d + 1, -alpha - 1, -alpha);
-                                    if (alpha < ms && ms < beta)
-                                        ms = -minimax(b, info, d + 1, -beta, -alpha);
+                                    ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                  (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                    if (alpha < ms && ms < beta || tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                        if (ms == alpha + 1)
+                                            ms = alpha;
+                                        ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                                    }
                                 }
                                 else ms = neg * evaluate(b);
                                 b.undoMove(m);
@@ -118,12 +147,17 @@ namespace TAK {
                                         if (b.end())
                                             ms = neg * terminalEval(b);
                                         else if (d < info->depth_limit) {
-                                            ms = -minimax(b, info, d + 1, -alpha - 1, -alpha);
-                                            if (alpha < ms && ms < beta)
-                                                ms = -minimax(b, info, d + 1, -beta, -alpha);
+                                            ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                          (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                            if (alpha < ms && ms < beta ||
+                                                tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                                if (ms == alpha + 1)
+                                                    ms = alpha;
+                                                ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                                            }
                                         } else ms = neg * evaluate(b);
                                         //else ms = neg * evaluate(b);
-                                        b.undoMove(m);
+                                            b.undoMove(m);
                                         b.flipTurn();
                                         if (ms > alpha) {
                                             bm = m;
@@ -137,6 +171,8 @@ namespace TAK {
                     }
 
         eos:
+        if (tp == CUT_NODE && alpha == alpha_backup)
+            return alpha;
         if (transpositionTableEntry1 != nullptr) {
             if (alpha < scale * 100)
                 transpositionTableEntry1->depth = info->depth_limit - d;
@@ -152,11 +188,11 @@ namespace TAK {
         return alpha;
     }
 
-    template <int n>
-    void printpv(boardstate<n>&b) {
+    template<int n>
+    void printpv(boardstate<n> &b) {
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, false);
         if (transpositionTableEntry1 != nullptr && transpositionTableEntry1->bm != -1) {
-            printMove(std::cout,transpositionTableEntry1->bm);
+            printMove(std::cout, transpositionTableEntry1->bm);
             std::cout << ' ';
             b.playMove(transpositionTableEntry1->bm);
             b.flipTurn();
@@ -165,15 +201,18 @@ namespace TAK {
             b.flipTurn();
         }
     }
+
 #define tl 1000
 
     template<int n>
     move d1_getMove(boardstate<n> &b, int &max) {
-        int neg = b.getTurn() == BLACK ? -1 : 1;
+        //int neg = b.getTurn() == BLACK ? -1 : 1;
         move bm = -1;
         searchInfo info;
         info.nodes = 1;
         info.ttcuts = 0;
+        info.fatt = 0;
+        info.fsucc = 0;
         clearTable();
         auto start = std::chrono::system_clock::now();
         for (int dl = 1; max < scale * 100; dl++) {
@@ -181,19 +220,19 @@ namespace TAK {
             int alpha = max;
             int beta = -max;
             info.depth_limit = dl;
-            int ms = minimax(b, &info, 0, alpha, beta);
+            int ms = minimax(b, &info, 0, alpha, beta, PV_NODE, false);
             auto end = std::chrono::system_clock::now();
             bm = getEntry(b)->bm;
             max = ms;
             int tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            std::cout << dl << '\t' << ms << '\t';
-            std::cout << info.nodes << " nodes @" << info.nodes / (tm + 1) << " kNps[" << tm << " ms] ";
-            std::cout << "EBF~=" << std::pow(info.nodes, 1.0 / dl) << " pv [";
-            //printMove(std::cout, bm);
+#ifndef ASS
+            std::cout << dl << '\t' << ms << "\t pv [";
             printpv(b);
-            std::cout << "] ttcuts " << info.ttcuts << " ";
+            std::cout <<"] "<< info.nodes << " nodes @" << info.nodes / (tm + 1) << " kNps[" << tm << " ms] ";
+            std::cout << "EBF~=" << std::pow(info.nodes, 1.0 / dl);
+            std::cout << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
             displayTTinfo();
-            //std::cout << '\n';
+#endif
             if (tm > tl)
                 break;
         }

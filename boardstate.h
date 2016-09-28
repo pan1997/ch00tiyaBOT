@@ -189,9 +189,9 @@ namespace TAK {
 
         int getBlackLeft() const { return leftover_stones_black; }
 
-        const int *const getGCW() const { return group_count_W; }
+        const int * getGCW() const { return group_count_W; }
 
-        const int *const getGCB() const { return group_count_B; }
+        const int * getGCB() const { return group_count_B; }
 
         bool end() const {
             return nempty == 0 || leftover_stones_black == 0 || leftover_stones_white == 0 || group_count_W[n] != 0 ||
@@ -245,5 +245,11 @@ namespace TAK {
     class boardstate<4>;
     template
     class boardstate<6>;
+    template
+    class boardstate<7>;
+    template
+    class boardstate<8>;
+    template
+    class boardstate<3>;
 }
 #endif // BOARDSTATE_H

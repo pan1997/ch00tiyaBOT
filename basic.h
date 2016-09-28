@@ -7,6 +7,10 @@
 #include <iostream>
 #define row 255ULL
 #define col 72340172838076673ULL
+
+#define ASS
+#undef ASS
+
 namespace TAK {
     enum player {
         BLACK = 0, WHITE = 1
