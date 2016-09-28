@@ -16,6 +16,9 @@
 #include "transpositionTable.h"
 namespace TAK {
 
+
+#define NMP_ALLOWED
+
     struct searchInfo {
         int nodes;
         int ttcuts;
@@ -54,16 +57,19 @@ namespace TAK {
 
         if (tp != PV_NODE) {
             bool pruned = false;
-            if (info->depth_limit >= d + 3 && !in_nm && false) {
+#ifdef NMP_ALLOWED
+            if (d > 2 && info->depth_limit > d + 1 && !in_nm) {
                 info->fatt++;
                 b.flipTurn();
-                int ms = -minimax(b, info, d + 1, -beta, -alpha, (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
+                int bound=beta-scale*n*n/((n*n+b.countEmpty()));
+                int ms = -minimax(b, info, (info->depth_limit-d>3)?d+3:d + 1, -bound, -bound+1, (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
                 b.flipTurn();
-                if (ms < alpha) {
+                if (ms>=bound) {
                     info->fsucc++;
                     pruned = true;
                 }
             }
+#endif
             if (pruned)
                 return beta;
         }
@@ -175,7 +181,6 @@ namespace TAK {
                             if (isCap(b.top(getSquare(i, j))) && t != -1 && !b.empty(t) && isStanding(b.top(t))) {
                                 //b.flatten(t);
                                 lr++;
-                                info->fatt++;
                                 for (int h = lr; h <= lh; h++) {
                                     for (int r = lr; r <= lr; r++) {
                                         for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
