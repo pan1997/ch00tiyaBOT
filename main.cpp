@@ -83,6 +83,8 @@ void testbug(TAK::boardstate<5> b){
     std::strcpy(mv[11],"1b1<1");
     std::strcpy(mv[12],"Fa2");
     std::strcpy(mv[13],"2a1+2");
+    std::strcpy(mv[14],"Ce4");
+    //std::strcpy(mv[15],"Cd4");
 
 
     b.playMove(TAK::construct_place_move(TAK::readSquare(mv[0]),TAK::BLACK_FLAT));
@@ -90,7 +92,7 @@ void testbug(TAK::boardstate<5> b){
     b.playMove(TAK::construct_place_move(TAK::readSquare(mv[1]),TAK::WHITE_FLAT));
     std::cout<<b<<'\n';
 
-    for(int i=2;i<14;i++){
+    for(int i=2;i<15;i++){
         std::cout<<"Move "<<mv[i]<<'\n';
         std::cout<<std::bitset<64>(b.getHash())<<'\n';
         b.playMove(TAK::readMove(mv[i],b.getTurn()));
@@ -103,7 +105,6 @@ void testbug(TAK::boardstate<5> b){
 
     std::cout<<b<<'\n';
     int ms=0;
-    //ms=TAK::evaluateStacks(b);
     TAK::move m=TAK::d1_getMove(b,ms);
     std::cout<<ms<<" done\n";
 }
@@ -138,36 +139,17 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
         //std::cout<<"------------------------------------------------------\n";
         int mx = 0;
         if (i % 2 == p) {
-            //std::cout<<std::bitset<64>(board.getHash())<<'\n';
             m = d1_getMove(board, mx);
             printMove(std::cout,m);
             std::cout<<'\n';
-            //std::cout<<std::bitset<64>(bs.getHash())<<'\n';
         }
         else {
-            //std::cout << "WAiting for move:";
             std::cin >> tm;
-            /*if(strcmp(tm,"undo")==0){
-                i-=3;
-                bs.undoMove(moves.top());
-                bs.flipTurn();
-                moves.pop();
-                bs.undoMove(moves.top());
-                bs.flipTurn();
-                moves.pop();
-                std::cout<<bs<<'\n';
-                continue;
-            }*/
             m = readMove(tm, board.getTurn());
         };
-        //moves.push(m);
         board.playMove(m);
         board.flipTurn();
-        //std::cout << bs << '\n';
-        //std::cout << "static eval:" << evaluate(bs) / (double) scale << " player eval:" << mx << '\n';
         if (board.end()) {
-        //    std::cout << "END\n";
-        //    std::cout << "score " << terminalEvalVerbose(bs)<< '\n';
             return;
         }
     }

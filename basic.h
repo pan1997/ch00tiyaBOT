@@ -34,6 +34,7 @@ namespace TAK {
      * 0xx if move
      * next 3 bits denote pick count
      * next 3n bits denote drop counts
+     * if move & (1<<31)!=0, then also flattening move
      * max board size 8*8
      */
     typedef int move;
@@ -137,7 +138,9 @@ namespace TAK {
     //std::ostream&operator<<(std::ostream&,move m);
 
     extern int slides[9][9][35];
+    extern int slides1[9][9][35];
     extern int count_slides[9][9];
+    extern int count_slides1[9][9];
 
     void initSlides();
 

@@ -11,6 +11,8 @@
 namespace TAK {
     int slides[9][9][35];
     int count_slides[9][9];
+    int slides1[9][9][35];
+    int count_slides1[9][9];
 
     void append_splits(int i, int j, int *splits) {
         slides[i][j][count_slides[i][j]] = 0;
@@ -22,10 +24,26 @@ namespace TAK {
         count_slides[i][j]++;
     }
 
+    void append_splits1(int i, int j, int *splits) {
+        slides1[i][j][count_slides1[i][j]] = 0;
+        int left = i;
+        for (; left > 0;) {
+            slides1[i][j][count_slides1[i][j]] = ((slides1[i][j][count_slides1[i][j]] << 3) | (*splits));
+            left -= *(splits++);
+        }
+        count_slides1[i][j]++;
+    }
+
     void split_rec(int n, int k, int left, int d, int *splits) {
         if (d == k) {
             splits[d - 1] = left;
             append_splits(n, k, splits);
+            if (*splits == 1) {
+                //for(int l=0;l<d;l++)
+                //    std::cout<<splits[l];
+                //std::cout<<'\n';
+                append_splits1(n, k, splits);
+            }
         } else {
             for (int i = 1; left - i >= k - d; i++) {
                 splits[d - 1] = i;
@@ -215,7 +233,7 @@ namespace TAK {
                 for (int k = 0; k < 64; k++)
                     for (int l = 0; l < 8; l++)
                         zobristTable[i][j][k][l] = rnd();
-                        //std::cout<<zobristTable[i][j][k][l]<<'\n';
+        //std::cout<<zobristTable[i][j][k][l]<<'\n';
         white_to_move = rnd();
     }
 }

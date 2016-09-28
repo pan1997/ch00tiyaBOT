@@ -169,6 +169,31 @@ namespace TAK {
 
         bitboard getBC() const { return BC; }
 
+        //flattens the top standing stone at s
+        inline void flatten(square s) {
+            peice p = top(s);
+            unsetTopbb(s, p);
+            setTopbb(s, color_of(p) == BLACK ? BLACK_FLAT : WHITE_FLAT);
+            hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1][bs[getRow(s)][getCol(s)][
+                    height[getRow(s)][getCol(s)] - 1]];
+            bs[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1] = color_of(p) == BLACK ? BLACK_FLAT : WHITE_FLAT;
+            hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1][bs[getRow(s)][getCol(s)][
+                    height[getRow(s)][getCol(s)] - 1]];
+        }
+
+        //lifts the flat stone on n
+        inline void liften(square s) {
+            peice p = top(s);
+            unsetTopbb(s, p);
+            setTopbb(s, color_of(p) == BLACK ? BLACK_STANDING : WHITE_STANDING);
+            hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1][bs[getRow(s)][getCol(s)][
+                    height[getRow(s)][getCol(s)] - 1]];
+            bs[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1] =
+                    color_of(p) == BLACK ? BLACK_STANDING : WHITE_STANDING;
+            hash ^= zobristTable[getRow(s)][getCol(s)][height[getRow(s)][getCol(s)] - 1][bs[getRow(s)][getCol(s)][
+                    height[getRow(s)][getCol(s)] - 1]];
+        }
+
         //does not include top. no. of peices of color p
         int countStacked(square s, int k, player p) const {
             int r = getRow(s);
@@ -189,9 +214,9 @@ namespace TAK {
 
         int getBlackLeft() const { return leftover_stones_black; }
 
-        const int * getGCW() const { return group_count_W; }
+        const int *getGCW() const { return group_count_W; }
 
-        const int * getGCB() const { return group_count_B; }
+        const int *getGCB() const { return group_count_B; }
 
         bool end() const {
             return nempty == 0 || leftover_stones_black == 0 || leftover_stones_white == 0 || group_count_W[n] != 0 ||
@@ -204,9 +229,9 @@ namespace TAK {
             return height[getRow(s)][getCol(s)];
         }
 
-        void playMove(move m);
+        bool playMove(move m);
 
-        void undoMove(move m);
+        void undoMove(move m,bool liften=false);
 
         void flipTurn() {
             if (turn == BLACK) turn = WHITE; else turn = BLACK;
@@ -241,14 +266,19 @@ namespace TAK {
 
     template
     class boardstate<5>;
+
     template
     class boardstate<4>;
+
     template
     class boardstate<6>;
+
     template
     class boardstate<7>;
+
     template
     class boardstate<8>;
+
     template
     class boardstate<3>;
 }

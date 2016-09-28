@@ -200,10 +200,11 @@ namespace TAK {
     }
 
     template<int n>
-    void boardstate<n>::playMove(move m) {
+    bool boardstate<n>::playMove(move m) {
         if (isPlaceMove(m)) {
             hash ^= zobristTable[getRow(m)][getCol(m)][getHeight(m)][getPlacePeice(m)];
             place(m, getPlacePeice(m));
+            return false;
         }
         else {
             square s = m;
@@ -217,6 +218,7 @@ namespace TAK {
             int index = height[getRow(s)][getCol(s)];
             square t = s;
             int count = 0;
+            bool res=false;
             for (; pick > 0; count++) {
                 int drop = m & 7;
                 //std::cout << "dropped " << drop << '\n';
@@ -225,7 +227,13 @@ namespace TAK {
                 t = squareAt(t, d);
                 if (empty(t))
                     nempty--;
-                else unsetTopbb(t, top(t));
+                else {
+                    if(pick==0&&drop==1&&isStanding(top(t))) {
+                        flatten(t);
+                        res = true;
+                    }
+                    unsetTopbb(t, top(t));
+                }
                 for (int i = 0; i < drop; i++) {
                     hash ^= zobristTable[getRow(s)][getCol(s)][index][bs[getRow(s)][getCol(s)][index]];
                     hash ^= zobristTable[getRow(t)][getCol(t)][height[getRow(t)][getCol(t)]][bs[getRow(s)][getCol(
@@ -240,11 +248,12 @@ namespace TAK {
                     setTopbb(t, top(t));
                 t = squareAt(t, d);
             }
+            return res;
         }
     }
 
     template<int n>
-    void boardstate<n>::undoMove(move m) {
+    void boardstate<n>::undoMove(move m,bool liften) {
         if (isPlaceMove(m)) {
             removeTop(m);
             hash ^= zobristTable[getRow(m)][getCol(m)][getHeight(m)][getPlacePeice(m)];
@@ -283,9 +292,14 @@ namespace TAK {
                 }
             }
             d = direction(d ^ 1);
+            bool first=true;
             for (; count >= 0; count--) {
                 if (!empty(t))
                     setTopbb(t, top(t));
+                if(first&&liften){
+                    this->liften(t);
+                }
+                first=false;
                 t = squareAt(t, d);
             }
         }
