@@ -12,7 +12,12 @@ namespace TAK {
         collisions = 0;
     }
     void displayTTinfo() {
+#ifndef ASS
         std::cout << "TT has " << transpositionTable.size() << " entries and " << collisions <<
         " collisions\n";
+#else
+        std::cerr << "TT has " << transpositionTable.size() << " entries and " << collisions <<
+        " collisions\n";
+#endif
     }
 }

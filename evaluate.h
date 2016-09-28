@@ -67,7 +67,7 @@ namespace TAK {
         }
         int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
         if (!roadwin)
-            winner = ns > 0 ? WHITE : BLACK;
+            winner = ns > 0 ? WHITE : ns < 0 ? BLACK : -1;
         score += ns;
         score += (winner == BLACK ? -b.getBlackLeft() : winner == WHITE ? b.getWhiteLeft() : 0);
         return score * scale * 100;
@@ -101,7 +101,7 @@ namespace TAK {
         }
         int ns = popcnt(b.getWF() | b.getWC()) - popcnt(b.getBF() | b.getBC());//now capstone also counted
         if (!roadwin)
-            winner = ns > 0 ? WHITE : BLACK;
+            winner = ns > 0 ? WHITE : ns < 0 ? BLACK : -1;
         score += ns;
         score += (winner == BLACK ? -b.getBlackLeft() : winner == WHITE ? b.getWhiteLeft() : 0);
         if (score * (winner == BLACK ? -1 : 1) <= 0)
@@ -114,8 +114,13 @@ namespace TAK {
 
     template<int n>
     int evaluateTop(const boardstate<n> &b) {
-        return scale * (popcnt(b.getWF()) - popcnt(b.getBF())) + standingU * (popcnt(b.getWS()) - popcnt(b.getBS())) +
+        return standingU * (popcnt(b.getWS()) - popcnt(b.getBS())) +
                capstoneU * (popcnt(b.getWC()) - popcnt(b.getBC()));
+    }
+
+    template<int n>
+    int evaluateTopFlat(const boardstate<n> &b) {
+        return scale * (popcnt(b.getWF()) - popcnt(b.getBF()));
     }
 
     template<int n>
@@ -136,13 +141,16 @@ namespace TAK {
                                              color_of(b.top(getSquare(i, j))));
                     int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                     if (isFlat(b.top(getSquare(i, j))))
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * FCaptureU + cnt * FReserveU) *
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * FCaptureU +
+                                  cnt * FReserveU) *
                                  sign;
                     else if (isCap(b.top(getSquare(i, j))))
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * CCaptureU + cnt * CReserveU) *
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * CCaptureU +
+                                  cnt * CReserveU) *
                                  sign;
                     else
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt) * SCaptureU + cnt * SReserveU) *
+                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
+                                  cnt * SReserveU) *
                                  sign;
                     /*switch (b.top(getSquare(i, j))) {
                         case WHITE_FLAT:
@@ -173,8 +181,9 @@ namespace TAK {
     template<int n>
     int evaluate(const boardstate<n> &b) {
         int score =
-                2 * n * n * (evaluateTop(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
+                2 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
                 (n * n + b.countEmpty());
+        score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
         return score;

@@ -9,7 +9,6 @@
 #define col 72340172838076673ULL
 
 #define ASS
-#undef ASS
 
 namespace TAK {
     enum player {

@@ -35,7 +35,8 @@ void test(TAK::boardstate<n>&bs) {
         int mx = 0;
         if (i % 2 == f) {
             std::cout<<std::bitset<64>(bs.getHash())<<'\n';
-            m = d1_getMove(bs, mx);
+            int limit=3000;
+            m = search(bs, mx,limit);
             std::cout<<std::bitset<64>(bs.getHash())<<'\n';
         }
         else {
@@ -83,8 +84,9 @@ void testbug(TAK::boardstate<5> b){
     std::strcpy(mv[11],"1b1<1");
     std::strcpy(mv[12],"Fa2");
     std::strcpy(mv[13],"2a1+2");
-    std::strcpy(mv[14],"Ce4");
-    //std::strcpy(mv[15],"Cd4");
+    std::strcpy(mv[14],"Fa1");
+    std::strcpy(mv[15],"Cd4");
+    std::strcpy(mv[16],"1a1+1");
 
 
     b.playMove(TAK::construct_place_move(TAK::readSquare(mv[0]),TAK::BLACK_FLAT));
@@ -92,7 +94,7 @@ void testbug(TAK::boardstate<5> b){
     b.playMove(TAK::construct_place_move(TAK::readSquare(mv[1]),TAK::WHITE_FLAT));
     std::cout<<b<<'\n';
 
-    for(int i=2;i<15;i++){
+    for(int i=2;i<17;i++){
         std::cout<<"Move "<<mv[i]<<'\n';
         std::cout<<std::bitset<64>(b.getHash())<<'\n';
         b.playMove(TAK::readMove(mv[i],b.getTurn()));
@@ -105,7 +107,8 @@ void testbug(TAK::boardstate<5> b){
 
     std::cout<<b<<'\n';
     int ms=0;
-    TAK::move m=TAK::d1_getMove(b,ms);
+    ms=TAK::evaluateStacks(b);
+    //TAK::move m=TAK::d1_getMove(b,ms);
     std::cout<<ms<<" done\n";
 }
 
@@ -137,11 +140,16 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
     move m;
     for (int i = 0; ; i++) {
         //std::cout<<"------------------------------------------------------\n";
+        std::cerr<<board<<'\n';
         int mx = 0;
         if (i % 2 == p) {
-            m = d1_getMove(board, mx);
+            int aim=limit/(board.getWhiteLeft()*3+20);
+            std::cerr<<"aiming "<<aim<<" ms\n";
+            m = search(board, mx,aim);
+            limit+=aim;
             printMove(std::cout,m);
             std::cout<<'\n';
+            std::cerr<<"Left "<<limit<<" ms\n";
         }
         else {
             std::cin >> tm;
@@ -171,8 +179,11 @@ int main() {
     //testbug(board);
 #endif
 #ifdef ASS
+    cerr<<"ch00tiyaBOT\n";
     int p,n,lim;
+    cerr<<"Enter p n lim\n";
     cin>>p>>n>>lim;
+    lim*=1000;
     switch(n){
         case 3:assignment(TAK::boardstate<3>(),p,lim);break;
         case 4:assignment(TAK::boardstate<4>(),p,lim);break;
