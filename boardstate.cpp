@@ -6,6 +6,7 @@
 #include "boardstate.h"
 #include "basic.h"
 namespace TAK {
+
     template<int n>
     void boardstate<n>::place(square s, peice p) {
         int r = getRow(s);
@@ -211,6 +212,9 @@ namespace TAK {
             direction d = getDirection(m);
             int pick = getPickCount(m);
             m >>= 12;
+
+            peice otop=top(s);
+
             unsetTopbb(s, top(s));
             height[getRow(s)][getCol(s)] -= pick;
             if (height[getRow(s)][getCol(s)] == 0)
@@ -231,6 +235,12 @@ namespace TAK {
                     if(pick==0&&drop==1&&isStanding(top(t))) {
                         flatten(t);
                         res = true;
+                        if(!isCap(otop)){
+                            std::cout<<"Peice "<<otop<<" is not top but still going on standing\n";
+                            printMove(std::cout,m);
+                            std::cout<<'\n'<<*this<<'\n';
+
+                        }
                     }
                     unsetTopbb(t, top(t));
                 }

@@ -10,6 +10,7 @@
 #include <stack>
 #include <cstring>
 #include <bitset>
+#include <sstream>
 
 template <int n>
 void test(TAK::boardstate<n>&bs) {
@@ -69,47 +70,50 @@ void test(TAK::boardstate<n>&bs) {
 }
 
 void testbug(TAK::boardstate<5> b){
-    char mv[20][20];
-    std::strcpy(mv[0],"e1");
-    std::strcpy(mv[1],"a5");
-    std::strcpy(mv[2],"Fb5");
-    std::strcpy(mv[3],"Fc1");
-    std::strcpy(mv[4],"Fc5");
-    std::strcpy(mv[5],"Fd1");
-    std::strcpy(mv[6],"Fd5");
-    std::strcpy(mv[7],"Se5");
-    std::strcpy(mv[8],"Fa4");
-    std::strcpy(mv[9],"Fb1");
-    std::strcpy(mv[10],"Fa1");
-    std::strcpy(mv[11],"1b1<1");
-    std::strcpy(mv[12],"Fa2");
-    std::strcpy(mv[13],"2a1+2");
-    std::strcpy(mv[14],"Fa1");
-    std::strcpy(mv[15],"Cd4");
-    std::strcpy(mv[16],"1a1+1");
+    //std::string game="e1 a5 Fb1 Fc1 Fc5 Fd1 Fd5 Se5 Fa4 Fb1 Fa1 1b1<1 Fa2 2a1+2 Fa1 Sb2";
+    std::string game="a5 a1 Fb1 Fb5 Cc1 Cb2 Fd1 1b2-1 ";
+    game+="Fa2 Sc2 Fb2 Fb3 Fe2 1b3-1 ";
+    game+="Fa3 Fa4 Sb4 Fe1 Fc3 Fd4 Fe3 ";
+    game+="Fc4 Sc5 1c4>1 Fe4 Fc4 Sd5 1c4>1 ";
+    game+="Fd3 Fc4 1d3+1 Fe5 Fd3 1c4>1 1d3+1 Fc4 ";
+    game+="1e4<1 1c4>1 Fe4 Sc4 1e4<1 1c4>1 1b4-1";
 
 
-    b.playMove(TAK::construct_place_move(TAK::readSquare(mv[0]),TAK::BLACK_FLAT));
+    std::string game1="a5 a1 Fa2 Fb5 Fb2 Sc2 Cc1 Fe1 Fd1 ";
+    game1+="Fe5 Fe2 Fd4 Fe3 Fc4 Fa3 1c4>1 Sc5 Fe4 Sd5 1e4<1 ";
+    game1+="Fc4 Fe4 1c4>1 1e4<1 Fc4 Fe4 1c4>1 Fa4 Fc4 Fb3 ";
+    game1+="1c4>1 1b3-1 Fb3 1e4<1 1b3-1 Ce4 Fc4 Fd3 1c4>1 ";
+    game1+="1d3+1 Fc3 1e4<1 Fb4 1d4>1 Fc4 1e4<1 Fb3 1d4>1 1b3>1 1e4<1 ";
+
+    std::stringstream moves(game);
+    //std::strcpy(mv[16],"1a1+1");
+
+
+    char tm[20];
+    moves>>tm;
+    b.playMove(TAK::construct_place_move(TAK::readSquare(tm),TAK::BLACK_FLAT));
     std::cout<<b<<'\n';
-    b.playMove(TAK::construct_place_move(TAK::readSquare(mv[1]),TAK::WHITE_FLAT));
+    moves>>tm;
+    b.playMove(TAK::construct_place_move(TAK::readSquare(tm),TAK::WHITE_FLAT));
     std::cout<<b<<'\n';
 
-    for(int i=2;i<17;i++){
-        std::cout<<"Move "<<mv[i]<<'\n';
+    for(int i=2;moves>>tm;i++){
+        std::cout<<"Move "<<tm<<'\n';
         std::cout<<std::bitset<64>(b.getHash())<<'\n';
-        b.playMove(TAK::readMove(mv[i],b.getTurn()));
-        b.undoMove(TAK::readMove(mv[i],b.getTurn()));
+        b.playMove(TAK::readMove(tm,b.getTurn()));
+        b.undoMove(TAK::readMove(tm,b.getTurn()));
         std::cout<<std::bitset<64>(b.getHash())<<'\n';
-        b.playMove(TAK::readMove(mv[i],b.getTurn()));
+        b.playMove(TAK::readMove(tm,b.getTurn()));
         b.flipTurn();
         std::cout<<b<<'\n';
     }
-
+    b.flipTurn();
     std::cout<<b<<'\n';
-    int ms=0;
-    ms=TAK::evaluateStacks(b);
-    //TAK::move m=TAK::d1_getMove(b,ms);
-    std::cout<<ms<<" done\n";
+    int ms=0,mse=0;
+    mse=TAK::evaluateStacks(b);
+    TAK::move m=TAK::search(b,ms,15000);
+    std::cout<<ms<<' '<<mse<<" done\n";
+    std::cout<<b<<'\n';
 }
 
 template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
@@ -121,8 +125,12 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
     transpositionTableInit();
     p-=1;
     char tm[50];
+    std::string mv="Fa";
+    tm[1]=0;
+    tm[0]='0'+n;
+    mv.append(tm);
     if(p==0) {
-        std::strcpy(tm,"Fa1");
+        std::strcpy(tm,mv.c_str());
         std::cout <<tm<<"\n";
         board.playMove(construct_place_move(readSquare(tm+1), BLACK_FLAT));
         std::cin>>tm;
@@ -131,9 +139,9 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
     else{
         std::cin>>tm;
         board.playMove(construct_place_move(readSquare(tm+1), BLACK_FLAT));
-        if(std::strcmp(tm,"Fa1")!=0)
-            std::strcpy(tm,"Fa1");
-        else std::strcpy(tm,"Fe1");
+        if(std::strcmp(tm,mv.c_str())!=0)
+            std::strcpy(tm,mv.c_str());
+        else std::strcpy(tm,"Fa1");
         std::cout <<tm<<"\n";
         board.playMove(construct_place_move(readSquare(tm+1), WHITE_FLAT));
     }
@@ -143,13 +151,16 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
         std::cerr<<board<<'\n';
         int mx = 0;
         if (i % 2 == p) {
-            int aim=limit/(board.getWhiteLeft()*3+20);
-            std::cerr<<"aiming "<<aim<<" ms\n";
+            int aim=limit/(std::min(board.getWhiteLeft(),board.getBlackLeft())*3+10);
+            //std::cerr<<"aiming "<<aim<<" ms\n";
+            auto start=std::chrono::system_clock::now();
             m = search(board, mx,aim);
-            limit+=aim;
+            auto end=std::chrono::system_clock::now();
+            limit-=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
             printMove(std::cout,m);
             std::cout<<'\n';
-            std::cerr<<"Left "<<limit<<" ms\n";
+            std::cout.flush();
+            //std::cerr<<"Left "<<limit<<" ms\n";
         }
         else {
             std::cin >> tm;
@@ -173,13 +184,14 @@ int main() {
     TAK::initbasic(5);
     TAK::transpositionTableInit();
     TAK::boardstate<5> board;
-    test(board);
+    //assignment(board,1,480000);
+    //test(board);
     //test3(board);
     //test_groups();
-    //testbug(board);
+    testbug(board);
 #endif
 #ifdef ASS
-    cerr<<"ch00tiyaBOT\n";
+    cerr<<"ch00tiyaBOT 1.2.1\n";
     int p,n,lim;
     cerr<<"Enter p n lim\n";
     cin>>p>>n>>lim;

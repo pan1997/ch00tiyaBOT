@@ -11,6 +11,7 @@ namespace TAK {
         transpositionTable.reserve(20000000);
         collisions = 0;
     }
+
     void displayTTinfo() {
 #ifndef ASS
         std::cout << "TT has " << transpositionTable.size() << " entries and " << collisions <<

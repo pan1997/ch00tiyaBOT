@@ -21,6 +21,7 @@ namespace TAK {
 
     struct searchInfo {
         int nodes;
+        int qnodes;
         int ttcuts;
         int fatt;
         int fsucc;
@@ -32,7 +33,8 @@ namespace TAK {
     };
 
     template<int n>
-    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm) {
+    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm,
+                bool showlegal = false) {
         info->nodes++;
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
         if (transpositionTableEntry1 != nullptr) {
@@ -99,11 +101,15 @@ namespace TAK {
         //first flat, then standing then cap
         if (alpha < beta)
             for (int p = 1; p <= 3; p++)
-                if (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0) {
+                if (p != 2 && (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0)) {
                     for (int i = 0; i < n; i++)
                         for (int j = 0; j < n; j++)
                             if (b.empty(getSquare(i, j))) {
                                 move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
+                                if (showlegal) {
+                                    printMove(std::cout, m);
+                                    std::cout << '\n';
+                                }
                                 if (bm == m)
                                     continue;
                                 b.playMove(m);
@@ -151,6 +157,10 @@ namespace TAK {
                                 for (int r = 1; r <= lr; r++) {
                                     for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
                                         move m = construct_move_move(getSquare(i, j), dir, h, slides[h][r][cnt]);
+                                        if (showlegal) {
+                                            printMove(std::cout, m);
+                                            std::cout << '\n';
+                                        }
                                         if (bm == m)
                                             continue;
                                         b.playMove(m);
@@ -187,20 +197,19 @@ namespace TAK {
                                     for (int r = lr; r <= lr; r++) {
                                         for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
                                             move m = construct_move_move(getSquare(i, j), dir, h, slides1[h][r][cnt]);
-                                            //printMove(std::cout,m);
-                                            //std::cout<<'\n';
+                                            //if(getRow(t)==0&&getCol(t)==3){
+                                            //    std::cout<<"flatteing 0 3\n";
+                                            //    printMove(std::cout,m);
+                                            //    std::cout<<'\n'<<b;
+                                            //}
+                                            if (showlegal) {
+                                                printMove(std::cout, m);
+                                                std::cout << '\n';
+                                            }
                                             if (bm == m)
                                                 continue;
-                                            //unsigned long long hbefor=b.getHash();
                                             bool fl = b.playMove(m);
                                             b.flipTurn();
-                                            /*if(!fl){
-                                                std::cout<<" not flattening\n";
-                                                std::cout<<b<<'\n';
-                                                printMove(std::cout,m);
-                                                std::cout<<'\n'<<h<<r<<'\n';
-                                                std::cout<<std::bitset<32>(slides1[h][r][cnt])<<'\n';
-                                            }*/
                                             int ms;
                                             if (b.end())
                                                 ms = neg * terminalEval(b);
@@ -235,7 +244,45 @@ namespace TAK {
                             }
                         }
                     }
-
+        if (alpha < beta)//standing stones last
+            for (int p = 2; p < 3; p++) {
+                for (int i = 0; i < n; i++)
+                    for (int j = 0; j < n; j++)
+                        if (b.empty(getSquare(i, j))) {
+                            move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
+                            if (showlegal) {
+                                printMove(std::cout, m);
+                                std::cout << '\n';
+                            }
+                            if (bm == m)
+                                continue;
+                            b.playMove(m);
+                            b.flipTurn();
+                            int ms;
+                            if (b.end())
+                                ms = neg * terminalEval(b);
+                            else if (d < info->depth_limit) {
+                                ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                              (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                if (alpha < ms && ms < beta || tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                    if (ms == alpha + 1)
+                                        ms = alpha;
+                                    ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                                }
+                            }
+                                //else ms=-qsearch(b,info,-beta,-alpha);
+                            else ms = neg * evaluate(b);
+                            b.undoMove(m);
+                            b.flipTurn();
+                            if (ms > alpha) {
+                                bm = m;
+                                alpha = ms;
+                                if (alpha >= beta) {
+                                    goto eos;
+                                }
+                            }
+                        }
+            }
         eos:
         if (tp == CUT_NODE && alpha == alpha_backup)
             return alpha;
@@ -291,7 +338,7 @@ namespace TAK {
             int beta = -max;
             info.depth_limit = dl;
             int pn = info.nodes;
-            int ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false);
+            int ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
             auto end = std::chrono::system_clock::now();
             bm = getEntry(b)->bm;
             max = ms;
@@ -313,6 +360,7 @@ namespace TAK {
             displayTTinfo();
 #endif
             if (tm * ebf > Tlimit * 2) {
+                //if () {
                 break;
             }
         }

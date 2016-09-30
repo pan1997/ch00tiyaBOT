@@ -21,6 +21,9 @@ namespace TAK {
     extern int SReserveU;
     extern int CCaptureU;
     extern int CReserveU;
+    extern int Fattack;
+    extern int Sattack;
+    extern int Cattack;
     extern int groupU[8];
 
     void initGroups(int n);
@@ -114,13 +117,12 @@ namespace TAK {
 
     template<int n>
     int evaluateTop(const boardstate<n> &b) {
-        return standingU * (popcnt(b.getWS()) - popcnt(b.getBS())) +
-               capstoneU * (popcnt(b.getWC()) - popcnt(b.getBC()));
+        return standingU * (popcnt(b.getWS()) - popcnt(b.getBS()));
     }
 
     template<int n>
     int evaluateTopFlat(const boardstate<n> &b) {
-        return scale * (popcnt(b.getWF()) - popcnt(b.getBF()));
+        return scale * (popcnt(b.getWF()) - popcnt(b.getBF())) + capstoneU * (popcnt(b.getWC()) - popcnt(b.getBC()));
     }
 
     template<int n>
@@ -152,27 +154,17 @@ namespace TAK {
                         score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
                                   cnt * SReserveU) *
                                  sign;
-                    /*switch (b.top(getSquare(i, j))) {
-                        case WHITE_FLAT:
-                            score += safeUF * popcnt((b.getWC() | b.getWF() | b.getWS()) &
-                                                     neighbours(getBitboard(getSquare(i, j)))) -
-                                     unsafeUF * popcnt((b.getBC() | b.getBF() | b.getBS()) &
-                                                       neighbours(getBitboard(getSquare(i, j))));
-                            break;
-                        case BLACK_FLAT:
-                            score -= safeUF * popcnt((b.getWC() | b.getWF() | b.getWS()) &
-                                                     neighbours(getBitboard(getSquare(i, j)))) -
-                                     unsafeUF * popcnt((b.getBC() | b.getBF() | b.getBS()) &
-                                                       neighbours(getBitboard(getSquare(i, j))));
-                            break;
-                        case WHITE_STANDING:
-                            score += safeUS * popcnt(b.getWC() & neighbours(getBitboard(getSquare(i, j)))) -
-                                     unsafeUS * popcnt(b.getBC() & neighbours(getBitboard(getSquare(i, j))));
-                            break;
-                        case BLACK_STANDING:
-                            score -= safeUS * popcnt(b.getWC() & neighbours(getBitboard(getSquare(i, j)))) -
-                                     unsafeUS * popcnt(b.getBC() & neighbours(getBitboard(getSquare(i, j))));
-                            break;
+                    /*if (isFlat(b.top(getSquare(i, j)))) {
+                        score += sign * Fattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWF()) -
+                                                   popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBF()));
+                        score += sign * Sattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWS()) -
+                                                   popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBS()));
+                        score += sign * Cattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWC()) -
+                                                   popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBC()));
+                    }
+                    else if (isStanding(b.top(getSquare(i, j)))) {
+                        score += sign * Cattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWC()) -
+                                                   popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBC()));
                     }*/
                 }
         return score;
