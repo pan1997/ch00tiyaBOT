@@ -15,7 +15,7 @@ namespace TAK {
     class boardstate {
         player turn;
         bitboard WF, BF, WS, BS, WC, BC;
-        peice bs[n][n][n * n];
+        peice bs[n][n][3 * n * n / 2];
         int height[n][n];
         int nempty;
         int group_count_W[8];
@@ -233,7 +233,7 @@ namespace TAK {
 
         bool playMove(move m);
 
-        void undoMove(move m,bool liften=false);
+        void undoMove(move m, bool liften = false);
 
         void flipTurn() {
             if (turn == BLACK) turn = WHITE; else turn = BLACK;

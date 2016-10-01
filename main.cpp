@@ -85,7 +85,8 @@ void testbug(TAK::boardstate<5> b){
     game1+="1c4>1 1b3-1 Fb3 1e4<1 1b3-1 Ce4 Fc4 Fd3 1c4>1 ";
     game1+="1d3+1 Fc3 1e4<1 Fb4 1d4>1 Fc4 1e4<1 Fb3 1d4>1 1b3>1 1e4<1 ";
 
-    std::string game2="a5 a1 Fb1 Fb5 Fc1 Fc5 Cd1 ";
+    std::string game2="e1 a5 Fb5 Cb4 Fa2 Fe3 Fa3 Fa4 Fc4 Fc5 Fd5 Fd4 ";
+    game2+="Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5";
     std::stringstream moves(game2);
     //std::strcpy(mv[16],"1a1+1");
 

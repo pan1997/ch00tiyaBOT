@@ -15,6 +15,10 @@ namespace TAK {
 
     void append_splits(int i, int j, int *splits) {
         slides[i][j][count_slides[i][j]] = 0;
+        //std::cout<<i<<' '<<j<<' ';
+        //for(int k=0;k<j;k++)
+        //    std::cout<<splits[k];
+        //std::cout<<'\n';
         int left = i;
         for (; left > 0;) {
             slides[i][j][count_slides[i][j]] = ((slides[i][j][count_slides[i][j]] << 3) | (*splits));

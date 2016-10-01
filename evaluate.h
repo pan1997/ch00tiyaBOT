@@ -25,6 +25,7 @@ namespace TAK {
     extern int citadel;
     extern int center;
     extern bitboard citadels[7][7];
+    extern bitboard centerBoard;
 
     void initGroups(int n);
 
@@ -188,6 +189,11 @@ namespace TAK {
     }
 
     template<int n>
+    int evaluateCenter(const boardstate<n> &b) {
+        return center * (popcnt((b.getWF() | b.getWC()) & centerBoard) - popcnt((b.getBF() | b.getBC()) & centerBoard));
+    }
+
+    template<int n>
     int evaluate(const boardstate<n> &b) {
         int score =
                 2 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
@@ -195,7 +201,8 @@ namespace TAK {
         score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
-        //score += evaluateCitadels(b);
+        score += evaluateCitadels(b);
+        score += evaluateCenter(b);
         return score;
     }
 }

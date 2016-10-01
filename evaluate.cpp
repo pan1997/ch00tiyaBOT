@@ -16,7 +16,8 @@ namespace TAK {
     int CCaptureU=-20;
     int CReserveU=80;
     int citadel=5;
-    int center=1;
+    int center=3;
+    bitboard centerBoard;
     bitboard citadels[7][7];
 
     void initCitadels() {
@@ -30,6 +31,11 @@ namespace TAK {
     }
 
     void initGroups(int n) {
+        centerBoard=0;
+        for(int i=0;i<n;i++)
+            for(int j=0;j<n;j++)
+                if(i!=0&&i!=n-1&&j!=0&&j!=n-1)
+                    centerBoard|=getBitboard(getSquare(i,j));
         switch (n) {
             case 4:
                 groupU[0] = 0;
