@@ -12,12 +12,22 @@ namespace TAK {
     int FCaptureU=-50;
     int FReserveU=50;
     int SCaptureU=-25;
-    int SReserveU=70;
+    int SReserveU=75;
     int CCaptureU=-20;
-    int CReserveU=76;
-    int Fattack=10;
-    int Sattack=15;
-    int Cattack=18;
+    int CReserveU=80;
+    int citadel=5;
+    int center=1;
+    bitboard citadels[7][7];
+
+    void initCitadels() {
+        int cnt = 0;
+        for (int i = 0; i < 7; i++)
+            for (int j = 0; j < 7; j++) {
+                citadels[i][j] = getBitboard(getSquare(i, j)) | getBitboard(getSquare(i + 1, j)) |
+                                 getBitboard(getSquare(i, j + 1)) | getBitboard(getSquare(i + 1, j + 1));
+                //std::cout<<std::bitset<64>(citadels[i][j])<<'\n';
+            }
+    }
 
     void initGroups(int n) {
         switch (n) {

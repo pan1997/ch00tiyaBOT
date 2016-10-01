@@ -21,12 +21,14 @@ namespace TAK {
     extern int SReserveU;
     extern int CCaptureU;
     extern int CReserveU;
-    extern int Fattack;
-    extern int Sattack;
-    extern int Cattack;
     extern int groupU[8];
+    extern int citadel;
+    extern int center;
+    extern bitboard citadels[7][7];
 
     void initGroups(int n);
+
+    void initCitadels();
 
     /*
      * flatstone importance increases as no.of empty squares decreases
@@ -134,6 +136,21 @@ namespace TAK {
     }
 
     template<int n>
+    int evaluateCitadels(const boardstate<n> &b) {
+        bitboard W = b.getWF() | b.getWC();
+        bitboard B = b.getBF() | b.getBC();
+        int lim = n - 1;
+        int score = 0;
+        for (int i = 0; i < lim; i++)
+            for (int j = 0; j < lim; j++)
+                if ((W & citadels[i][j]) == citadels[i][j])
+                    score += citadel;
+                else if ((B & citadels[i][j]) == citadels[i][j])
+                    score -= citadel;
+        return score;
+    }
+
+    template<int n>
     int evaluateStacks(const boardstate<n> &b) {
         int score = 0;
         for (int i = 0; i < n; i++)
@@ -178,6 +195,7 @@ namespace TAK {
         score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
+        //score += evaluateCitadels(b);
         return score;
     }
 }

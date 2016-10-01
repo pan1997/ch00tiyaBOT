@@ -85,7 +85,8 @@ void testbug(TAK::boardstate<5> b){
     game1+="1c4>1 1b3-1 Fb3 1e4<1 1b3-1 Ce4 Fc4 Fd3 1c4>1 ";
     game1+="1d3+1 Fc3 1e4<1 Fb4 1d4>1 Fc4 1e4<1 Fb3 1d4>1 1b3>1 1e4<1 ";
 
-    std::stringstream moves(game);
+    std::string game2="a5 a1 Fb1 Fb5 Fc1 Fc5 Cd1 ";
+    std::stringstream moves(game2);
     //std::strcpy(mv[16],"1a1+1");
 
 
@@ -107,10 +108,10 @@ void testbug(TAK::boardstate<5> b){
         b.flipTurn();
         std::cout<<b<<'\n';
     }
-    b.flipTurn();
+    //b.flipTurn();
     std::cout<<b<<'\n';
     int ms=0,mse=0;
-    mse=TAK::evaluateStacks(b);
+    mse=TAK::evaluate(b);
     TAK::move m=TAK::search(b,ms,15000);
     std::cout<<ms<<' '<<mse<<" done\n";
     std::cout<<b<<'\n';
@@ -122,6 +123,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
     initGroups(n);
     initSlides();
     initbasic(n);
+    TAK::initCitadels();
     transpositionTableInit();
     p-=1;
     char tm[50];
@@ -151,7 +153,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit) {
         std::cerr<<board<<'\n';
         int mx = 0;
         if (i % 2 == p) {
-            int aim=limit/(std::min(board.getWhiteLeft(),board.getBlackLeft())*3+10);
+            int aim=limit/(std::min(board.getWhiteLeft(),board.getBlackLeft())*2+10);
             //std::cerr<<"aiming "<<aim<<" ms\n";
             auto start=std::chrono::system_clock::now();
             m = search(board, mx,aim);
@@ -183,6 +185,7 @@ int main() {
     TAK::initSlides();
     TAK::initbasic(5);
     TAK::transpositionTableInit();
+    TAK::initCitadels();
     TAK::boardstate<5> board;
     //assignment(board,1,480000);
     //test(board);
@@ -191,7 +194,7 @@ int main() {
     testbug(board);
 #endif
 #ifdef ASS
-    cerr<<"ch00tiyaBOT 1.2.1\n";
+    cerr<<"ch00tiyaBOT 1.2.2\n";
     int p,n,lim;
     cerr<<"Enter p n lim\n";
     cin>>p>>n>>lim;
