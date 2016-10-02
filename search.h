@@ -64,6 +64,36 @@ namespace TAK {
             return beta;
         if (stand_pat > alpha)
             alpha = stand_pat;
+
+        if (transpositionTableEntry1 != nullptr) {//best move first
+            bm = transpositionTableEntry1->bm;
+            if (bm != -1) {
+                if (showlegal) {
+                    for (int g = 0; g < info->depth_limit + 8 - lim; g++)
+                        std::cout << '\t';
+                    printMove(std::cout, bm);
+                    std::cout << ' ' << alpha << '\n';
+                }
+                int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
+                bool fl = b.playMove(bm);
+                b.flipTurn();
+                int ms;
+                if (b.end())
+                    ms = neg * terminalEval(b);
+                else {
+                    if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
+                        ms = -qsearch(b, info, -beta, -alpha, lim - 1);
+                    else
+                        ms = stand_pat;
+                }
+                b.undoMove(bm, fl);
+                b.flipTurn();
+                if (fl)
+                    info->fsucc++;
+                if (ms > alpha)
+                    alpha = ms;
+            }
+        }
         //first flat, then standing then cap
         if (alpha < beta)
             for (int p = 1; p <= 3; p++)
@@ -130,7 +160,7 @@ namespace TAK {
                                         if (bm == m)
                                             continue;
                                         int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
-                                        bool fl=b.playMove(m);
+                                        bool fl = b.playMove(m);
                                         b.flipTurn();
                                         int ms;
                                         if (b.end())
@@ -141,7 +171,7 @@ namespace TAK {
                                             else
                                                 ms = stand_pat;
                                         }
-                                        b.undoMove(m,fl);
+                                        b.undoMove(m, fl);
                                         b.flipTurn();
                                         if (ms > alpha) {
                                             bm = m;
@@ -286,7 +316,7 @@ namespace TAK {
                 int ms;
                 if (d < info->depth_limit)
                     ms = -minimax(b, info, d + 1, -beta, -alpha, tp, in_nm);
-                else ms = -qsearch(b, info, -beta, -alpha, info->depth_limit / 2 + 1);//ms = neg * evaluate(b);
+                else ms = -qsearch(b, info, -beta, -alpha, 2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
                 b.undoMove(bm, fl);
                 b.flipTurn();
                 if (fl)
@@ -329,7 +359,7 @@ namespace TAK {
                                     //else ms=-qsearch(b,inf
                                 else
                                     ms = -qsearch(b, info, -beta, -alpha,
-                                                  info->depth_limit / 2 + 1);//ms = neg * evaluate(b);
+                                                  2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
                                 b.undoMove(m);
                                 b.flipTurn();
                                 if (ms > alpha) {
@@ -367,7 +397,7 @@ namespace TAK {
                                         }
                                         if (bm == m)
                                             continue;
-                                        bool fl=b.playMove(m);
+                                        bool fl = b.playMove(m);
                                         b.flipTurn();
                                         int ms;
                                         if (b.end())
@@ -385,8 +415,8 @@ namespace TAK {
                                             //else ms=-qsearch(b,info,-beta,-alpha);
                                         else
                                             ms = -qsearch(b, info, -beta, -alpha,
-                                                          info->depth_limit / 2 + 1);//ms = neg * evaluate(b);
-                                        b.undoMove(m,fl);
+                                                          2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                                        b.undoMove(m, fl);
                                         b.flipTurn();
                                         if (ms > alpha) {
                                             bm = m;
@@ -434,7 +464,7 @@ namespace TAK {
                                                 //else ms=-qsearch(b,info,-beta,-alpha);
                                             else
                                                 ms = -qsearch(b, info, -beta, -alpha,
-                                                              info->depth_limit / 2 + 1);//ms = neg * evaluate(b);
+                                                              2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
                                             b.undoMove(m, fl);
                                             b.flipTurn();
                                             //if(hbefor!=b.getHash()){
@@ -485,7 +515,7 @@ namespace TAK {
                                 //else ms=-qsearch(b,info,-beta,-alpha);
                             else
                                 ms = -qsearch(b, info, -beta, -alpha,
-                                              info->depth_limit / 2 + 1);//ms = neg * evaluate(b);
+                                              2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
                             b.undoMove(m);
                             b.flipTurn();
                             if (ms > alpha) {
@@ -578,7 +608,7 @@ namespace TAK {
             std::cerr << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
             displayTTinfo();
 #endif
-            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100)||(tm*2>Tlimit)) {
+            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 2 > Tlimit)) {
                 //if () {
                 break;
             }

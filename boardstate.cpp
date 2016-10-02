@@ -169,7 +169,7 @@ namespace TAK {
         o << '\n';
         o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left (" <<
         leftover_stones_white << ',' << leftover_stones_black << ")\n";
-
+        /*
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++)
                 o << ((WF & getBitboard(getSquare(i, j))) != 0);
@@ -197,7 +197,8 @@ namespace TAK {
         for (int i = 0; i < n; i++) {
             o << group_count_B[i] << '\t';
         }
-        o << '\n';
+         */
+        //o << '\n';
     }
 
     template<int n>
