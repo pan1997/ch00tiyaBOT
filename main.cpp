@@ -87,15 +87,19 @@ void testbug(TAK::boardstate<5> b) {
 
     std::string game2 = "e1 a5 Fb5 Cb4 Fa2 Fe3 Fa3 Fa4 Fc4 Fc5 Fd5 Fd4 ";
     game2 += "Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5";
-    std::stringstream moves(game2);
+    std::stringstream moves(game);
+    std::cout<<"Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1");
 
 
     char tm[20];
     moves >> tm;
+    std::cout<<"placing "<<tm<<'\n';
     b.playMove(TAK::construct_place_move(TAK::readSquare(tm), TAK::BLACK_FLAT));
+    std::cout<<"placed\n";
     std::cout << b << '\n';
     moves >> tm;
+    std::cout<<"placing "<<tm<<'\n';
     b.playMove(TAK::construct_place_move(TAK::readSquare(tm), TAK::WHITE_FLAT));
     std::cout << b << '\n';
 
@@ -113,7 +117,7 @@ void testbug(TAK::boardstate<5> b) {
     std::cout << b << '\n';
     int ms = 0, mse = 0;
     mse = TAK::evaluate(b);
-    TAK::move m = TAK::search(b, ms, 15000);
+    TAK::move m = TAK::search(b, ms, 35000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
 }
@@ -222,6 +226,16 @@ int main() {
         case 8:
             assignment(TAK::boardstate<8>(), p, lim, increment);
             break;
+        default:
+
+            TAK::initZobrist();
+            TAK::initGroups(5);
+            TAK::initSlides();
+            TAK::initbasic(5);
+            TAK::initCitadels();
+            TAK::transpositionTableInit();
+            TAK::boardstate<5> b;
+            testbug(b);
     }
 #endif
     //cout << "Hello, World!123" << endl;

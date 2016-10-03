@@ -4,7 +4,6 @@
 
 #include "transpositionTable.h"
 namespace TAK {
-    //std::unordered_map<unsigned long long, transpositionTableEntry, hasher> transpositionTable;
     int collisions;
     transpositionTableEntry *tr;
     int currentGen;
@@ -26,7 +25,7 @@ namespace TAK {
         " collisions and "<<dropped<<" drops"<<100*dropped/(collisions+1)<<"%\n";
 #else
         std::cerr << "TT has ? entries and " << collisions <<
-        " collisions and " << dropped << " drops=(" << 100 * dropped / (collisions+1) << "%)\n";
+        " collisions and " << dropped << " drops=(" << 100 * dropped / (collisions + 1) << "%)\n";
 #endif
     }
 }

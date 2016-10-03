@@ -33,15 +33,18 @@ namespace TAK {
     inline size_t hash1(const unsigned long long &l) {
         return (size_t) ((l >> 32) ^ (l * 1610612741));
     }
+
     inline size_t hash2(const unsigned long long &l) {
         return (size_t) (l ^ ((l >> 32) * 1610612741));
     }
+
     //extern std::unordered_map<unsigned long long, transpositionTableEntry, hasher> transpositionTable;
     extern transpositionTableEntry *tr;
     extern int collisions;
     extern int dropped;
     extern int currentGen;
     extern size_t sizeOfTable;
+
     template<int n>
     transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
         size_t h = hash1(b.getHash());
@@ -80,6 +83,7 @@ namespace TAK {
             }
         }
     }
+
     /*
     template<int n>
     transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
@@ -139,8 +143,8 @@ namespace TAK {
     }*/
     inline void clearTable() {
         currentGen++;
-        collisions=0;
-        dropped=0;
+        collisions = 0;
+        dropped = 0;
         //transpositionTable.clear();
     }
 

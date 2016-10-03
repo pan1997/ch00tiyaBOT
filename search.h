@@ -16,7 +16,6 @@
 #include "transpositionTable.h"
 namespace TAK {
 
-
 #define NMP_ALLOWED
 
     struct searchInfo {
@@ -32,8 +31,8 @@ namespace TAK {
         PV_NODE, CUT_NODE, ALL_NODE
     };
 
-    inline int qdepth(int dl){
-        return dl/2+1;
+    inline int qdepth(int dl) {
+        return dl / 2 + 1;
     }
 
     template<int n>
@@ -191,11 +190,6 @@ namespace TAK {
                                     for (int r = lr; r <= lr; r++) {
                                         for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
                                             move m = construct_move_move(getSquare(i, j), dir, h, slides1[h][r][cnt]);
-                                            //if(getRow(t)==0&&getCol(t)==3){
-                                            //    std::cout<<"flatteing 0 3\n";
-                                            //    printMove(std::cout,m);
-                                            //    std::cout<<'\n'<<b;
-                                            //}
                                             if (showlegal) {
                                                 for (int g = 0; g < info->depth_limit + 8 - lim; g++)
                                                     std::cout << '\t';
@@ -218,9 +212,6 @@ namespace TAK {
                                             }
                                             b.undoMove(m, fl);
                                             b.flipTurn();
-                                            //if(hbefor!=b.getHash()){
-                                            //    std::cout<<" not resetting\n";
-                                            //}
                                             if (ms > alpha) {
                                                 bm = m;
                                                 alpha = ms;
@@ -359,7 +350,6 @@ namespace TAK {
                                         ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                     }
                                 }
-                                    //else ms=-qsearch(b,inf
                                 else
                                     ms = -qsearch(b, info, -beta, -alpha,
                                                   qdepth(info->depth_limit));//ms = neg * evaluate(b);
@@ -415,7 +405,6 @@ namespace TAK {
                                                 ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                             }
                                         }
-                                            //else ms=-qsearch(b,info,-beta,-alpha);
                                         else
                                             ms = -qsearch(b, info, -beta, -alpha,
                                                           qdepth(info->depth_limit));//ms = neg * evaluate(b);
@@ -430,17 +419,11 @@ namespace TAK {
                                     }
                                 }
                             if (isCap(b.top(getSquare(i, j))) && t != -1 && !b.empty(t) && isStanding(b.top(t))) {
-                                //b.flatten(t);
                                 lr++;
                                 for (int h = lr; h <= lh; h++) {
                                     for (int r = lr; r <= lr; r++) {
                                         for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
                                             move m = construct_move_move(getSquare(i, j), dir, h, slides1[h][r][cnt]);
-                                            //if(getRow(t)==0&&getCol(t)==3){
-                                            //    std::cout<<"flatteing 0 3\n";
-                                            //    printMove(std::cout,m);
-                                            //    std::cout<<'\n'<<b;
-                                            //}
                                             if (showlegal) {
                                                 for (int g = 0; g < d; g++)
                                                     std::cout << '\t';
@@ -464,15 +447,11 @@ namespace TAK {
                                                     ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                                 }
                                             }
-                                                //else ms=-qsearch(b,info,-beta,-alpha);
                                             else
                                                 ms = -qsearch(b, info, -beta, -alpha,
                                                               qdepth(info->depth_limit));//ms = neg * evaluate(b);
                                             b.undoMove(m, fl);
                                             b.flipTurn();
-                                            //if(hbefor!=b.getHash()){
-                                            //    std::cout<<" not resetting\n";
-                                            //}
                                             if (ms > alpha) {
                                                 bm = m;
                                                 alpha = ms;
@@ -483,7 +462,6 @@ namespace TAK {
                                         }
                                     }
                                 }
-                                //b.liften(t);
                             }
                         }
                     }
@@ -561,10 +539,10 @@ namespace TAK {
             printMove(std::cerr, transpositionTableEntry1->bm);
             std::cerr << ' ';
 #endif
-            b.playMove(transpositionTableEntry1->bm);
+            bool fl = b.playMove(transpositionTableEntry1->bm);
             b.flipTurn();
             printpv(b);
-            b.undoMove(transpositionTableEntry1->bm);
+            b.undoMove(transpositionTableEntry1->bm, fl);
             b.flipTurn();
         }
     }
@@ -573,7 +551,7 @@ namespace TAK {
     move search(boardstate<n> &b, int &max, int Tlimit) {
         //int neg = b.getTurn() == BLACK ? -1 : 1;
         auto start = std::chrono::system_clock::now();
-        move bm = -1,pbm;
+        move bm = -1, pbm;
         searchInfo info;
         info.nodes = 0;
         info.ttcuts = 0;
@@ -582,7 +560,6 @@ namespace TAK {
         info.qnodes = 0;
         clearTable();
         int tm;
-        boardstate<n> backup(b);
 
         for (int dl = 1; max < scale * 100 && max > -scale * 100; dl++) {
             max = -scale * 1000000;
@@ -590,8 +567,8 @@ namespace TAK {
             int beta = -max;
             info.depth_limit = dl;
             int pn = info.nodes;
-            int pbm=bm;
-            int ms = minimax(backup, &info, 1, alpha, beta, PV_NODE, false, false);
+            pbm = bm;
+            int ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
             //int ms = qsearch(b, &info, alpha, beta,true,dl);
             auto end = std::chrono::system_clock::now();
             bm = getEntry(b)->bm;
@@ -616,12 +593,7 @@ namespace TAK {
             displayTTinfo();
 #endif
             if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
-                //if () {
-                break;
-            }
-            if(!(backup==b)){
-                std::cerr<<"AUTO BUG DETECTION detected bug. search stopped.\n";
-                bm=pbm;
+                //if (dl>8) {
                 break;
             }
         }

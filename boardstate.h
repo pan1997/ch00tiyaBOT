@@ -33,9 +33,6 @@ namespace TAK {
         inline void removeTop(square s);
 
         inline void setTopbb(square s, peice p) {
-            if (s == -1) {
-                std::cout << "settopbb -1\n";
-            }
             if (isCap(p) || isFlat(p)) {
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
                 if (g1 != 0) {
@@ -90,9 +87,6 @@ namespace TAK {
         }
 
         inline void unsetTopbb(square s, peice p) {
-            if (s == -1) {
-                std::cout << "settopbb -1\n";
-            }
             if (isFlat(p) || isCap(p)) {
                 bitboard gr = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(s));
                 if (color_of(p) == WHITE)
@@ -209,8 +203,18 @@ namespace TAK {
             return cnt;
         }
 
-        bool operator==(const boardstate&b){
-            return hash==b.hash;
+        bool operator==(const boardstate&b) {
+            if (hash != b.hash)
+                return false;
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++) {
+                    if (height[i][j] != b.height[i][j])
+                        return false;
+                    for (int k = 0; k < height[i][j]; k++)
+                        if (bs[i][j][k] != b.bs[i][j][k])
+                            return false;
+                }
+            return true;
         }
 
         int getWhiteLeft() const { return leftover_stones_white; }
