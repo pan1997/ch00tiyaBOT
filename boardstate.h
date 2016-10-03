@@ -152,6 +152,8 @@ namespace TAK {
     public:
         boardstate();
 
+        boardstate(const boardstate&b);
+
         peice top(square s) const;
 
         bool empty(square s) const;
@@ -205,6 +207,10 @@ namespace TAK {
                 if (color_of(bs[r][c][j + i]) == p)
                     cnt++;
             return cnt;
+        }
+
+        bool operator==(const boardstate&b){
+            return hash==b.hash;
         }
 
         int getWhiteLeft() const { return leftover_stones_white; }

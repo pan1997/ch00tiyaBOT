@@ -13,7 +13,7 @@ namespace TAK {
     public:
         transpositionTableEntry() : lower_bound(std::numeric_limits<int>::min()),
                                     upper_bound(std::numeric_limits<int>::max()), depth(0), bm(-1), generation(-1),
-                                    hash(0), WT(0) { }
+                                    hash(0) { }
 
         int lower_bound;
         int upper_bound;
@@ -21,7 +21,7 @@ namespace TAK {
         move bm;
         int generation;
         unsigned long long hash;
-        unsigned long long WT;
+        //unsigned long long WT;
     };
 
     struct hasher {
@@ -59,7 +59,7 @@ namespace TAK {
         else if (ans1->generation < currentGen) {
             ans1->generation = currentGen;
             ans1->hash = h;
-            ans1->WT = b.getWF();
+            //ans1->WT = b.getWF();
             ans1->depth = std::numeric_limits<int>::min();
             ans1->bm = -1;
             return ans1;
@@ -69,7 +69,7 @@ namespace TAK {
             if (ans2->generation < currentGen) {
                 ans2->generation = currentGen;
                 ans2->hash = h;
-                ans2->WT = b.getWF();
+                //ans2->WT = b.getWF();
                 ans2->depth = std::numeric_limits<int>::min();
                 ans2->bm = -1;
                 return ans2;

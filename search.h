@@ -32,6 +32,9 @@ namespace TAK {
         PV_NODE, CUT_NODE, ALL_NODE
     };
 
+    inline int qdepth(int dl){
+        return dl/2+1;
+    }
 
     template<int n>
     int qsearch(boardstate<n> &b, searchInfo *info, int alpha, int beta, int lim, bool showlegal = false) {
@@ -316,7 +319,7 @@ namespace TAK {
                 int ms;
                 if (d < info->depth_limit)
                     ms = -minimax(b, info, d + 1, -beta, -alpha, tp, in_nm);
-                else ms = -qsearch(b, info, -beta, -alpha, 2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                else ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));//ms = neg * evaluate(b);
                 b.undoMove(bm, fl);
                 b.flipTurn();
                 if (fl)
@@ -359,7 +362,7 @@ namespace TAK {
                                     //else ms=-qsearch(b,inf
                                 else
                                     ms = -qsearch(b, info, -beta, -alpha,
-                                                  2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                                                  qdepth(info->depth_limit));//ms = neg * evaluate(b);
                                 b.undoMove(m);
                                 b.flipTurn();
                                 if (ms > alpha) {
@@ -415,7 +418,7 @@ namespace TAK {
                                             //else ms=-qsearch(b,info,-beta,-alpha);
                                         else
                                             ms = -qsearch(b, info, -beta, -alpha,
-                                                          2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                                                          qdepth(info->depth_limit));//ms = neg * evaluate(b);
                                         b.undoMove(m, fl);
                                         b.flipTurn();
                                         if (ms > alpha) {
@@ -464,7 +467,7 @@ namespace TAK {
                                                 //else ms=-qsearch(b,info,-beta,-alpha);
                                             else
                                                 ms = -qsearch(b, info, -beta, -alpha,
-                                                              2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                                                              qdepth(info->depth_limit));//ms = neg * evaluate(b);
                                             b.undoMove(m, fl);
                                             b.flipTurn();
                                             //if(hbefor!=b.getHash()){
@@ -515,7 +518,7 @@ namespace TAK {
                                 //else ms=-qsearch(b,info,-beta,-alpha);
                             else
                                 ms = -qsearch(b, info, -beta, -alpha,
-                                              2 * info->depth_limit / 3 + 1);//ms = neg * evaluate(b);
+                                              qdepth(info->depth_limit));//ms = neg * evaluate(b);
                             b.undoMove(m);
                             b.flipTurn();
                             if (ms > alpha) {
@@ -570,7 +573,7 @@ namespace TAK {
     move search(boardstate<n> &b, int &max, int Tlimit) {
         //int neg = b.getTurn() == BLACK ? -1 : 1;
         auto start = std::chrono::system_clock::now();
-        move bm = -1;
+        move bm = -1,pbm;
         searchInfo info;
         info.nodes = 0;
         info.ttcuts = 0;
@@ -579,13 +582,16 @@ namespace TAK {
         info.qnodes = 0;
         clearTable();
         int tm;
+        boardstate<n> backup(b);
+
         for (int dl = 1; max < scale * 100 && max > -scale * 100; dl++) {
             max = -scale * 1000000;
             int alpha = max;
             int beta = -max;
             info.depth_limit = dl;
             int pn = info.nodes;
-            int ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
+            int pbm=bm;
+            int ms = minimax(backup, &info, 1, alpha, beta, PV_NODE, false, false);
             //int ms = qsearch(b, &info, alpha, beta,true,dl);
             auto end = std::chrono::system_clock::now();
             bm = getEntry(b)->bm;
@@ -611,6 +617,11 @@ namespace TAK {
 #endif
             if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
                 //if () {
+                break;
+            }
+            if(!(backup==b)){
+                std::cerr<<"AUTO BUG DETECTION detected bug. search stopped.\n";
+                bm=pbm;
                 break;
             }
         }

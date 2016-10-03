@@ -12,7 +12,7 @@ namespace TAK {
     size_t sizeOfTable;
 
     void transpositionTableInit() {
-        sizeOfTable = 80000000;
+        sizeOfTable = 100000000;
         tr = new transpositionTableEntry[sizeOfTable];
         currentGen = -1;
         //transpositionTable.reserve(40000000);

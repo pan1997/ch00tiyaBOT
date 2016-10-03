@@ -81,6 +81,34 @@ namespace TAK {
         WF = BF = WS = BS = WC = BC = 0;
         for (int i = 0; i < 8; i++)
             group_count_W[i] = group_count_B[i] = 0;
+        hash=0;
+    }
+
+    template<int n>
+    boardstate<n>::boardstate(const boardstate<n> &b) {
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
+                height[i][j] = b.height[i][j];
+                for (int k = 0; k < height[i][j]; k++)
+                    bs[i][j][k] = b.bs[i][j][k];
+            }
+        turn = b.turn;
+        nempty = b.nempty;
+        leftover_capstones_black = b.leftover_capstones_black;
+        leftover_stones_white = b.leftover_stones_white;
+        leftover_capstones_white = b.leftover_capstones_white;
+        leftover_stones_black = b.leftover_stones_black;
+        WF = b.WF;
+        WC = b.WC;
+        WS = b.WS;
+        BF = b.BF;
+        BC = b.BC;
+        BS = b.BS;
+        for (int i = 0; i < 8; i++) {
+            group_count_W[i] = b.group_count_W[i];
+            group_count_B[i] = b.group_count_B[i];
+        }
+        hash=b.hash;
     }
 
     template<int n>
@@ -214,7 +242,7 @@ namespace TAK {
             int pick = getPickCount(m);
             m >>= 12;
 
-            peice otop=top(s);
+            peice otop = top(s);
 
             unsetTopbb(s, top(s));
             height[getRow(s)][getCol(s)] -= pick;
@@ -223,7 +251,7 @@ namespace TAK {
             int index = height[getRow(s)][getCol(s)];
             square t = s;
             int count = 0;
-            bool res=false;
+            bool res = false;
             for (; pick > 0; count++) {
                 int drop = m & 7;
                 //std::cout << "dropped " << drop << '\n';
@@ -233,13 +261,13 @@ namespace TAK {
                 if (empty(t))
                     nempty--;
                 else {
-                    if(pick==0&&drop==1&&isStanding(top(t))) {
+                    if (pick == 0 && drop == 1 && isStanding(top(t))) {
                         flatten(t);
                         res = true;
-                        if(!isCap(otop)){
-                            std::cout<<"Peice "<<otop<<" is not top but still going on standing\n";
-                            printMove(std::cout,m);
-                            std::cout<<'\n'<<*this<<'\n';
+                        if (!isCap(otop)) {
+                            std::cout << "Peice " << otop << " is not cap but still going on standing\n";
+                            printMove(std::cout, m);
+                            std::cout << '\n' << *this << '\n';
 
                         }
                     }
@@ -264,7 +292,7 @@ namespace TAK {
     }
 
     template<int n>
-    void boardstate<n>::undoMove(move m,bool liften) {
+    void boardstate<n>::undoMove(move m, bool liften) {
         if (isPlaceMove(m)) {
             removeTop(m);
             hash ^= zobristTable[getRow(m)][getCol(m)][getHeight(m)][getPlacePeice(m)];
@@ -303,14 +331,14 @@ namespace TAK {
                 }
             }
             d = direction(d ^ 1);
-            bool first=true;
+            bool first = true;
             for (; count >= 0; count--) {
                 if (!empty(t))
                     setTopbb(t, top(t));
-                if(first&&liften){
+                if (first && liften) {
                     this->liften(t);
                 }
-                first=false;
+                first = false;
                 t = squareAt(t, d);
             }
         }
