@@ -7,14 +7,14 @@ namespace TAK {
     int scale = 100;
     int move_advantage = 50;
     int standingU = 50;
-    int capstoneU = 100;
+    int capstoneU = 96;
     int groupU[8];
-    int FCaptureU=-50;
-    int FReserveU=50;
-    int SCaptureU=-25;
-    int SReserveU=75;
-    int CCaptureU=-20;
-    int CReserveU=80;
+    int FCaptureU=-55;
+    int FReserveU=55;
+    int SCaptureU=-20;
+    int SReserveU=70;
+    int CCaptureU=-25;
+    int CReserveU=75;
     int citadel=5;
     int center=3;
     bitboard centerBoard;
@@ -48,8 +48,8 @@ namespace TAK {
                 groupU[0] = 0;
                 groupU[1] = 0;
                 groupU[2] = 0;
-                groupU[3] = 25;
-                groupU[4] = 75;
+                groupU[3] = 22;
+                groupU[4] = 85;
                 groupU[5] = scale * 2500;
                 break;
             case 6:

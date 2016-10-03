@@ -11,7 +11,7 @@
 #include <cstring>
 #include <bitset>
 #include <sstream>
-
+#include "autoTuning.h"
 template <int n>
 void test(TAK::boardstate<n>&bs) {
     using namespace TAK;
@@ -189,18 +189,19 @@ int main() {
     TAK::transpositionTableInit();
     TAK::initCitadels();
     TAK::boardstate<5> board;
-    //assignment(board,1,480000);
+    assignment(board,1,480000);
     //test(board);
     //test3(board);
     //test_groups();
-    testbug(board);
+    //TAK::tune();
+    //testbug(board);
 #endif
 #ifdef ASS
-    cerr << "ch00tiyaBOT 1.3\n";
+    cerr << "ch00tiyaBOT 1.3.1\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
-    int increment = 8 * 1000;
+    int increment = 0*1000;
     lim *= 1000;
     switch (n) {
         case 3:

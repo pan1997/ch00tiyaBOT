@@ -595,8 +595,9 @@ namespace TAK {
 #ifndef ASS
             std::cout << dl << '\t' << ms << "\t pv [";
             printpv(b);
-            std::cout << "] ("<<info.nodes<<","  << info.qnodes << ") nodes @" << (info.qnodes+info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
-            std::cout << "EBF~=" << (ebf =(info.nodes - pn)*1.0/ (pn+1));
+            std::cout << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
+            (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
+            std::cout << "EBF~=" << (ebf = (info.nodes - pn) * 1.0 / (pn + 1));
             std::cout << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
             displayTTinfo();
 #else
@@ -608,7 +609,7 @@ namespace TAK {
             std::cerr << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
             displayTTinfo();
 #endif
-            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 2 > Tlimit)) {
+            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
                 //if () {
                 break;
             }

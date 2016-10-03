@@ -42,7 +42,45 @@ namespace TAK {
     extern int dropped;
     extern int currentGen;
     extern size_t sizeOfTable;
-
+    template<int n>
+    transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
+        size_t h = hash1(b.getHash());
+        size_t index1 = h % sizeOfTable;
+        transpositionTableEntry *ans1 = tr + index1;
+        transpositionTableEntry *ans2 = tr + (hash2(b.getHash()) % sizeOfTable);
+        if (ans1->hash == h) {
+            ans1->generation = currentGen;
+            return ans1;
+        }
+        else if (ans2->hash == h) {
+            ans2->generation = currentGen;
+            return ans2;
+        }
+        else if (ans1->generation < currentGen) {
+            ans1->generation = currentGen;
+            ans1->hash = h;
+            ans1->WT = b.getWF();
+            ans1->depth = std::numeric_limits<int>::min();
+            ans1->bm = -1;
+            return ans1;
+        }
+        else {
+            collisions++;
+            if (ans2->generation < currentGen) {
+                ans2->generation = currentGen;
+                ans2->hash = h;
+                ans2->WT = b.getWF();
+                ans2->depth = std::numeric_limits<int>::min();
+                ans2->bm = -1;
+                return ans2;
+            }
+            else {
+                dropped++;
+                return nullptr;
+            }
+        }
+    }
+    /*
     template<int n>
     transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
         size_t h = hash1(b.getHash());
@@ -52,6 +90,7 @@ namespace TAK {
             ans->generation = currentGen;
             return ans;
         }
+
         else if (ans->generation < currentGen) {
             ans->generation = currentGen;
             ans->hash = h;
@@ -96,9 +135,8 @@ namespace TAK {
             } else {
                 return nullptr;
             }
-        }*/
-    }
-
+        }
+    }*/
     inline void clearTable() {
         currentGen++;
         collisions=0;

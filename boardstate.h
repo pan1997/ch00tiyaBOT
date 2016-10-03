@@ -10,7 +10,6 @@
 #include"basic.h"
 namespace TAK {
 
-
     template<int n>
     class boardstate {
         player turn;

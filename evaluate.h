@@ -13,17 +13,17 @@
 namespace TAK {
     extern int scale;
     extern int move_advantage;
-    extern int standingU;
-    extern int capstoneU;
-    extern int FCaptureU;
-    extern int FReserveU;
-    extern int SCaptureU;
-    extern int SReserveU;
-    extern int CCaptureU;
-    extern int CReserveU;
+    extern int standingU; //1
+    extern int capstoneU; //2
+    extern int FCaptureU; //3
+    extern int FReserveU; //4
+    extern int SCaptureU; //5
+    extern int SReserveU; //6
+    extern int CCaptureU; //7
+    extern int CReserveU; //8
     extern int groupU[8];
-    extern int citadel;
-    extern int center;
+    extern int citadel;   //9
+    extern int center;    //10
     extern bitboard citadels[7][7];
     extern bitboard centerBoard;
 
@@ -204,6 +204,10 @@ namespace TAK {
         score += evaluateCitadels(b);
         score += evaluateCenter(b);
         return score;
+    }
+
+    inline void setWeights(int i){
+        CReserveU=i;
     }
 }
 #endif //A3_EVALUATE_H

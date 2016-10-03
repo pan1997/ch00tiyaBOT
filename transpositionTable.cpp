@@ -22,8 +22,8 @@ namespace TAK {
 
     void displayTTinfo() {
 #ifndef ASS
-        std::cout << << "TT has ? entries and " << collisions <<
-        " collisions and "<<dropped<<" drops"<<100*dropped/collisions<<"%\n";
+        std::cout << "TT has ? entries and " << collisions <<
+        " collisions and "<<dropped<<" drops"<<100*dropped/(collisions+1)<<"%\n";
 #else
         std::cerr << "TT has ? entries and " << collisions <<
         " collisions and " << dropped << " drops=(" << 100 * dropped / (collisions+1) << "%)\n";
