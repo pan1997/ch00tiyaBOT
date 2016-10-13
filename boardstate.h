@@ -28,7 +28,22 @@ namespace TAK {
         int leftover_capstones_white;
         int leftover_capstones_black;
 
-        inline void place(square s, peice p);
+        inline void place(square s, peice p) {
+            int r = getRow(s);
+            int c = getCol(s);
+            bs[r][c][height[r][c]++] = p;
+            if (height[r][c] == 1)
+                nempty--;
+            if (!isCap(p)) if (color_of(p) == WHITE)
+                leftover_stones_white--;
+            else
+                leftover_stones_black--;
+            else if (color_of(p) == WHITE)
+                leftover_capstones_white--;
+            else
+                leftover_capstones_black--;
+            setTopbb(s, p);
+        }
 
         inline void removeTop(square s);
 
@@ -146,9 +161,11 @@ namespace TAK {
     public:
         boardstate();
 
-        boardstate(const boardstate&b);
+        boardstate(const boardstate &b);
 
         peice top(square s) const;
+
+        peice underTop(square s)const;
 
         bool empty(square s) const;
 
@@ -203,7 +220,7 @@ namespace TAK {
             return cnt;
         }
 
-        bool operator==(const boardstate&b) {
+        bool operator==(const boardstate &b) {
             if (hash != b.hash)
                 return false;
             for (int i = 0; i < n; i++)
@@ -289,8 +306,5 @@ namespace TAK {
 
     template
     class boardstate<8>;
-
-    template
-    class boardstate<3>;
 }
 #endif // BOARDSTATE_H

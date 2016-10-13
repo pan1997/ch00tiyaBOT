@@ -8,27 +8,6 @@
 namespace TAK {
 
     template<int n>
-    void boardstate<n>::place(square s, peice p) {
-        int r = getRow(s);
-        int c = getCol(s);
-        //if (r >= n || c >= n) {
-        //    std::cout << "OUT of bounds.\n";
-        //}
-        bs[r][c][height[r][c]++] = p;
-        if (height[r][c] == 1)
-            nempty--;
-        if (!isCap(p)) if (color_of(p) == WHITE)
-            leftover_stones_white--;
-        else
-            leftover_stones_black--;
-        else if (color_of(p) == WHITE)
-            leftover_capstones_white--;
-        else
-            leftover_capstones_black--;
-        setTopbb(s, p);
-    }
-
-    template<int n>
     void boardstate<n>::removeTop(square s) {
         int r = getRow(s);
         int c = getCol(s);
@@ -117,6 +96,12 @@ namespace TAK {
         int c = getCol(s);
         return bs[r][c][height[r][c] - 1];
     }
+    template<int n>
+    peice boardstate<n>::underTop(square s) const {
+        int r = getRow(s);
+        int c = getCol(s);
+        return bs[r][c][height[r][c] - 2];
+    }
 
     template<int n>
     bool boardstate<n>::empty(square s) const {
@@ -127,9 +112,6 @@ namespace TAK {
 
     template<int n>
     void boardstate<n>::xor_bitboard(square s, peice bb) {
-        //if (s == -1) {
-        //    std::cout << "xoring a -1 bitboard\n";
-        //}
         switch (bb) {
             case WHITE_FLAT:
                 WF ^= getBitboard(s);
@@ -241,9 +223,6 @@ namespace TAK {
             direction d = getDirection(m);
             int pick = getPickCount(m);
             m >>= 12;
-
-            peice otop = top(s);
-
             unsetTopbb(s, top(s));
             height[getRow(s)][getCol(s)] -= pick;
             if (height[getRow(s)][getCol(s)] == 0)
@@ -254,7 +233,6 @@ namespace TAK {
             bool res = false;
             for (; pick > 0; count++) {
                 int drop = m & 7;
-                //std::cout << "dropped " << drop << '\n';
                 pick -= drop;
                 m >>= 3;
                 t = squareAt(t, d);
@@ -264,11 +242,6 @@ namespace TAK {
                     if (pick == 0 && drop == 1 && isStanding(top(t))) {
                         flatten(t);
                         res = true;
-                        /*if (!isCap(otop)) {
-                            std::cout << "Peice " << otop << " is not cap but still going on standing\n";
-                            printMove(std::cout, m);
-                            std::cout << '\n' << *this << '\n';
-                        }*/
                     }
                     unsetTopbb(t, top(t));
                 }

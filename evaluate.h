@@ -24,8 +24,12 @@ namespace TAK {
     extern int groupU[8];
     extern int citadel;   //9
     extern int center;    //10
+    extern int underCap;
+    extern int emptyInfluence;
+    extern int flatInfluence;
     extern bitboard citadels[7][7];
     extern bitboard centerBoard;
+    extern bitboard allBoard;
 
     void initGroups(int n);
 
@@ -37,12 +41,12 @@ namespace TAK {
      * capsdtone count :capstoneU
      * standing stones :standingU
      * to move advantage :scale/2
+     * stacks
+     * roads
+     * penalise flatstones near corners and boundries and reward those near center
      *
      * TODO
-     * stacks
      * bonus for standing stone/capstone close to stacks
-     * penalise flatstones near corners and boundries and reward those near center
-     * roads
      */
 
     template<int n>
@@ -172,6 +176,12 @@ namespace TAK {
                         score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
                                   cnt * SReserveU) *
                                  sign;
+
+                    if (isCap(b.top(getSquare(i, j))) && b.getHeight(getSquare(i, j)) > 1) {
+                        if (color_of(b.underTop(getSquare(i, j))) == BLACK)
+                            score -= underCap;
+                        else score += underCap;
+                    }
                     /*if (isFlat(b.top(getSquare(i, j)))) {
                         score += sign * Fattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWF()) -
                                                    popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBF()));
@@ -194,20 +204,41 @@ namespace TAK {
     }
 
     template<int n>
+    int evaluateInfluence(const boardstate<n> &b) {
+        bitboard W = b.getWC() | b.getWF() | b.getWS();
+        bitboard B = b.getBF() | b.getBS() | b.getBC();
+        bitboard winf = (neighbours(W) | W) & allBoard;
+        bitboard binf = (neighbours(B) | B) & allBoard;
+
+        /*printBitboard(std::cout, W);
+        printBitboard(std::cout, B);
+        printBitboard(std::cout, winf);
+        printBitboard(std::cout, binf);
+        std::cout << "White inf empty " << popcnt(winf & ~(W | B)) << '\n';
+        std::cout << "Black inf empty " << popcnt(binf & ~(W | B)) << '\n';
+        std::cout << "White inf flat " << popcnt(winf & (b.getWF() | b.getBF())) << '\n';
+        std::cout << "Black inf flat " << popcnt(binf & (b.getWF() | b.getBF())) << '\n';
+         */
+        return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B))) +
+               flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
+    }
+
+    template<int n>
     int evaluate(const boardstate<n> &b) {
         int score =
                 2 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
-                (n * n + b.countEmpty());
+                (n * n + std::min(b.countEmpty(), std::min(b.getWhiteLeft(), b.getBlackLeft())));
         score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
-        score += evaluateCitadels(b);
+        //score += evaluateCitadels(b);
+        //score += evaluateInfluence(b);
         score += evaluateCenter(b);
         return score;
     }
 
-    inline void setWeights(int i){
-        CReserveU=i;
+    inline void setWeights(int i) {
+        center = i;
     }
 }
 #endif //A3_EVALUATE_H

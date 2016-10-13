@@ -126,7 +126,11 @@ namespace TAK {
     int popcnt(bitboard i);
 
     inline bitboard neighbours(bitboard b) {
+#ifdef ALLOWED_8
         return ((b & ~(col << 7)) << 1) | ((b & ~col) >> 1) | (b << 8) | (b >> 8);
+#else
+        return (b<<1)|(b>>1)|(b<<8)|(b>>8);
+#endif
     }
 
     int countRows(bitboard b, int n);
@@ -134,7 +138,6 @@ namespace TAK {
     int countCols(bitboard b, int n);
 
     bitboard group(bitboard b, bitboard start);
-    //std::ostream&operator<<(std::ostream&,move m);
 
     extern int slides[9][9][35];
     extern int slides1[9][9][35];
@@ -149,10 +152,19 @@ namespace TAK {
         return getSquare(squareAtLim - (ch[1] - '1'), ch[0] - 'a');
     }
 
+    inline void printBitboard(std::ostream&o,bitboard b) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++)
+                o << ((b & getBitboard(getSquare(i, j)))!=0);
+            o << '\n';
+        }
+        o<<'\n';
+    }
+
     template<int n>
     class boardstate;
 
-    extern unsigned long long zobristTable[8][8][64][8];
+    extern unsigned long long zobristTable[8][8][3 * 8 * 8 / 2][8];
     extern unsigned long long white_to_move;
 
     void initZobrist();

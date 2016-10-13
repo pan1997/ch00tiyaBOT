@@ -58,7 +58,7 @@ namespace TAK {
     }
 
     void tune() {
-        /*
+/*
         initZobrist();
         initGroups(5);
         initSlides();
@@ -66,8 +66,8 @@ namespace TAK {
         TAK::initCitadels();
         transpositionTableInit();
 
-        int w=80;
-        int delta=8;
+        int w=8;
+        int delta=2;
 
         for(int n=0;n<1;n++) {
 
@@ -90,6 +90,6 @@ namespace TAK {
             }
             std::cout<<score<<" score in favour of increment out of "<<40<<" games\n";
         }
-         */
+*/
     }
 }

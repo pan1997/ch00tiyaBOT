@@ -13,13 +13,16 @@ namespace TAK {
     int FReserveU=55;
     int SCaptureU=-20;
     int SReserveU=70;
-    int CCaptureU=-25;
-    int CReserveU=75;
-    int citadel=5;
-    int center=3;
+    int CCaptureU=-22;
+    int CReserveU=60;
+    int citadel=0;
+    int center=8;
+    int emptyInfluence=0;
+    int flatInfluence=0;
+    int underCap=10;
     bitboard centerBoard;
+    bitboard allBoard;
     bitboard citadels[7][7];
-
     void initCitadels() {
         int cnt = 0;
         for (int i = 0; i < 7; i++)
@@ -33,15 +36,17 @@ namespace TAK {
     void initGroups(int n) {
         centerBoard=0;
         for(int i=0;i<n;i++)
-            for(int j=0;j<n;j++)
-                if(i!=0&&i!=n-1&&j!=0&&j!=n-1)
-                    centerBoard|=getBitboard(getSquare(i,j));
+            for(int j=0;j<n;j++) {
+                if (i != 0 && i != n - 1 && j != 0 && j != n - 1)
+                    centerBoard |= getBitboard(getSquare(i, j));
+                allBoard |= getBitboard(getSquare(i, j));
+            }
         switch (n) {
             case 4:
                 groupU[0] = 0;
                 groupU[1] = 0;
-                groupU[2] = 50;
-                groupU[3] = 100;
+                groupU[2] = 15;
+                groupU[3] = 65;
                 groupU[4] = scale * 1600;
                 break;
             case 5:
@@ -65,8 +70,8 @@ namespace TAK {
                 groupU[0] = 0;
                 groupU[1] = 0;
                 groupU[2] = 0;
-                groupU[3] = 25;
-                groupU[4] = 70;
+                groupU[3] = 20;
+                groupU[4] = 75;
                 groupU[5] = 90;
                 groupU[6] = 120;
                 groupU[7] = scale * 4900;

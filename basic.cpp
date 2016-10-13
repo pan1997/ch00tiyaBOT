@@ -224,7 +224,7 @@ namespace TAK {
         }
     }
 
-    unsigned long long zobristTable[8][8][64][8];
+    unsigned long long zobristTable[8][8][3 * 8 * 8 / 2][8];
     unsigned long long white_to_move;
 
     void initZobrist() {
@@ -233,7 +233,7 @@ namespace TAK {
         auto rnd = std::bind(dist, generator);
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                for (int k = 0; k < 64; k++)
+                for (int k = 0; k < 3 * 8 * 8 / 2; k++)
                     for (int l = 0; l < 8; l++)
                         zobristTable[i][j][k][l] = rnd();
         //std::cout<<zobristTable[i][j][k][l]<<'\n';

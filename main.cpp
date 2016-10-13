@@ -12,62 +12,6 @@
 #include <bitset>
 #include <sstream>
 #include "autoTuning.h"
-template <int n>
-void test(TAK::boardstate<n>&bs) {
-    using namespace TAK;
-    //bs.playMove(construct_place_move(getRandomEmptySquare(bs), BLACK_FLAT));
-    std::cout << bs << '\n';
-    std::cout << "ENTER black square:";
-    int f;
-    char tm[20];
-    std::cin >> tm;
-    bs.playMove(construct_place_move(readSquare(tm), BLACK_FLAT));
-    std::cout << bs << '\n';
-    std::cout << "ENTER white square:";
-    std::cin >> tm;
-    bs.playMove(construct_place_move(readSquare(tm), WHITE_FLAT));
-    std::stack<move> moves;
-    std::cout << "enter 0 for cpu white:";
-    std::cin >> f;
-    std::cout << bs << '\n';
-    move m;
-    for (int i = 0; ; i++) {
-        std::cout << "------------------------------------------------------\n";
-        int mx = 0;
-        if (i % 2 == f) {
-            std::cout << std::bitset<64>(bs.getHash()) << '\n';
-            int limit = 3000;
-            m = search(bs, mx, limit);
-            std::cout << std::bitset<64>(bs.getHash()) << '\n';
-        }
-        else {
-            std::cout << "WAiting for move:";
-            std::cin >> tm;
-            if (strcmp(tm, "undo") == 0) {
-                i -= 3;
-                bs.undoMove(moves.top());
-                bs.flipTurn();
-                moves.pop();
-                bs.undoMove(moves.top());
-                bs.flipTurn();
-                moves.pop();
-                std::cout << bs << '\n';
-                continue;
-            }
-            m = readMove(tm, bs.getTurn());
-        };
-        moves.push(m);
-        bs.playMove(m);
-        bs.flipTurn();
-        std::cout << bs << '\n';
-        std::cout << "static eval:" << evaluate(bs) / (double) scale << " player eval:" << mx << '\n';
-        if (bs.end()) {
-            std::cout << "END\n";
-            std::cout << "score " << terminalEvalVerbose(bs) << '\n';
-            return;
-        }
-    }
-}
 
 void testbug(TAK::boardstate<5> b) {
     //std::string game="e1 a5 Fb1 Fc1 Fc5 Fd1 Fd5 Se5 Fa4 Fb1 Fa1 1b1<1 Fa2 2a1+2 Fa1 Sb2";
@@ -77,6 +21,14 @@ void testbug(TAK::boardstate<5> b) {
     game += "Fc4 Sc5 1c4>1 Fe4 Fc4 Sd5 1c4>1 ";
     game += "Fd3 Fc4 1d3+1 Fe5 Fd3 1c4>1 1d3+1 Fc4 ";
     game += "1e4<1 1c4>1 Fe4 Sc4 1e4<1 1c4>1 1b4-1";
+    /*
+1	31	 pv [Fb4 ] (1,85) nodes @86 kNps[0 ms] EBF=1] fatt 0 fsucc 0 ttcuts 0 TT has ? entries and 0 collisions and 0 drops=(0%)
+2	0	 pv [Fd2 Fd3 ] (88,928) nodes @112 kNps[8 ms] EBF=9.32738] fatt 0 fsucc 0 ttcuts 0 TT has ? entries and 0 collisions and 0 drops=(0%)
+3	38	 pv [Fb4 Fc4 5d4<5 ] (378,7057) nodes @354 kNps[20 ms] EBF=6.61911] fatt 0 fsucc 0 ttcuts 3 TT has ? entries and 0 collisions and 0 drops=(0%)
+4	3	 pv [Fd2 Fd3 Fe4 1b3-1 ] (7191,61971) nodes @197 kNps[350 ms] EBF=9.0852] fatt 0 fsucc 0 ttcuts 1156 TT has ? entries and 18 collisions and 0 drops=(0%)
+5	16	 pv [Fc4 1b3-1 2b1<2 Fb3 1c2+1 ] (26128,378463) nodes @524 kNps[770 ms] EBF=7.16906] fatt 241 fsucc 71 ttcuts 3967 TT has ? entries and 409 collisions and 1 drops=(0%)
+6	0	 pv [Fd3 Fd2 Fc4 Fb4 Fe4 1c5-1 Fc5 ] (347263,2456062) nodes @272 kNps[10268 ms] EBF=8.27525] fatt 5257 fsucc 4233 ttcuts 114491 TT has ? entries and 23613 collisions and 394 drops=(1%)
+     */
 
 
     std::string game1 = "a5 a1 Fa2 Fb5 Fb2 Sc2 Cc1 Fe1 Fd1 ";
@@ -87,7 +39,20 @@ void testbug(TAK::boardstate<5> b) {
 
     std::string game2 = "e1 a5 Fb5 Cb4 Fa2 Fe3 Fa3 Fa4 Fc4 Fc5 Fd5 Fd4 ";
     game2 += "Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5";
-    std::stringstream moves(game);
+    /*
+     * Current
+1	-65	 pv [Fa1 ] (1,97) nodes @98 kNps[0 ms] EBF=1] fatt 0 fsucc 0 ttcuts 0 TT has ? entries and 0 collisions and 0 drops=(0%)
+2	-69	 pv [Fa1 Fb2 ] (71,952) nodes @341 kNps[2 ms] EBF=8.3666] fatt 0 fsucc 0 ttcuts 15 TT has ? entries and 0 collisions and 0 drops=(0%)
+3	-71	 pv [Fa1 Fb2 Fb1 ] (243,4787) nodes @718 kNps[6 ms] EBF=5.5613] fatt 0 fsucc 0 ttcuts 57 TT has ? entries and 0 collisions and 0 drops=(0%)
+4	-97	 pv [Fa1 Fb2 Fb1 Fc2 ] (3698,23198) nodes @401 kNps[66 ms] EBF=7.66676] fatt 0 fsucc 0 ttcuts 1199 TT has ? entries and 1 collisions and 0 drops=(0%)
+5	-116 pv [Fa1 Fb2 Fb1 Fc1 1a1+1 Fb3 1b1+1 ] (11216,140565) nodes @811 kNps[186 ms] EBF=5.95965] fatt 95 fsucc 30 ttcuts 3577 TT has ? entries and 51 collisions and 0 drops=(0%)
+6	-98	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 Fd3 Fe4 1d3>1 ] (152722,925794) nodes @451 kNps[2386 ms] EBF=7.21876] fatt 2138 fsucc 1455 ttcuts 68287 TT has ? entries and 2642 collisions and 20 drops=(0%)
+7	-25	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 Fb4 4c5>13 ] (382854,3952366) nodes @818 kNps[5294 ms] EBF=5.83441] fatt 5169 fsucc 3538 ttcuts 217326 TT has ? entries and 29362 collisions and 773 drops=(2%)
+8	17	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 4c5>13 Fe4 4e5-4 ] (1000457,8636558) nodes @570 kNps[16879 ms] EBF=5.29467] fatt 14302 fsucc 10456 ttcuts 562452 TT has ? entries and 188452 collisions and 9331 drops=(4%)
+     */
+
+    std::string game3="a5 a1 Fb1 Fb5";
+    std::stringstream moves(game2);
     std::cout<<"Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1");
 
@@ -116,8 +81,8 @@ void testbug(TAK::boardstate<5> b) {
     //b.flipTurn();
     std::cout << b << '\n';
     int ms = 0, mse = 0;
-    mse = TAK::evaluate(b);
-    TAK::move m = TAK::search(b, ms, 35000);
+    mse = TAK::evaluateInfluence(b);
+    TAK::move m = TAK::search(b, ms, 45000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
 }
@@ -159,7 +124,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         int mx = 0;
         if (i % 2 == p) {
             int aim = limit / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
-            //std::cerr<<"aiming "<<aim<<" ms\n";
+            std::cerr<<"aiming "<<aim<<" ms\n";
             auto start = std::chrono::system_clock::now();
             m = search(board, mx, aim);
             auto end = std::chrono::system_clock::now();
@@ -168,7 +133,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
             std::cout << '\n';
             std::cout.flush();
             limit += increment;
-            //std::cerr<<"Left "<<limit<<" ms\n";
+            std::cerr<<"Left "<<limit<<" ms\n";
         }
         else {
             std::cin >> tm;
@@ -201,16 +166,15 @@ int main() {
     //testbug(board);
 #endif
 #ifdef ASS
-    cerr << "ch00tiyaBOT 1.3.1\n";
+    cerr << "ch00tiyaBOT 1.4\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
-    int increment = 0*1000;
+    lim=960;
+    //p=n=lim=1;
+    int increment = 6 * 1000;
     lim *= 1000;
     switch (n) {
-        case 3:
-            assignment(TAK::boardstate<3>(), p, lim, increment);
-            break;
         case 4:
             assignment(TAK::boardstate<4>(), p, lim, increment);
             break;
@@ -224,10 +188,12 @@ int main() {
             assignment(TAK::boardstate<7>(), p, lim, increment);
             break;
         case 8:
+            std::cout<<"not programmed for "<<n<<", ask for a special version for this from the programmer\n";
             assignment(TAK::boardstate<8>(), p, lim, increment);
             break;
         default:
-
+            //TAK::tune();
+            std::cout<<"game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
             TAK::initSlides();
@@ -235,10 +201,10 @@ int main() {
             TAK::initCitadels();
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
+
             testbug(b);
+
     }
 #endif
-    //cout << "Hello, World!123" << endl;
     return 0;
-
 }
