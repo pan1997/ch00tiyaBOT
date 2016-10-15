@@ -5,6 +5,8 @@
 #ifndef A3_SEARCH_H
 #define A3_SEARCH_H
 
+#define FREQ 2
+#define MAX_TIME 120
 //
 // Created by pankaj on 21/9/16.
 //
@@ -14,6 +16,9 @@
 #include <chrono>
 #include <cmath>
 #include "transpositionTable.h"
+#include <thread>
+#include <future>
+
 namespace TAK {
 
 #define NMP_ALLOWED
@@ -25,6 +30,7 @@ namespace TAK {
         int fatt;
         int fsucc;
         int depth_limit;
+        bool stop;
     };
 
     enum node_type {
@@ -215,9 +221,9 @@ namespace TAK {
     }
 
     template<int n>
-    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm,
-                bool showlegal = false) {
+    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm) {
         info->nodes++;
+        bool clearbounds = false;
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
         if (transpositionTableEntry1 != nullptr) {
             if (transpositionTableEntry1->depth >= info->depth_limit - d) {
@@ -233,21 +239,25 @@ namespace TAK {
                 alpha = std::max(alpha, transpositionTableEntry1->lower_bound);
                 beta = std::min(beta, transpositionTableEntry1->upper_bound);
             } else {
-                transpositionTableEntry1->lower_bound = std::numeric_limits<int>::min();
-                transpositionTableEntry1->upper_bound = std::numeric_limits<int>::max();
+                clearbounds = true;
+                //transpositionTableEntry1->lower_bound = std::numeric_limits<int>::min();
+                //transpositionTableEntry1->upper_bound = std::numeric_limits<int>::max();
             }
         }
+
+        if (info->stop)
+            return alpha;
 
         bool extend = false;
 
         if (tp != PV_NODE) {
             bool pruned = false;
 #ifdef NMP_ALLOWED
-            if (d > 2 && info->depth_limit > d + 1 && !in_nm) {
+            if (info->depth_limit > d + 1 && !in_nm) {
                 info->fatt++;
                 b.flipTurn();
                 int bound = beta - scale * n * n /
-                                   (n * n + std::min(b.countEmpty(), std::min(b.getWhiteLeft(), b.getBlackLeft())));
+                                   (n * n + b.countEmpty());
                 int ms = -minimax(b, info, (info->depth_limit - d > 3) ? d + 3 : d + 1, -bound, -bound + 1,
                                   (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
                 b.flipTurn();
@@ -259,24 +269,29 @@ namespace TAK {
 #endif
             if (pruned)
                 return beta;
+
+            if (info->depth_limit == d + 1 &&
+                transpositionTableEntry1 != nullptr &&
+                transpositionTableEntry1->upper_bound != std::numeric_limits<int>::max() &&
+                transpositionTableEntry1->upper_bound + scale < alpha) {
+                return alpha;
+            }
         }
 
         int neg = b.getTurn() == BLACK ? -1 : 1;
         move bm = -1;
         int alpha_backup = alpha;
-
         if (extend)
             info->depth_limit++;
+
+        if (clearbounds) {
+            transpositionTableEntry1->lower_bound = std::numeric_limits<int>::min();
+            transpositionTableEntry1->upper_bound = std::numeric_limits<int>::max();
+        }
 
         if (transpositionTableEntry1 != nullptr) {//best move first
             bm = transpositionTableEntry1->bm;
             if (bm != -1) {
-                if (showlegal) {
-                    for (int g = 0; g < d; g++)
-                        std::cout << '\t';
-                    printMove(std::cout, bm);
-                    std::cout << ' ' << alpha << '\n';
-                }
                 bool fl = b.playMove(bm);
                 b.flipTurn();
                 int ms;
@@ -302,12 +317,6 @@ namespace TAK {
                             for (int j = 0; j < n; j++)
                                 if (b.empty(getSquare(i, j))) {
                                     move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
-                                    if (showlegal) {
-                                        for (int g = 0; g < d; g++)
-                                            std::cout << '\t';
-                                        printMove(std::cout, m);
-                                        std::cout << ' ' << alpha << '\n';
-                                    }
                                     if (bm == m)
                                         continue;
                                     b.playMove(m);
@@ -325,17 +334,21 @@ namespace TAK {
                                             ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                         }
                                     }
-                                    else
-                                        ms = -qsearch(b, info, -beta, -alpha,
-                                                      qdepth(info->depth_limit));//ms = neg * evaluate(b);
+                                    else {
+                                        ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                        if (alpha < ms && ms < beta) {
+                                            ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                        }
+                                    }
                                     b.undoMove(m);
                                     b.flipTurn();
-                                    if (ms > alpha) {
-                                        bm = m;
-                                        alpha = ms;
-                                        if (alpha >= beta) {
-                                            goto eos;
-                                        }
+                                        if (ms > alpha) {
+                                            bm = m;
+                                            alpha = ms;
+                                            if (alpha >= beta) {
+                                                goto eos;
+                                            }
+
                                     }
                                 }
                     }
@@ -357,12 +370,6 @@ namespace TAK {
                                     for (int r = 1; r <= lr; r++) {
                                         for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
                                             move m = construct_move_move(getSquare(i, j), dir, h, slides[h][r][cnt]);
-                                            if (showlegal) {
-                                                for (int g = 0; g < d; g++)
-                                                    std::cout << '\t';
-                                                printMove(std::cout, m);
-                                                std::cout << ' ' << alpha << '\n';
-                                            }
                                             if (bm == m)
                                                 continue;
                                             bool fl = b.playMove(m);
@@ -380,17 +387,20 @@ namespace TAK {
                                                     ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                                 }
                                             }
-                                            else
-                                                ms = -qsearch(b, info, -beta, -alpha,
-                                                              qdepth(info->depth_limit));//ms = neg * evaluate(b);
+                                            else {
+                                                ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                                if (alpha < ms && ms < beta) {
+                                                    ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                                }
+                                            }
                                             b.undoMove(m, fl);
                                             b.flipTurn();
-                                            if (ms > alpha) {
-                                                bm = m;
-                                                alpha = ms;
-                                                if (alpha >= beta)
-                                                    goto eos;
-                                            }
+                                                if (ms > alpha) {
+                                                    bm = m;
+                                                    alpha = ms;
+                                                    if (alpha >= beta)
+                                                        goto eos;
+                                                }
                                         }
                                     }
                                 if (isCap(b.top(getSquare(i, j))) && t != -1 && !b.empty(t) && isStanding(b.top(t))) {
@@ -400,12 +410,6 @@ namespace TAK {
                                             for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
                                                 move m = construct_move_move(getSquare(i, j), dir, h,
                                                                              slides1[h][r][cnt]);
-                                                if (showlegal) {
-                                                    for (int g = 0; g < d; g++)
-                                                        std::cout << '\t';
-                                                    printMove(std::cout, m);
-                                                    std::cout << ' ' << alpha << '\n';
-                                                }
                                                 if (bm == m)
                                                     continue;
                                                 bool fl = b.playMove(m);
@@ -423,18 +427,23 @@ namespace TAK {
                                                         ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                                     }
                                                 }
-                                                else
-                                                    ms = -qsearch(b, info, -beta, -alpha,
-                                                                  qdepth(info->depth_limit));//ms = neg * evaluate(b);
-                                                b.undoMove(m, fl);
-                                                b.flipTurn();
-                                                if (ms > alpha) {
-                                                    bm = m;
-                                                    alpha = ms;
-                                                    if (alpha >= beta) {
-                                                        goto eos;
+                                                else {
+                                                    ms = -qsearch(b, info, -alpha - 1, -alpha,
+                                                                  qdepth(info->depth_limit));
+                                                    if (alpha < ms && ms < beta) {
+                                                        ms = -qsearch(b, info, -beta, -alpha,
+                                                                      qdepth(info->depth_limit));
                                                     }
                                                 }
+                                                b.undoMove(m, fl);
+                                                b.flipTurn();
+                                                    if (ms > alpha) {
+                                                        bm = m;
+                                                        alpha = ms;
+                                                        if (alpha >= beta) {
+                                                            goto eos;
+                                                        }
+                                                    }
                                             }
                                         }
                                     }
@@ -448,12 +457,6 @@ namespace TAK {
                     for (int j = 0; j < n; j++)
                         if (b.empty(getSquare(i, j))) {
                             move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
-                            if (showlegal) {
-                                for (int g = 0; g < d; g++)
-                                    std::cout << '\t';
-                                printMove(std::cout, m);
-                                std::cout << ' ' << alpha << '\n';
-                            }
                             if (bm == m)
                                 continue;
                             b.playMove(m);
@@ -470,18 +473,20 @@ namespace TAK {
                                     ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                 }
                             }
-                            else
-                                ms = -qsearch(b, info, -beta, -alpha,
-                                              qdepth(info->depth_limit));//ms = neg * evaluate(b);
-                            b.undoMove(m);
-                            b.flipTurn();
-                            if (ms > alpha) {
-                                bm = m;
-                                alpha = ms;
-                                if (alpha >= beta) {
-                                    goto eos;
+                            else {
+                                ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                if (alpha < ms && ms < beta) {
+                                    ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
                                 }
                             }
+                            b.undoMove(m);
+                            b.flipTurn();
+                                if (ms > alpha) {
+                                    bm = m;
+                                    alpha = ms;
+                                    if (alpha >= beta)
+                                        goto eos;
+                                }
                         }
             }
         eos:
@@ -523,56 +528,92 @@ namespace TAK {
         }
     }
 
+    extern searchInfo info;
+
     template<int n>
     move search(boardstate<n> &b, int &max, int Tlimit) {
         //int neg = b.getTurn() == BLACK ? -1 : 1;
         auto start = std::chrono::system_clock::now();
         move bm = -1;
-        searchInfo info;
+        //searchInfo info;
         info.nodes = 0;
         info.ttcuts = 0;
         info.fatt = 0;
         info.fsucc = 0;
         info.qnodes = 0;
+        info.stop = false;
         clearTable();
+        boardstate<n> backup(b);
         int ms;
         int tm;
-        int delta = 30;
+        double ebf;
+        move pbm;
         for (int dl = 1; max < scale * 100 && max > -scale * 100; dl++) {
             max = -scale * 1000000;
             info.depth_limit = dl;
             int pn = info.nodes;
             int alpha = max;
             int beta = -max;
-            ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
+            //ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
+            //std::future<int> future=std::async(minimax,std::ref(b),&info,1,std::ref(alpha),std::ref(beta),PV_NODE,false);
+            std::future<int> future = std::async(std::launch::async, [b, alpha, beta]() mutable {
+                return minimax(b, &info, 1, alpha, beta, PV_NODE, false);
+                //return mtdf(b,&info);
+            });
+            std::future_status status;
+            int count = 0;
+            do {
+                status = future.wait_for(std::chrono::seconds(FREQ));
+                if (status == std::future_status::timeout) {
+                    tm = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            std::chrono::system_clock::now() - start).count();
+                    std::cerr << dl << "?\t" << ms << "\t pv [";
+                    printpv(backup);
+                    std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
+                    (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
+                    std::cerr << " ";
+                    displayTTinfo();
+                }
+                count++;
+            } while (status != std::future_status::ready && count <MAX_TIME / FREQ);
+            if (future.wait_for(std::chrono::seconds(2)) == std::future_status::timeout) {
+                info.stop = true;
+                std::cerr << "stopped";
+                //future.wait_for(std::chrono::seconds());
+            }
+            ms = future.get();
             auto end = std::chrono::system_clock::now();
             bm = getEntry(b)->bm;
+            if (!info.stop)
+                pbm = bm;
             max = ms;
             tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            double ebf;
 #ifndef ASS
-            std::cout << dl << '\t' << ms << "\t pv [";
+            if(!info.stop){std::cout << dl << '\t' << ms << "\t pv [";
             printpv(b);
             std::cout << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
             (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
             std::cout << "EBF~=" << (ebf = (info.nodes - pn) * 1.0 / (pn + 1));
             std::cout << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
             displayTTinfo();
+            }
 #else
-            std::cerr << dl << '\t' << ms << "\t pv [";
-            printpv(b);
-            std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
-            (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
-            std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
-            std::cerr << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
-            displayTTinfo();
+            if (!info.stop) {
+                std::cerr << dl << '\t' << ms << "\t pv [";
+                printpv(b);
+                std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
+                (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
+                std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
+                std::cerr << " ";
+                displayTTinfo();
+            }
 #endif
             if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
                 //if (dl>8) {
                 break;
             }
         }
-        return bm;
+        return pbm;
     }
 }
 #endif //A3_SEARCH_H

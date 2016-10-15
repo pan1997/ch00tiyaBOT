@@ -5,14 +5,16 @@
 #include "transpositionTable.h"
 namespace TAK {
     int collisions;
-    transpositionTableEntry *tr;
+    transpositionTableEntry *tr=nullptr;
     int currentGen;
     int dropped;
     size_t sizeOfTable;
 
     void transpositionTableInit() {
-        sizeOfTable = 100000000;
-        //sizeOfTable=1000000;
+        sizeOfTable = 150000000;
+        //sizeOfTable=20000000;
+        if(tr)
+            delete[]tr;
         tr = new transpositionTableEntry[sizeOfTable];
         currentGen = -1;
         //transpositionTable.reserve(40000000);
@@ -26,7 +28,7 @@ namespace TAK {
         " collisions and "<<dropped<<" drops"<<100*dropped/(collisions+1)<<"%\n";
 #else
         std::cerr << "TT has ? entries and " << collisions <<
-        " collisions and " << dropped << " drops=(" << 100 * dropped / (collisions + 1) << "%)\n";
+        " collisions and " << dropped << " drops=(" << 100ULL * dropped / (collisions + 1) << "%)\n";
 #endif
     }
 }

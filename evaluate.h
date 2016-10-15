@@ -218,7 +218,7 @@ namespace TAK {
         std::cout << "Black inf empty " << popcnt(binf & ~(W | B)) << '\n';
         std::cout << "White inf flat " << popcnt(winf & (b.getWF() | b.getBF())) << '\n';
         std::cout << "Black inf flat " << popcnt(binf & (b.getWF() | b.getBF())) << '\n';
-         */
+*/
         return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B))) +
                flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
     }
@@ -227,18 +227,21 @@ namespace TAK {
     int evaluate(const boardstate<n> &b) {
         int score =
                 2 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
-                (n * n + std::min(b.countEmpty(), std::min(b.getWhiteLeft(), b.getBlackLeft())));
+                (n * n + b.countEmpty());
         score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
         //score += evaluateCitadels(b);
-        //score += evaluateInfluence(b);
+        score += evaluateInfluence(b);
         score += evaluateCenter(b);
         return score;
     }
 
     inline void setWeights(int i) {
-        center = i;
+        flatInfluence = i;
+        //groupU[4]=i;
+        //scale=100-i;
+        //capstoneU=96-i;
     }
 }
 #endif //A3_EVALUATE_H

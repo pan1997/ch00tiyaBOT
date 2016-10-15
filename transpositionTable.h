@@ -9,12 +9,12 @@
 #include <unordered_map>
 #include "boardstate.h"
 namespace TAK {
+    extern int scale;
     class transpositionTableEntry {
     public:
         transpositionTableEntry() : lower_bound(std::numeric_limits<int>::min()),
                                     upper_bound(std::numeric_limits<int>::max()), depth(0), bm(-1), generation(-1),
                                     hash(0) { }
-
         int lower_bound;
         int upper_bound;
         int depth;

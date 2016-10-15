@@ -2,6 +2,8 @@
 // Created by pankaj on 25/9/16.
 //
 #include "evaluate.h"
+#include "search.h"
+
 namespace TAK {
 
     int scale = 100;
@@ -13,12 +15,12 @@ namespace TAK {
     int FReserveU=55;
     int SCaptureU=-20;
     int SReserveU=70;
-    int CCaptureU=-22;
+    int CCaptureU=-20;
     int CReserveU=60;
     int citadel=0;
     int center=8;
-    int emptyInfluence=0;
-    int flatInfluence=0;
+    int emptyInfluence=2;
+    int flatInfluence=6;
     int underCap=10;
     bitboard centerBoard;
     bitboard allBoard;
@@ -89,4 +91,5 @@ namespace TAK {
                 break;
         }
     }
+    searchInfo info;
 }

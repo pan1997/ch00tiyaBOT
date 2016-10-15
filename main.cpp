@@ -99,7 +99,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
     char tm[50];
     std::string mv = "Fa";
     tm[1] = 0;
-    tm[0] = '0' + n;
+    tm[0] = '1';
     mv.append(tm);
     if (p == 0) {
         std::strcpy(tm, mv.c_str());
@@ -113,7 +113,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         board.playMove(construct_place_move(readSquare(tm + 1), BLACK_FLAT));
         if (std::strcmp(tm, mv.c_str()) != 0)
             std::strcpy(tm, mv.c_str());
-        else std::strcpy(tm, "Fa1");
+        else std::strcpy(tm, "Fe1");
         std::cout << tm << "\n";
         board.playMove(construct_place_move(readSquare(tm + 1), WHITE_FLAT));
     }
@@ -123,7 +123,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         std::cerr << board << '\n';
         int mx = 0;
         if (i % 2 == p) {
-            int aim = limit / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
+            int aim = limit / (board.countEmpty() * 2 + 10);
             std::cerr<<"aiming "<<aim<<" ms\n";
             auto start = std::chrono::system_clock::now();
             m = search(board, mx, aim);
@@ -166,13 +166,13 @@ int main() {
     //testbug(board);
 #endif
 #ifdef ASS
-    cerr << "ch00tiyaBOT 1.4\n";
+    cerr << "ch00tiyaBOT 1.5\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
-    lim=960;
+    //lim = 960;
     //p=n=lim=1;
-    int increment = 6 * 1000;
+    int increment = 0 * 1000;
     lim *= 1000;
     switch (n) {
         case 4:
@@ -188,12 +188,12 @@ int main() {
             assignment(TAK::boardstate<7>(), p, lim, increment);
             break;
         case 8:
-            std::cout<<"not programmed for "<<n<<", ask for a special version for this from the programmer\n";
+            std::cout << "not programmed for " << n << ", ask for a special version for this from the programmer\n";
             assignment(TAK::boardstate<8>(), p, lim, increment);
             break;
         default:
             //TAK::tune();
-            std::cout<<"game not defined. Just autotuning/bug fixing\n";
+            std::cout << "game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
             TAK::initSlides();
