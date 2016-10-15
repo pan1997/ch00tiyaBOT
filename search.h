@@ -31,6 +31,10 @@ namespace TAK {
         int fsucc;
         int depth_limit;
         bool stop;
+        //turn square place or move
+        long long history[2][2][64];
+        //player place/move order
+        square order[2][2][64];
     };
 
     enum node_type {
@@ -39,6 +43,9 @@ namespace TAK {
 
     inline int qdepth(int dl) {
         return 5;
+    }
+    inline bool storehistory(int d){
+        return d>2;
     }
 
     template<int n>
@@ -100,52 +107,83 @@ namespace TAK {
             if (alpha < beta && ((z == 0) == ff))
                 for (int p = 1; p <= 3; p++)
                     if (p != 2 && (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0)) {
-                        for (int i = 0; i < n; i++)
-                            for (int j = 0; j < n; j++)
-                                if (b.empty(getSquare(i, j))) {
-                                    move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
-                                    if (bm == m)
-                                        continue;
-                                    int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
-                                    b.playMove(m);
-                                    b.flipTurn();
-                                    int ms;
-                                    if (b.end())
-                                        ms = neg * terminalEval(b);
-                                    else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
-                                        ms = -qsearch(b, info, -beta, -alpha, lim - 1);
-                                    else
-                                        ms = stand_pat;
-                                    b.undoMove(m);
-                                    b.flipTurn();
-                                    if (ms > alpha) {
-                                        bm = m;
-                                        alpha = ms;
-                                        if (alpha >= beta)
-                                            goto qos;
-                                    }
+                        for (int i = 0; i < n * n; i++)
+                            if (b.empty(info->order[b.getTurn()][1][i])) {
+                                move m = construct_place_move(info->order[b.getTurn()][1][i],
+                                                              (peice) (b.getTurn() | (p << 1)));
+                                if (bm == m)
+                                    continue;
+                                int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
+                                b.playMove(m);
+                                b.flipTurn();
+                                int ms;
+                                if (b.end())
+                                    ms = neg * terminalEval(b);
+                                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
+                                    ms = -qsearch(b, info, -beta, -alpha, lim - 1);
+                                else
+                                    ms = stand_pat;
+                                b.undoMove(m);
+                                b.flipTurn();
+                                if (ms > alpha) {
+                                    bm = m;
+                                    alpha = ms;
+                                    if (alpha >= beta)
+                                        goto qos;
                                 }
+                            }
                     }
             if (alpha < beta && ((z == 1) == ff))
-                for (int i = 0; i < n; i++)
-                    for (int j = 0; j < n; j++)
-                        if ((!b.empty(getSquare(i, j))) &&
-                            //b.getHeight(getSquare(i,j))>1 &&
-                            color_of(b.top(getSquare(i, j))) == b.getTurn()) {
-                            int lh = b.getHeight(getSquare(i, j));
-                            lh = std::min(lh, n);
-                            for (int k = 0; k < 4; k++) {
-                                direction dir = (direction) k;
-                                int lr = 0;
-                                square t = getSquare(i, j);
-                                t = squareAt(t, dir);
-                                for (int k = 0;
-                                     k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
-                                    lr++;
-                                for (int h = 1; h <= lh; h++)
-                                    for (int r = 1; r <= lr; r++) {
-                                        for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
-                                            move m = construct_move_move(getSquare(i, j), dir, h, slides[h][r][cnt]);
+                for (int i = 0; i < n * n; i++)
+                    if ((!b.empty(info->order[b.getTurn()][0][i])) &&
+                        //b.getHeight(getSquare(i,j))>1 &&
+                        color_of(b.top(info->order[b.getTurn()][0][i])) == b.getTurn()) {
+                        int lh = b.getHeight(info->order[b.getTurn()][0][i]);
+                        lh = std::min(lh, n);
+                        for (int k = 0; k < 4; k++) {
+                            direction dir = (direction) k;
+                            int lr = 0;
+                            square t = info->order[b.getTurn()][0][i];
+                            t = squareAt(t, dir);
+                            for (int k = 0;
+                                 k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
+                                lr++;
+                            for (int h = 1; h <= lh; h++)
+                                for (int r = 1; r <= lr; r++) {
+                                    for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
+                                        move m = construct_move_move(info->order[b.getTurn()][0][i], dir, h,
+                                                                     slides[h][r][cnt]);
+                                        if (bm == m)
+                                            continue;
+                                        int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
+                                        bool fl = b.playMove(m);
+                                        b.flipTurn();
+                                        int ms;
+                                        if (b.end())
+                                            ms = neg * terminalEval(b);
+                                        else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) !=
+                                                 pn)//&& b.getHeight(getSquare(i,j))>1)
+                                            ms = -qsearch(b, info, -beta, -alpha, lim - 1);
+                                        else
+                                            ms = stand_pat;
+                                        b.undoMove(m, fl);
+                                        b.flipTurn();
+                                        if (ms > alpha) {
+                                            bm = m;
+                                            alpha = ms;
+                                            if (alpha >= beta)
+                                                goto qos;
+                                        }
+                                    }
+                                }
+                            if (isCap(b.top(info->order[b.getTurn()][0][i])) && t != -1 && !b.empty(t) &&
+                                isStanding(b.top(t))) {
+                                lr++;
+                                for (int h = lr; h <= lh; h++) {
+                                    for (int r = lr; r <= lr; r++) {
+                                        for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
+                                            move m = construct_move_move(info->order[b.getTurn()][0][i], dir, h,
+                                                                         slides1[h][r][cnt]);
                                             if (bm == m)
                                                 continue;
                                             int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
@@ -154,8 +192,7 @@ namespace TAK {
                                             int ms;
                                             if (b.end())
                                                 ms = neg * terminalEval(b);
-                                            else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) !=
-                                                     pn)//&& b.getHeight(getSquare(i,j))>1)
+                                            else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
                                                 ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                             else
                                                 ms = stand_pat;
@@ -164,38 +201,8 @@ namespace TAK {
                                             if (ms > alpha) {
                                                 bm = m;
                                                 alpha = ms;
-                                                if (alpha >= beta)
+                                                if (alpha >= beta) {
                                                     goto qos;
-                                            }
-                                        }
-                                    }
-                                if (isCap(b.top(getSquare(i, j))) && t != -1 && !b.empty(t) && isStanding(b.top(t))) {
-                                    lr++;
-                                    for (int h = lr; h <= lh; h++) {
-                                        for (int r = lr; r <= lr; r++) {
-                                            for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
-                                                move m = construct_move_move(getSquare(i, j), dir, h,
-                                                                             slides1[h][r][cnt]);
-                                                if (bm == m)
-                                                    continue;
-                                                int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
-                                                bool fl = b.playMove(m);
-                                                b.flipTurn();
-                                                int ms;
-                                                if (b.end())
-                                                    ms = neg * terminalEval(b);
-                                                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
-                                                    ms = -qsearch(b, info, -beta, -alpha, lim - 1);
-                                                else
-                                                    ms = stand_pat;
-                                                b.undoMove(m, fl);
-                                                b.flipTurn();
-                                                if (ms > alpha) {
-                                                    bm = m;
-                                                    alpha = ms;
-                                                    if (alpha >= beta) {
-                                                        goto qos;
-                                                    }
                                                 }
                                             }
                                         }
@@ -203,6 +210,7 @@ namespace TAK {
                                 }
                             }
                         }
+                    }
         }
         qos:
         if (transpositionTableEntry1 != nullptr) {
@@ -221,7 +229,7 @@ namespace TAK {
     }
 
     template<int n>
-    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm) {
+    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm,bool show_legal=false) {
         info->nodes++;
         bool clearbounds = false;
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
@@ -270,12 +278,14 @@ namespace TAK {
             if (pruned)
                 return beta;
 
-            if (info->depth_limit == d + 1 &&
+            //futility pruning
+            /*if (info->depth_limit == d + 1 &&
                 transpositionTableEntry1 != nullptr &&
                 transpositionTableEntry1->upper_bound != std::numeric_limits<int>::max() &&
                 transpositionTableEntry1->upper_bound + scale < alpha) {
                 return alpha;
-            }
+            }*/
+
         }
 
         int neg = b.getTurn() == BLACK ? -1 : 1;
@@ -302,8 +312,12 @@ namespace TAK {
                 b.flipTurn();
                 if (fl)
                     info->fsucc++;
-                if (ms > alpha)
+                if (ms > alpha) {
+                    if (storehistory(info->depth_limit - d))
+                        info->history[b.getTurn()][isPlaceMove(bm) ? 1 : 0][bm & 63] +=
+                                (info->depth_limit - d) * (info->depth_limit - d);
                     alpha = ms;
+                }
             }
         }
 
@@ -313,65 +327,125 @@ namespace TAK {
             if (alpha < beta && ((z == 0) == (ff)))
                 for (int p = 1; p <= 3; p++)
                     if (p != 2 && (p != 3 || (b.getTurn() == WHITE ? b.getWhileCapLeft() : b.getBlackCapLeft()) > 0)) {
-                        for (int i = 0; i < n; i++)
-                            for (int j = 0; j < n; j++)
-                                if (b.empty(getSquare(i, j))) {
-                                    move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
-                                    if (bm == m)
-                                        continue;
-                                    b.playMove(m);
-                                    b.flipTurn();
-                                    int ms;
-                                    if (b.end())
-                                        ms = neg * terminalEval(b);
-                                    else if (d < info->depth_limit) {
-                                        ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
-                                                      (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
-                                        if (alpha < ms && ms < beta ||
-                                            tp == PV_NODE && ms == beta && beta == alpha + 1) {
-                                            if (ms == alpha + 1)
-                                                ms = alpha;
-                                            ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
-                                        }
+                        for (int i = 0; i < n * n; i++)
+                            if (b.empty(info->order[b.getTurn()][1][i])) {
+                                move m = construct_place_move(info->order[b.getTurn()][1][i],
+                                                              (peice) (b.getTurn() | (p << 1)));
+                                if (bm == m)
+                                    continue;
+                                if (show_legal) {
+                                    printMove(std::cerr, m);
+                                    std::cerr << '\n';
+                                }
+                                b.playMove(m);
+                                b.flipTurn();
+                                int ms;
+                                if (b.end())
+                                    ms = neg * terminalEval(b);
+                                else if (d < info->depth_limit) {
+                                    ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                  (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                    if (alpha < ms && ms < beta ||
+                                        tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                        if (ms == alpha + 1)
+                                            ms = alpha;
+                                        ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
                                     }
-                                    else {
-                                        ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
-                                        if (alpha < ms && ms < beta) {
-                                            ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
-                                        }
+                                }
+                                else {
+                                    ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                    if (alpha < ms && ms < beta) {
+                                        ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
                                     }
-                                    b.undoMove(m);
-                                    b.flipTurn();
+                                }
+                                b.undoMove(m);
+                                b.flipTurn();
+                                if (ms > alpha) {
+                                    bm = m;
+                                    alpha = ms;
+                                    if (alpha >= beta) {
+                                        if (storehistory(info->depth_limit - d))
+                                            info->history[b.getTurn()][1][m & 63] +=
+                                                    (info->depth_limit - d) * (info->depth_limit - d);
+                                        goto eos;
+                                    }
+                                }
+                            }
+                    }
+            if (alpha < beta && ((z == 1) == ff))
+                for (int i = 0; i < n * n; i++)
+                    if (!b.empty(info->order[b.getTurn()][0][i]) &&
+                        color_of(b.top(info->order[b.getTurn()][0][i])) == b.getTurn()) {
+                        int lh = b.getHeight(info->order[b.getTurn()][0][i]);
+                        lh = std::min(lh, n);
+                        for (int k = 0; k < 4; k++) {
+                            direction dir = (direction) k;
+                            int lr = 0;
+                            square t = info->order[b.getTurn()][0][i];
+                            t = squareAt(t, dir);
+                            for (int k = 0;
+                                 k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
+                                lr++;
+                            for (int h = 1; h <= lh; h++)
+                                for (int r = 1; r <= lr; r++) {
+                                    for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
+                                        move m = construct_move_move(info->order[b.getTurn()][0][i], dir, h,
+                                                                     slides[h][r][cnt]);
+                                        if (bm == m)
+                                            continue;
+                                        if (show_legal) {
+                                            printMove(std::cerr, m);
+                                            std::cerr << '\n';
+                                        }
+                                        bool fl = b.playMove(m);
+                                        b.flipTurn();
+                                        int ms;
+                                        if (b.end())
+                                            ms = neg * terminalEval(b);
+                                        else if (d < info->depth_limit) {
+                                            ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                          (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                            if (alpha < ms && ms < beta ||
+                                                tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                                if (ms == alpha + 1)
+                                                    ms = alpha;
+                                                ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                                            }
+                                        }
+                                        else {
+                                            ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                            if (alpha < ms && ms < beta) {
+                                                ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                            }
+                                        }
+                                        b.undoMove(m, fl);
+                                        b.flipTurn();
                                         if (ms > alpha) {
                                             bm = m;
                                             alpha = ms;
                                             if (alpha >= beta) {
+                                                if (storehistory(info->depth_limit - d))
+                                                    info->history[b.getTurn()][0][m & 63] +=
+                                                            (info->depth_limit - d) * (info->depth_limit - d);
                                                 goto eos;
                                             }
-
+                                        }
                                     }
                                 }
-                    }
-            if (alpha < beta && ((z == 1) == ff))
-                for (int i = 0; i < n; i++)
-                    for (int j = 0; j < n; j++)
-                        if (!b.empty(getSquare(i, j)) && color_of(b.top(getSquare(i, j))) == b.getTurn()) {
-                            int lh = b.getHeight(getSquare(i, j));
-                            lh = std::min(lh, n);
-                            for (int k = 0; k < 4; k++) {
-                                direction dir = (direction) k;
-                                int lr = 0;
-                                square t = getSquare(i, j);
-                                t = squareAt(t, dir);
-                                for (int k = 0;
-                                     k < n && (t != -1) && (b.empty(t) || isFlat(b.top(t))); t = squareAt(t, dir))
-                                    lr++;
-                                for (int h = 1; h <= lh; h++)
-                                    for (int r = 1; r <= lr; r++) {
-                                        for (int cnt = 0; cnt < count_slides[h][r]; cnt++) {
-                                            move m = construct_move_move(getSquare(i, j), dir, h, slides[h][r][cnt]);
+                            if (isCap(b.top(info->order[b.getTurn()][0][i])) && t != -1 && !b.empty(t) &&
+                                isStanding(b.top(t))) {
+                                lr++;
+                                for (int h = lr; h <= lh; h++) {
+                                    for (int r = lr; r <= lr; r++) {
+                                        for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
+                                            move m = construct_move_move(info->order[b.getTurn()][0][i], dir, h,
+                                                                         slides1[h][r][cnt]);
                                             if (bm == m)
                                                 continue;
+                                            if (show_legal) {
+                                                printMove(std::cerr, m);
+                                                std::cerr << '\n';
+                                            }
                                             bool fl = b.playMove(m);
                                             b.flipTurn();
                                             int ms;
@@ -388,106 +462,75 @@ namespace TAK {
                                                 }
                                             }
                                             else {
-                                                ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                                ms = -qsearch(b, info, -alpha - 1, -alpha,
+                                                              qdepth(info->depth_limit));
                                                 if (alpha < ms && ms < beta) {
-                                                    ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                                    ms = -qsearch(b, info, -beta, -alpha,
+                                                                  qdepth(info->depth_limit));
                                                 }
                                             }
                                             b.undoMove(m, fl);
                                             b.flipTurn();
-                                                if (ms > alpha) {
-                                                    bm = m;
-                                                    alpha = ms;
-                                                    if (alpha >= beta)
-                                                        goto eos;
+                                            if (ms > alpha) {
+                                                bm = m;
+                                                alpha = ms;
+                                                if (alpha >= beta) {
+                                                    if (storehistory(info->depth_limit - d))
+                                                        info->history[b.getTurn()][0][m & 63] +=
+                                                                (info->depth_limit - d) * (info->depth_limit - d);
+                                                    goto eos;
                                                 }
-                                        }
-                                    }
-                                if (isCap(b.top(getSquare(i, j))) && t != -1 && !b.empty(t) && isStanding(b.top(t))) {
-                                    lr++;
-                                    for (int h = lr; h <= lh; h++) {
-                                        for (int r = lr; r <= lr; r++) {
-                                            for (int cnt = 0; cnt < count_slides1[h][r]; cnt++) {
-                                                move m = construct_move_move(getSquare(i, j), dir, h,
-                                                                             slides1[h][r][cnt]);
-                                                if (bm == m)
-                                                    continue;
-                                                bool fl = b.playMove(m);
-                                                b.flipTurn();
-                                                int ms;
-                                                if (b.end())
-                                                    ms = neg * terminalEval(b);
-                                                else if (d < info->depth_limit) {
-                                                    ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
-                                                                  (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
-                                                    if (alpha < ms && ms < beta ||
-                                                        tp == PV_NODE && ms == beta && beta == alpha + 1) {
-                                                        if (ms == alpha + 1)
-                                                            ms = alpha;
-                                                        ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
-                                                    }
-                                                }
-                                                else {
-                                                    ms = -qsearch(b, info, -alpha - 1, -alpha,
-                                                                  qdepth(info->depth_limit));
-                                                    if (alpha < ms && ms < beta) {
-                                                        ms = -qsearch(b, info, -beta, -alpha,
-                                                                      qdepth(info->depth_limit));
-                                                    }
-                                                }
-                                                b.undoMove(m, fl);
-                                                b.flipTurn();
-                                                    if (ms > alpha) {
-                                                        bm = m;
-                                                        alpha = ms;
-                                                        if (alpha >= beta) {
-                                                            goto eos;
-                                                        }
-                                                    }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                    }
         }
         if (alpha < beta)//standing stones last
             for (int p = 2; p < 3; p++) {
-                for (int i = 0; i < n; i++)
-                    for (int j = 0; j < n; j++)
-                        if (b.empty(getSquare(i, j))) {
-                            move m = construct_place_move(getSquare(i, j), (peice) (b.getTurn() | (p << 1)));
-                            if (bm == m)
-                                continue;
-                            b.playMove(m);
-                            b.flipTurn();
-                            int ms;
-                            if (b.end())
-                                ms = neg * terminalEval(b);
-                            else if (d < info->depth_limit) {
-                                ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
-                                              (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
-                                if (alpha < ms && ms < beta || tp == PV_NODE && ms == beta && beta == alpha + 1) {
-                                    if (ms == alpha + 1)
-                                        ms = alpha;
-                                    ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
-                                }
-                            }
-                            else {
-                                ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
-                                if (alpha < ms && ms < beta) {
-                                    ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
-                                }
-                            }
-                            b.undoMove(m);
-                            b.flipTurn();
-                                if (ms > alpha) {
-                                    bm = m;
-                                    alpha = ms;
-                                    if (alpha >= beta)
-                                        goto eos;
-                                }
+                for (int i = 0; i < n * n; i++)
+                    if (b.empty(info->order[b.getTurn()][1][i])) {
+                        move m = construct_place_move(info->order[b.getTurn()][1][i], (peice) (b.getTurn() | (p << 1)));
+                        if (bm == m)
+                            continue;
+                        if (show_legal) {
+                            printMove(std::cerr, m);
+                            std::cerr << '\n';
                         }
+                        b.playMove(m);
+                        b.flipTurn();
+                        int ms;
+                        if (b.end())
+                            ms = neg * terminalEval(b);
+                        else if (d < info->depth_limit) {
+                            ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                          (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                            if (alpha < ms && ms < beta || tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                if (ms == alpha + 1)
+                                    ms = alpha;
+                                ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                            }
+                        }
+                        else {
+                            ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                            if (alpha < ms && ms < beta) {
+                                ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                            }
+                        }
+                        b.undoMove(m);
+                        b.flipTurn();
+                        if (ms > alpha) {
+                            bm = m;
+                            alpha = ms;
+                            if (alpha >= beta) {
+                                info->history[b.getTurn()][0][m & 63] +=
+                                        (info->depth_limit - d) * (info->depth_limit - d);
+                                goto eos;
+                            }
+                        }
+                    }
             }
         eos:
         if (extend)
@@ -541,6 +584,18 @@ namespace TAK {
         info.fatt = 0;
         info.fsucc = 0;
         info.qnodes = 0;
+        for (int i = 0; i < 64; i++)
+            for (int k = 0; k < 2; k++)
+                info.history[k][0][i] = info.history[k][1][i] = 0;
+        {
+            int x = 0;
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++) {
+                    info.order[0][0][x] = info.order[1][0][x] = getSquare(i, j);
+                    info.order[0][1][x] = info.order[1][1][x] = getSquare(i, j);
+                    x++;
+                }
+        }
         info.stop = false;
         clearTable();
         boardstate<n> backup(b);
@@ -557,7 +612,7 @@ namespace TAK {
             //ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
             //std::future<int> future=std::async(minimax,std::ref(b),&info,1,std::ref(alpha),std::ref(beta),PV_NODE,false);
             std::future<int> future = std::async(std::launch::async, [b, alpha, beta]() mutable {
-                return minimax(b, &info, 1, alpha, beta, PV_NODE, false);
+                return minimax(b, &info, 1, alpha, beta, PV_NODE, false,false);
                 //return mtdf(b,&info);
             });
             std::future_status status;
@@ -575,7 +630,7 @@ namespace TAK {
                     displayTTinfo();
                 }
                 count++;
-            } while (status != std::future_status::ready && count <MAX_TIME / FREQ);
+            } while (status != std::future_status::ready && count < MAX_TIME / FREQ);
             if (future.wait_for(std::chrono::seconds(2)) == std::future_status::timeout) {
                 info.stop = true;
                 std::cerr << "stopped";
@@ -606,12 +661,39 @@ namespace TAK {
                 std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
                 std::cerr << " ";
                 displayTTinfo();
+                /*for (int i = 0; i < 63; i++) {
+                    int sum = 0;
+                    sum += info.history[0][0][i];
+                    sum += info.history[0][1][i];
+                    std::cerr << sum << ' ';
+                }
+                std::cerr << '\n';
+                for (int i = 0; i < 63; i++) {
+                    int sum = 0;
+                    sum += info.history[1][1][i];
+                    sum += info.history[1][0][i];
+                    std::cerr << sum << ' ';
+                }
+                std::cerr << '\n';
+*/
             }
 #endif
             if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
                 //if (dl>8) {
                 break;
             }
+
+            for (int i = 1; i < n * n; i++)
+                for (int p = 0; p < 2; p++)
+                    for (int t = 0; t < 2; t++) {
+                        square s = info.order[p][t][i];
+                        int x = info.history[p][t][s];
+                        int j = i - 1;
+                        for (; j >= 0 && info.history[p][t][info.order[p][t][j]] > x; j--) {
+                            info.order[p][t][j + 1] = info.order[p][t][j];
+                        }
+                        info.order[p][t][j + 1] = s;
+                    }
         }
         return pbm;
     }

@@ -38,7 +38,8 @@ void testbug(TAK::boardstate<5> b) {
     game1 += "1d3+1 Fc3 1e4<1 Fb4 1d4>1 Fc4 1e4<1 Fb3 1d4>1 1b3>1 1e4<1 ";
 
     std::string game2 = "e1 a5 Fb5 Cb4 Fa2 Fe3 Fa3 Fa4 Fc4 Fc5 Fd5 Fd4 ";
-    game2 += "Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5";
+    game2 += "Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5 ";
+    //game2+="Sa1 ";
     /*
      * Current
 1	-65	 pv [Fa1 ] (1,97) nodes @98 kNps[0 ms] EBF=1] fatt 0 fsucc 0 ttcuts 0 TT has ? entries and 0 collisions and 0 drops=(0%)
@@ -201,7 +202,6 @@ int main() {
             TAK::initCitadels();
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
-
             testbug(b);
 
     }

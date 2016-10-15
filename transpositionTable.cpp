@@ -11,9 +11,10 @@ namespace TAK {
     size_t sizeOfTable;
 
     void transpositionTableInit() {
-        sizeOfTable = 150000000;
+        //sizeOfTable = 150000000;
+        sizeOfTable=1<<27;
         //sizeOfTable=20000000;
-        if(tr)
+        if (tr)
             delete[]tr;
         tr = new transpositionTableEntry[sizeOfTable];
         currentGen = -1;
@@ -27,8 +28,7 @@ namespace TAK {
         std::cout << "TT has ? entries and " << collisions <<
         " collisions and "<<dropped<<" drops"<<100*dropped/(collisions+1)<<"%\n";
 #else
-        std::cerr << "TT has ? entries and " << collisions <<
-        " collisions and " << dropped << " drops=(" << 100ULL * dropped / (collisions + 1) << "%)\n";
+        std::cerr << "TT has "<< 100ULL * dropped / (collisions + 1) << "% dropped of "<<collisions<<" colls\n";
 #endif
     }
 }

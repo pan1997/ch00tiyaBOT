@@ -5,26 +5,26 @@
 #include "search.h"
 
 namespace TAK {
-
     int scale = 100;
     int move_advantage = 50;
     int standingU = 50;
-    int capstoneU = 96;
+    int capstoneU = 95;
     int groupU[8];
-    int FCaptureU=-55;
-    int FReserveU=55;
-    int SCaptureU=-20;
-    int SReserveU=70;
-    int CCaptureU=-20;
-    int CReserveU=60;
-    int citadel=0;
-    int center=8;
-    int emptyInfluence=2;
-    int flatInfluence=6;
-    int underCap=10;
+    int FCaptureU = -55;
+    int FReserveU = 55;
+    int SCaptureU = -20;
+    int SReserveU = 70;
+    int CCaptureU = -20;
+    int CReserveU = 60;
+    int citadel = 0;
+    int center = 8;
+    int emptyInfluence = 1;
+    int flatInfluence = 5;
+    int underCap = 10;
     bitboard centerBoard;
     bitboard allBoard;
     bitboard citadels[7][7];
+
     void initCitadels() {
         int cnt = 0;
         for (int i = 0; i < 7; i++)
@@ -36,9 +36,9 @@ namespace TAK {
     }
 
     void initGroups(int n) {
-        centerBoard=0;
-        for(int i=0;i<n;i++)
-            for(int j=0;j<n;j++) {
+        centerBoard = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
                 if (i != 0 && i != n - 1 && j != 0 && j != n - 1)
                     centerBoard |= getBitboard(getSquare(i, j));
                 allBoard |= getBitboard(getSquare(i, j));
@@ -55,7 +55,7 @@ namespace TAK {
                 groupU[0] = 0;
                 groupU[1] = 0;
                 groupU[2] = 0;
-                groupU[3] = 22;
+                groupU[3] = 23;
                 groupU[4] = 85;
                 groupU[5] = scale * 2500;
                 break;
@@ -64,7 +64,7 @@ namespace TAK {
                 groupU[1] = 0;
                 groupU[2] = 0;
                 groupU[3] = 25;
-                groupU[4] = 75;
+                groupU[4] = 85;
                 groupU[5] = 100;
                 groupU[6] = scale * 3600;
                 break;
@@ -91,5 +91,6 @@ namespace TAK {
                 break;
         }
     }
+
     searchInfo info;
 }

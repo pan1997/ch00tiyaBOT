@@ -91,11 +91,30 @@ namespace TAK {
     }
 
     template<int n>
+    void boardstate<n>::place(square s, peice p) {
+        int r = getRow(s);
+        int c = getCol(s);
+        bs[r][c][height[r][c]++] = p;
+        if (height[r][c] == 1)
+            nempty--;
+        if (!isCap(p)) if (color_of(p) == WHITE)
+            leftover_stones_white--;
+        else
+            leftover_stones_black--;
+        else if (color_of(p) == WHITE)
+            leftover_capstones_white--;
+        else
+            leftover_capstones_black--;
+        setTopbb(s, p);
+    }
+
+    template<int n>
     peice boardstate<n>::top(square s) const {
         int r = getRow(s);
         int c = getCol(s);
         return bs[r][c][height[r][c] - 1];
     }
+
     template<int n>
     peice boardstate<n>::underTop(square s) const {
         int r = getRow(s);
