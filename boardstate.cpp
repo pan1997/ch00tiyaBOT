@@ -195,39 +195,8 @@ namespace TAK {
             for (int k = 1; k < mh; k++)
                 o << ' ';
         }
-        o << '\n';
-        /*
-        o << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left (" <<
-        leftover_stones_white << ',' << leftover_stones_black << ") " << flatened << "\n";
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++)
-                o << ((WF & getBitboard(getSquare(i, j))) != 0);
-            o << ' ';
-            for (int j = 0; j < n; j++)
-                o << ((BF & getBitboard(getSquare(i, j))) != 0);
-            o << ' ';
-            for (int j = 0; j < n; j++)
-                o << ((WS & getBitboard(getSquare(i, j))) != 0);
-            o << ' ';
-            for (int j = 0; j < n; j++)
-                o << ((BS & getBitboard(getSquare(i, j))) != 0);
-            o << ' ';
-            for (int j = 0; j < n; j++)
-                o << ((WC & getBitboard(getSquare(i, j))) != 0);
-            o << ' ';
-            for (int j = 0; j < n; j++)
-                o << ((BC & getBitboard(getSquare(i, j))) != 0);
-            o << '\n';
-        }
-        for (int i = 0; i < n; i++) {
-            o << group_count_W[i] << '\t';
-        }
-        o << '\n';
-        for (int i = 0; i < n; i++) {
-            o << group_count_B[i] << '\t';
-        }
-         */
-        //o << '\n';
+        o << '\t' << (turn == WHITE ? "WHITE" : "BLACK") << " to move : empty squares " << nempty << ",left (" <<
+        leftover_stones_white << ',' << leftover_stones_black << ")\n";
     }
 
     template<int n>

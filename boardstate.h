@@ -19,8 +19,7 @@ namespace TAK {
         int nempty;
         int group_count_W[8];
         int group_count_B[8];
-        //std::set<bitboard> WG,BG;
-        //bitboard groups[n][n];//which group does this square belong to
+
         unsigned long long hash;
 
         int leftover_stones_white;
@@ -30,9 +29,9 @@ namespace TAK {
 
         void place(square s, peice p);
 
-        inline void removeTop(square s);
+        void removeTop(square s);
 
-        inline void setTopbb(square s, peice p) {
+        void setTopbb(square s, peice p) {
             if (isCap(p) || isFlat(p)) {
                 bitboard g1 = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(squareAt(s, UP)));
                 if (g1 != 0) {
@@ -86,7 +85,7 @@ namespace TAK {
             } else xor_bitboard(s, p);
         }
 
-        inline void unsetTopbb(square s, peice p) {
+        void unsetTopbb(square s, peice p) {
             if (isFlat(p) || isCap(p)) {
                 bitboard gr = group((color_of(p) == WHITE) ? (WF | WC) : (BF | BC), getBitboard(s));
                 if (color_of(p) == WHITE)
@@ -249,6 +248,14 @@ namespace TAK {
         void flipTurn() {
             if (turn == BLACK) turn = WHITE; else turn = BLACK;
             hash ^= white_to_move;
+        }
+
+        bool legal(move m) {
+            if (isPlaceMove(m))
+                return empty(m);
+            else {
+                return color_of(top(m)) == getTurn(); //&& getPickCount(m) >= getHeight(m);
+            }
         }
 
         void printTo(std::ostream &o) const;

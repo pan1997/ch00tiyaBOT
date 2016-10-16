@@ -136,7 +136,7 @@ namespace TAK {
     }
 
     bitboard group(bitboard b, bitboard start) {
-        bitboard ne = start & b;
+        bitboard ne = b & start;
         do {
             start = ne;
             ne = start | (b & neighbours(start));

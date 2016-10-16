@@ -25,6 +25,7 @@ namespace TAK {
     extern int citadel;   //9
     extern int center;    //10
     extern int underCap;
+    extern int placeThreat;
     extern int emptyInfluence;
     extern int flatInfluence;
     extern bitboard citadels[7][7];
@@ -161,7 +162,7 @@ namespace TAK {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 if (b.getHeight(getSquare(i, j)) > 1) {
-                    int cnt = b.countStacked(getSquare(i, j), std::min(n * n, b.getHeight(getSquare(i, j))),
+                    int cnt = b.countStacked(getSquare(i, j), std::min(n+2, b.getHeight(getSquare(i, j))),
                                              color_of(b.top(getSquare(i, j))));
                     int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                     if (isFlat(b.top(getSquare(i, j))))
@@ -219,8 +220,28 @@ namespace TAK {
         std::cout << "White inf flat " << popcnt(winf & (b.getWF() | b.getBF())) << '\n';
         std::cout << "Black inf flat " << popcnt(binf & (b.getWF() | b.getBF())) << '\n';
 */
-        return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B))) +
-               flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
+        return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B)));
+        //flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
+    }
+
+    template<int n>void countThreats(const boardstate<n>&b,int&wc,int&bc) {
+        bitboard W = b.getWC() | b.getWF();
+        bitboard B = b.getBF() | b.getBC();
+        bitboard empty = ~(W | B | b.getBS() | b.getWS());
+        wc = bc = 0;
+        bitboard s, grp;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
+                s = getBitboard(getSquare(i, j)) & empty;
+                if (s != 0) {
+                    grp = group(W | s, s);
+                    if (countRows(grp, n) == n || countCols(grp, n) == n)
+                        wc++;
+                    grp = group(B | s, s);
+                    if (countRows(grp, n) == n || countCols(grp, n) == n)
+                        bc++;
+                }
+            }
     }
 
     template<int n>
@@ -232,14 +253,18 @@ namespace TAK {
         score += evaluateGroups(b);
         score += evaluateStacks(b);
         //score += evaluateCitadels(b);
-        score += evaluateInfluence(b);
+        //score += evaluateInfluence(b);
         score += evaluateCenter(b);
+        //countThreats(b, wc, bc);
+        //score += placeThreat * (wc - bc);
         return score;
     }
 
     inline void setWeights(int i) {
-        flatInfluence = i;
-        //groupU[4]=i;
+        //emptyInfluence = i;
+        center=i;
+        //placeThreat=i;
+        //move_advantage=i;
         //scale=100-i;
         //capstoneU=96-i;
     }

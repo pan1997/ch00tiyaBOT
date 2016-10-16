@@ -44,8 +44,9 @@ namespace TAK {
     inline int qdepth(int dl) {
         return 5;
     }
-    inline bool storehistory(int d){
-        return d>2;
+
+    inline bool storehistory(int d) {
+        return d > 2;
     }
 
     template<int n>
@@ -75,28 +76,26 @@ namespace TAK {
         move bm = -1;
         int alpha_backup = alpha;
         int stand_pat = neg * evaluate(b);
-        if (stand_pat >= beta || lim <= 0)
+        if (stand_pat >= beta)
             return beta;
         if (stand_pat > alpha)
             alpha = stand_pat;
 
         if (transpositionTableEntry1 != nullptr) {//best move first
             bm = transpositionTableEntry1->bm;
-            if (bm != -1) {
+            if (bm != -1&&b.legal(bm)) {
                 int pn = (b.getGCW()[n - 1] - b.getGCB()[n - 1]);
                 bool fl = b.playMove(bm);
                 b.flipTurn();
                 int ms;
                 if (b.end())
                     ms = neg * terminalEval(b);
-                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
+                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn&&lim>=0)
                     ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                 else
                     ms = stand_pat;
                 b.undoMove(bm, fl);
                 b.flipTurn();
-                if (fl)
-                    info->fsucc++;
                 if (ms > alpha)
                     alpha = ms;
             }
@@ -119,7 +118,7 @@ namespace TAK {
                                 int ms;
                                 if (b.end())
                                     ms = neg * terminalEval(b);
-                                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
+                                else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn && lim >= 0)
                                     ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                 else
                                     ms = stand_pat;
@@ -161,8 +160,8 @@ namespace TAK {
                                         int ms;
                                         if (b.end())
                                             ms = neg * terminalEval(b);
-                                        else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) !=
-                                                 pn)//&& b.getHeight(getSquare(i,j))>1)
+                                        else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn &&
+                                                 lim >= 0)//&& b.getHeight(getSquare(i,j))>1)
                                             ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                         else
                                             ms = stand_pat;
@@ -192,7 +191,7 @@ namespace TAK {
                                             int ms;
                                             if (b.end())
                                                 ms = neg * terminalEval(b);
-                                            else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn)
+                                            else if ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) != pn && lim >= 0)
                                                 ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                             else
                                                 ms = stand_pat;
@@ -229,7 +228,8 @@ namespace TAK {
     }
 
     template<int n>
-    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm,bool show_legal=false) {
+    int minimax(boardstate<n> &b, searchInfo *info, int d, int alpha, int beta, node_type tp, bool in_nm,
+                bool show_legal = false) {
         info->nodes++;
         bool clearbounds = false;
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
@@ -264,8 +264,8 @@ namespace TAK {
             if (info->depth_limit > d + 1 && !in_nm) {
                 info->fatt++;
                 b.flipTurn();
-                int bound = beta - scale * n * n /
-                                   (n * n + b.countEmpty());
+                int bound = beta - 2*move_advantage * n * n /
+                                   (n * n + b.countEmpty()-2);
                 int ms = -minimax(b, info, (info->depth_limit - d > 3) ? d + 3 : d + 1, -bound, -bound + 1,
                                   (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
                 b.flipTurn();
@@ -301,7 +301,7 @@ namespace TAK {
 
         if (transpositionTableEntry1 != nullptr) {//best move first
             bm = transpositionTableEntry1->bm;
-            if (bm != -1) {
+            if (bm != -1&&b.legal(bm)) {
                 bool fl = b.playMove(bm);
                 b.flipTurn();
                 int ms;
@@ -310,8 +310,8 @@ namespace TAK {
                 else ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));//ms = neg * evaluate(b);
                 b.undoMove(bm, fl);
                 b.flipTurn();
-                if (fl)
-                    info->fsucc++;
+                //if (fl)
+                //    info->fsucc++;
                 if (ms > alpha) {
                     if (storehistory(info->depth_limit - d))
                         info->history[b.getTurn()][isPlaceMove(bm) ? 1 : 0][bm & 63] +=
@@ -342,20 +342,22 @@ namespace TAK {
                                 int ms;
                                 if (b.end())
                                     ms = neg * terminalEval(b);
-                                else if (d < info->depth_limit) {
-                                    ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
-                                                  (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
-                                    if (alpha < ms && ms < beta ||
-                                        tp == PV_NODE && ms == beta && beta == alpha + 1) {
-                                        if (ms == alpha + 1)
-                                            ms = alpha;
-                                        ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
-                                    }
-                                }
                                 else {
-                                    ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
-                                    if (alpha < ms && ms < beta) {
-                                        ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                    if (d < info->depth_limit) {
+                                        ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                      (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, in_nm);
+                                        if (alpha < ms && ms < beta ||
+                                            tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                            if (ms == alpha + 1)
+                                                ms = alpha;
+                                            ms = -minimax(b, info, d + 1, -beta, -ms, tp, in_nm);
+                                        }
+                                    }
+                                    else {
+                                        ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                        if (alpha < ms && ms < beta) {
+                                            ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                        }
                                     }
                                 }
                                 b.undoMove(m);
@@ -553,7 +555,7 @@ namespace TAK {
     }
 
     template<int n>
-    void printpv(boardstate<n> &b) {
+    void printpv(boardstate<n> &b,bool neg) {
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, false);
         if (transpositionTableEntry1 != nullptr && transpositionTableEntry1->bm != -1) {
 #ifndef ASS
@@ -565,13 +567,37 @@ namespace TAK {
 #endif
             bool fl = b.playMove(transpositionTableEntry1->bm);
             b.flipTurn();
-            printpv(b);
+            printpv(b,neg);
             b.undoMove(transpositionTableEntry1->bm, fl);
             b.flipTurn();
+        }
+        else {
+            int x = (neg?-1:1)*(b.end() ? terminalEval(b) : evaluate(b));
+#ifndef ASS
+            std::cout<<" #("<<x<<")";
+#else
+            std::cerr << " #(" << x << ")";
+#endif
         }
     }
 
     extern searchInfo info;
+
+    inline void initInfo(int n) {
+        for (int i = 0; i < 64; i++)
+            for (int k = 0; k < 2; k++) {
+                info.history[k][0][i] = 0;
+                info.history[k][1][i] = 0;
+            }
+        int x = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
+                info.order[0][0][x] = info.order[1][0][x] = getSquare(i, j);
+                info.order[0][1][x] = info.order[1][1][x] = getSquare(i, j);
+                x++;
+            }
+
+    }
 
     template<int n>
     move search(boardstate<n> &b, int &max, int Tlimit) {
@@ -585,17 +611,10 @@ namespace TAK {
         info.fsucc = 0;
         info.qnodes = 0;
         for (int i = 0; i < 64; i++)
-            for (int k = 0; k < 2; k++)
-                info.history[k][0][i] = info.history[k][1][i] = 0;
-        {
-            int x = 0;
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++) {
-                    info.order[0][0][x] = info.order[1][0][x] = getSquare(i, j);
-                    info.order[0][1][x] = info.order[1][1][x] = getSquare(i, j);
-                    x++;
-                }
-        }
+            for (int k = 0; k < 2; k++) {
+                info.history[k][0][i] /= 8;
+                info.history[k][1][i] /= 8;
+            }
         info.stop = false;
         clearTable();
         boardstate<n> backup(b);
@@ -612,7 +631,7 @@ namespace TAK {
             //ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
             //std::future<int> future=std::async(minimax,std::ref(b),&info,1,std::ref(alpha),std::ref(beta),PV_NODE,false);
             std::future<int> future = std::async(std::launch::async, [b, alpha, beta]() mutable {
-                return minimax(b, &info, 1, alpha, beta, PV_NODE, false,false);
+                return minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
                 //return mtdf(b,&info);
             });
             std::future_status status;
@@ -622,15 +641,15 @@ namespace TAK {
                 if (status == std::future_status::timeout) {
                     tm = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::system_clock::now() - start).count();
-                    std::cerr << dl << "?\t" << ms << "\t pv [";
-                    printpv(backup);
+                    std::cerr << dl <<"?\t[";
+                    printpv(backup,b.getTurn()==BLACK);
                     std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                     (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
-                    std::cerr << " ";
+                    std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
                     displayTTinfo();
                 }
                 count++;
-            } while (status != std::future_status::ready && count < MAX_TIME / FREQ);
+            } while (status != std::future_status::ready && count <MAX_TIME / FREQ);
             if (future.wait_for(std::chrono::seconds(2)) == std::future_status::timeout) {
                 info.stop = true;
                 std::cerr << "stopped";
@@ -644,8 +663,8 @@ namespace TAK {
             max = ms;
             tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 #ifndef ASS
-            if(!info.stop){std::cout << dl << '\t' << ms << "\t pv [";
-            printpv(b);
+            if(!info.stop){std::cout << dl << "\t[";
+            printpv(b,b.getTurn()==BLACK);
             std::cout << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
             (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
             std::cout << "EBF~=" << (ebf = (info.nodes - pn) * 1.0 / (pn + 1));
@@ -654,46 +673,30 @@ namespace TAK {
             }
 #else
             if (!info.stop) {
-                std::cerr << dl << '\t' << ms << "\t pv [";
-                printpv(b);
+                std::cerr << dl << "\t[";
+                printpv(b,b.getTurn()==BLACK);
                 std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                 (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
                 std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
-                std::cerr << " ";
+                std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
                 displayTTinfo();
-                /*for (int i = 0; i < 63; i++) {
-                    int sum = 0;
-                    sum += info.history[0][0][i];
-                    sum += info.history[0][1][i];
-                    std::cerr << sum << ' ';
-                }
-                std::cerr << '\n';
-                for (int i = 0; i < 63; i++) {
-                    int sum = 0;
-                    sum += info.history[1][1][i];
-                    sum += info.history[1][0][i];
-                    std::cerr << sum << ' ';
-                }
-                std::cerr << '\n';
-*/
             }
 #endif
-            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
-                //if (dl>8) {
-                break;
-            }
-
             for (int i = 1; i < n * n; i++)
                 for (int p = 0; p < 2; p++)
                     for (int t = 0; t < 2; t++) {
                         square s = info.order[p][t][i];
                         int x = info.history[p][t][s];
                         int j = i - 1;
-                        for (; j >= 0 && info.history[p][t][info.order[p][t][j]] > x; j--) {
+                        for (; j >= 0 && info.history[p][t][info.order[p][t][j]] < x; j--) {
                             info.order[p][t][j + 1] = info.order[p][t][j];
                         }
                         info.order[p][t][j + 1] = s;
                     }
+            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
+                //if (dl>8) {
+                break;
+            }
         }
         return pbm;
     }

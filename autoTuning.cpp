@@ -18,7 +18,7 @@ namespace TAK {
             //std::cerr << board << '\n';
             int mx = 0;
             if (i % 2 == 1) {
-                std::cout<<"w- moving\n";
+                std::cout<<w2<<" moving\n";
                 setWeights(w2);
 
                 int aim = limit2 / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
@@ -34,7 +34,7 @@ namespace TAK {
                 //std::cerr<<"Left "<<limit<<" ms\n";
             }
             else {
-                std::cout<<"w+ moving\n";
+                std::cout<<w1<<" moving\n";
                 setWeights(w1);
 
                 int aim = limit1 / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
@@ -58,16 +58,17 @@ namespace TAK {
     }
 
     void tune() {
-/*
+
         initZobrist();
         initGroups(5);
         initSlides();
         initbasic(5);
+        TAK::initInfo(5);
         TAK::initCitadels();
         transpositionTableInit();
 
         int w=8;
-        int delta=2;
+        int delta=1;
 
         for(int n=0;n<1;n++) {
 
@@ -90,6 +91,6 @@ namespace TAK {
             }
             std::cout<<score<<" score in favour of increment out of "<<40<<" games\n";
         }
-*/
+
     }
 }

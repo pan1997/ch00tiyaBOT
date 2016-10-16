@@ -94,7 +94,8 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
     initGroups(n);
     initSlides();
     initbasic(n);
-    TAK::initCitadels();
+    initCitadels();
+    initInfo(n);
     transpositionTableInit();
     p -= 1;
     char tm[50];
@@ -122,6 +123,11 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
     for (int i = 0; ; i++) {
         //std::cout<<"------------------------------------------------------\n";
         std::cerr << board << '\n';
+        {
+            int wc,bc;
+            countThreats(board,wc,bc);
+            std::cerr<<"Threats "<<wc<<' '<<bc<<'\n';
+        }
         int mx = 0;
         if (i % 2 == p) {
             int aim = limit / (board.countEmpty() * 2 + 10);
@@ -197,6 +203,7 @@ int main() {
             std::cout << "game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
+            TAK::initInfo(5);
             TAK::initSlides();
             TAK::initbasic(5);
             TAK::initCitadels();
