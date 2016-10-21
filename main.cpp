@@ -190,14 +190,14 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         //std::cout<<"------------------------------------------------------\n";
         std::cerr << board << '\n';
         {
-            int wc,bc;
-            countThreats(board,wc,bc);
-            std::cerr<<"Threats "<<wc<<' '<<bc<<'\n';
+            int wc, bc;
+            countThreats(board, wc, bc);
+            std::cerr << "Threats " << wc << ' ' << bc << '\n';
         }
         int mx = 0;
         if (i % 2 == p) {
             int aim = limit / (board.countEmpty() * 2 + 10);
-            std::cerr<<"aiming "<<aim<<" ms\n";
+            std::cerr << "aiming " << aim << " ms\n";
             auto start = std::chrono::system_clock::now();
             m = search(board, mx, aim);
             auto end = std::chrono::system_clock::now();
@@ -206,7 +206,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
             std::cout << '\n';
             std::cout.flush();
             limit += increment;
-            std::cerr<<"Left "<<limit<<" ms\n";
+            std::cerr << "Left " << limit << " ms\n";
         }
         else {
             std::cin >> tm;
@@ -219,26 +219,9 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         }
     }
 }
-
 int main() {
     using namespace std;
     srand(time(NULL));
-#ifndef ASS
-    TAK::initZobrist();
-    TAK::initGroups(5);
-    TAK::initSlides();
-    TAK::initbasic(5);
-    TAK::transpositionTableInit();
-    TAK::initCitadels();
-    TAK::boardstate<5> board;
-    assignment(board,1,480000);
-    //test(board);
-    //test3(board);
-    //test_groups();
-    //TAK::tune();
-    //testbug(board);
-#endif
-#ifdef ASS
     cerr << "ch00tiyaBOT 2.0\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
@@ -279,6 +262,5 @@ int main() {
             testbug(b);
 
     }
-#endif
     return 0;
 }
