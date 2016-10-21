@@ -76,13 +76,8 @@ namespace TAK {
         int alpha_backup = alpha;
         int flatsc = evaluateTopFlat(b);
         int stand_pat = neg * evaluate(b, flatsc);
-        if (stand_pat >= beta) {
-            /*if(transpositionTableEntry1!= nullptr){
-                transpositionTableEntry1->depth=0;
-                transpositionTableEntry1->lower_bound=transpositionTableEntry1->upper_bound=stand_pat;
-            }*/
+        if (stand_pat >= beta)
             return beta;
-        }
         if (stand_pat > alpha)
             alpha = stand_pat;
 
@@ -620,10 +615,8 @@ namespace TAK {
 
     template<int n>
     move search(boardstate<n> &b, int &max, int Tlimit, int maxTime = 120000) {
-        //int neg = b.getTurn() == BLACK ? -1 : 1;
         auto start = std::chrono::system_clock::now();
         move bm = -1;
-        //searchInfo info;
         info.nodes = 0;
         info.ttcuts = 0;
         info.fatt = 0;
@@ -647,11 +640,8 @@ namespace TAK {
             int pn = info.nodes;
             int alpha = max;
             int beta = -max;
-            //ms = minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
-            //std::future<int> future=std::async(minimax,std::ref(b),&info,1,std::ref(alpha),std::ref(beta),PV_NODE,false);
             std::future<int> future = std::async(std::launch::async, [b, alpha, beta]() mutable {
                 return minimax(b, &info, 1, alpha, beta, PV_NODE, false, false);
-                //return mtdf(b,&info);
             });
             std::future_status status;
             int count = 0;
@@ -673,7 +663,6 @@ namespace TAK {
             if (future.wait_for(std::chrono::seconds(2)) == std::future_status::timeout) {
                 info.stop = true;
                 std::cerr << "stopped";
-                //future.wait_for(std::chrono::seconds());
             }
             ms = future.get();
             auto end = std::chrono::system_clock::now();
@@ -682,16 +671,6 @@ namespace TAK {
                 pbm = bm;
             max = ms;
             tm = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-#ifndef ASS
-            if(!info.stop){std::cout << dl << "\t[";
-            printpv(b,b.getTurn()==BLACK);
-            std::cout << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
-            (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
-            std::cout << "EBF~=" << (ebf = (info.nodes - pn) * 1.0 / (pn + 1));
-            std::cout << "] fatt " << info.fatt << " fsucc " << info.fsucc << " ttcuts " << info.ttcuts << " ";
-            displayTTinfo();
-            }
-#else
             if (!info.stop) {
                 std::cerr << dl << "\t[";
                 printpv(b, b.getTurn() == BLACK);
@@ -702,7 +681,6 @@ namespace TAK {
                 std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
                 displayTTinfo();
             }
-#endif
             for (int i = 1; i < n * n; i++)
                 for (int p = 0; p < 2; p++)
                     for (int t = 0; t < 2; t++) {
@@ -714,10 +692,8 @@ namespace TAK {
                         }
                         info.order[p][t][j + 1] = s;
                     }
-            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit)) {
-                //if (dl>8) {
+            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit))
                 break;
-            }
         }
         return pbm;
     }
