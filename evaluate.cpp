@@ -6,26 +6,26 @@
 
 namespace TAK {
     int scale = 100;
-    int move_advantage = 45;
-    int standingU = 50;
-    int capstoneU = 95;
+    int move_advantage = 50;
+    int standingU = 44;
+    int capstoneU = 96;
     int groupU[8];
-    int FCaptureU = -55;
-    int FReserveU = 55;
-    int SCaptureU = -20;
-    int SReserveU = 70;
-    int CCaptureU = -20;
-    int CReserveU = 60;
-    int placeThreat=50;
+    int FCaptureU = -44;
+    int FReserveU = 44;
+    int SCaptureU = -18;
+    int SReserveU = 61;
+    int CCaptureU = -18;
+    int CReserveU = 58;
+    int placeThreat=44;
     int citadel = 0;
     int center = 8;
     int emptyInfluence = 0;
     int flatInfluence = 0;
-    int underCap = 10;
+    int underCap = 9;
+    int endgameCutoff=6;
     bitboard centerBoard;
     bitboard allBoard;
     bitboard citadels[7][7];
-    int LMC[2];
 
     void initCitadels() {
         int cnt = 0;
@@ -57,8 +57,8 @@ namespace TAK {
                 groupU[0] = 0;
                 groupU[1] = 0;
                 groupU[2] = 0;
-                groupU[3] = 22;
-                groupU[4] = 85;
+                groupU[3] = 18;
+                groupU[4] = 75;
                 groupU[5] = scale * 2500;
                 break;
             case 6:

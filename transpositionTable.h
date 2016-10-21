@@ -62,7 +62,6 @@ namespace TAK {
         else if (ans1->generation < currentGen) {
             ans1->generation = currentGen;
             ans1->hash = h;
-            //ans1->WT = b.getWF();
             ans1->depth = std::numeric_limits<int>::min();
             ans1->bm = -1;
             return ans1;
@@ -72,80 +71,35 @@ namespace TAK {
             if (ans2->generation < currentGen) {
                 ans2->generation = currentGen;
                 ans2->hash = h;
-                //ans2->WT = b.getWF();
                 ans2->depth = std::numeric_limits<int>::min();
                 ans2->bm = -1;
                 return ans2;
             }
             else {
+                if (ans1->depth < 0) {
+                    ans1->generation = currentGen;
+                    ans1->hash = h;
+                    ans1->depth = std::numeric_limits<int>::min();
+                    ans1->bm = -1;
+                    return ans1;
+                }
+                else if (ans2->depth < 0) {
+                    ans2->generation = currentGen;
+                    ans2->hash = h;
+                    ans2->depth = std::numeric_limits<int>::min();
+                    ans2->bm = -1;
+                    return ans2;
+                }
                 dropped++;
                 return nullptr;
             }
         }
     }
 
-    /*
-    template<int n>
-    transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
-        size_t h = hash1(b.getHash());
-        size_t index = h % sizeOfTable;
-        transpositionTableEntry *ans = tr + index;
-        if (ans->hash == h) {
-            ans->generation = currentGen;
-            return ans;
-        }
-
-        else if (ans->generation < currentGen) {
-            ans->generation = currentGen;
-            ans->hash = h;
-            ans->WT = b.getWF();
-            ans->depth = std::numeric_limits<int>::min();
-            ans->bm = -1;
-            return ans;
-        } else{
-            collisions++;
-            index=(index+hash2(b.getHash()))%sizeOfTable;
-            ans=tr+index;
-            if(ans->hash==h){
-                ans->generation=currentGen;
-                return ans;
-            }
-            else if (ans->generation < currentGen) {
-                ans->generation = currentGen;
-                ans->hash = h;
-                ans->WT = b.getWF();
-                ans->depth = std::numeric_limits<int>::min();
-                ans->bm = -1;
-                return ans;
-            }
-            else dropped++;
-            return nullptr;
-        }
-
-        /*if (transpositionTable.count(b.getHash())) {
-            transpositionTableEntry *ans = &transpositionTable[b.getHash()];
-            if (b.getWF() == ans->WT)
-                return ans;
-            else {
-                collisions++;
-                return nullptr;
-            }
-        }
-        else {
-            if (create_if_absent) {
-                transpositionTableEntry *ans = &transpositionTable[b.getHash()];
-                ans->WT = b.getWF();
-                return ans;
-            } else {
-                return nullptr;
-            }
-        }
-    }*/
     inline void clearTable() {
         currentGen++;
         collisions = 0;
         dropped = 0;
-        //transpositionTable.clear();
     }
 
     void transpositionTableInit();

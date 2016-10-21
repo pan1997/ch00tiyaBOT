@@ -24,7 +24,7 @@ namespace TAK {
                 int aim = limit2 / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
                 std::cout<<"aiming "<<aim<<" ms\n";
                 auto start = std::chrono::system_clock::now();
-                m = search(board, mx, aim);
+                m = search(board, mx, aim,2000);
                 auto end = std::chrono::system_clock::now();
                 //printMove(std::cout, m);
                 limit2 -= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -40,7 +40,7 @@ namespace TAK {
                 int aim = limit1 / (std::min(board.getWhiteLeft(), board.getBlackLeft()) * 2 + 10);
                 std::cout<<"aiming "<<aim<<" ms\n";
                 auto start = std::chrono::system_clock::now();
-                m = search(board, mx, aim);
+                m = search(board, mx, aim,2000);
                 auto end = std::chrono::system_clock::now();
                 //printMove(std::cout, m);
                 limit1 -= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -67,8 +67,8 @@ namespace TAK {
         TAK::initCitadels();
         transpositionTableInit();
 
-        int w=8;
-        int delta=1;
+        int w=58;
+        int delta=2;
 
         for(int n=0;n<1;n++) {
 

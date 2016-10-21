@@ -27,6 +27,7 @@ namespace TAK {
     extern int underCap;
     extern int placeThreat;
     extern int emptyInfluence;
+    extern int endgameCutoff;
     extern int flatInfluence;
     extern bitboard citadels[7][7];
     extern bitboard centerBoard;
@@ -162,7 +163,7 @@ namespace TAK {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 if (b.getHeight(getSquare(i, j)) > 1) {
-                    int cnt = b.countStacked(getSquare(i, j), std::min(n+2, b.getHeight(getSquare(i, j))),
+                    int cnt = b.countStacked(getSquare(i, j), b.getHeight(getSquare(i, j)),
                                              color_of(b.top(getSquare(i, j))));
                     int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                     if (isFlat(b.top(getSquare(i, j))))
@@ -245,10 +246,15 @@ namespace TAK {
     }
 
     template<int n>
-    int evaluate(const boardstate<n> &b) {
-        int score =
-                2 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
-                (n * n + b.countEmpty());
+    int evaluate(const boardstate<n> &b,int x) {
+        //int factor = std::min(std::min(b.getWhiteLeft(), b.getBlackLeft()), endgameCutoff);
+        int score = x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage;
+        //(3 * endgameCutoff - 2 * factor) * (x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
+        //endgameCutoff;
+        /*
+        5 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
+        (3 * n * n + 2*b.countEmpty());
+         */
         score += evaluateTop(b);
         score += evaluateGroups(b);
         score += evaluateStacks(b);
@@ -262,7 +268,12 @@ namespace TAK {
 
     inline void setWeights(int i) {
         //emptyInfluence = i;
-        center=i;
+        //center=i;
+        CReserveU=i;
+        //scale=100+i;
+        //capstoneU=95+i;
+        //move_advantage=45+i;
+        //groupU[4]=i;
         //placeThreat=i;
         //move_advantage=i;
         //scale=100-i;

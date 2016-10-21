@@ -53,10 +53,9 @@ void testbug(TAK::boardstate<5> b) {
      */
 
     std::string game3="a5 a1 Fb1 Fb5";
-    std::stringstream moves(game2);
+    std::stringstream moves(game);
     std::cout<<"Tesing bug\n";
-    //std::strcpy(mv[16],"1a1+1");
-
+    //std::strcpy(mv[16],"1a1+1")
 
     char tm[20];
     moves >> tm;
@@ -86,6 +85,73 @@ void testbug(TAK::boardstate<5> b) {
     TAK::move m = TAK::search(b, ms, 45000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
+}
+
+template<int n>int n_cui() {
+    using namespace TAK;
+    boardstate<n> b;
+    std::string cmd;
+    std::cout<<"playing on size "<<n<<'\n';
+    while (std::cin >> cmd) {
+        if (cmd == "clear")
+            b.clear();
+        else if (cmd == "play") {
+            char buf[200];
+            std::cin >> buf;
+            move m = readMove(buf, b.getTurn());
+            std::cout<<"playing "<<buf<<' ';
+            printMove(std::cout,m);
+            std::cout<<'\n';
+            bool fl = b.playMove(m);
+            b.flipTurn();
+        }
+        else if (cmd == "analyse") {
+            int tl, ans;
+            std::cin >> tl;
+            move m = search(b, ans, tl);
+            std::cout << "BEST MOVE ";
+            printMove(std::cout, m);
+            std::cout << " score " << ans << '\n';
+        }
+        else if (cmd == "size") {
+            int x;
+            std::cin >> x;
+            if (n == x)
+                b.clear();
+            else return x;
+        }
+        else if (cmd == "exit") {
+            return 0;
+        }
+        else if (cmd == "board") {
+            std::cout << b << '\n';
+        }
+    }
+}
+void cui() {
+    std::cout<<"ch00tiyaBOT CUI\n";
+    std::cout << "default start size 5\n";
+    int x = 5;
+    for (; x != 0;) {
+        switch (x) {
+            case 4:
+                x = n_cui<4>();
+                break;
+            case 5:
+                x = n_cui<5>();
+                break;
+            case 6:
+                x = n_cui<6>();
+                break;
+            case 7:
+                x = n_cui<7>();
+                break;
+            default:
+                std::cout << "Cannot play on size " << x << " restaring for 5\n";
+                x = 5;
+                break;
+        }
+    }
 }
 
 template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int increment=0) {
@@ -173,7 +239,7 @@ int main() {
     //testbug(board);
 #endif
 #ifdef ASS
-    cerr << "ch00tiyaBOT 1.5\n";
+    cerr << "ch00tiyaBOT 2.0\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
@@ -200,6 +266,7 @@ int main() {
             break;
         default:
             //TAK::tune();
+            //cui();
             std::cout << "game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
