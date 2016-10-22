@@ -652,8 +652,7 @@ namespace TAK {
                             std::chrono::system_clock::now() - start).count();
                     std::cerr << dl << "?\t[";
                     printpv(backup, b.getTurn() == BLACK);
-                    std::cerr << "] (" << info.nodes << "," << info.qnodes << "," <<
-                    info.nodes + info.qnodes - info.ttcuts << ") nodes @" <<
+                    std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                     (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
                     std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
                     displayTTinfo();
@@ -674,8 +673,7 @@ namespace TAK {
             if (!info.stop) {
                 std::cerr << dl << "\t[";
                 printpv(b, b.getTurn() == BLACK);
-                std::cerr << "] (" << info.nodes << "," << info.qnodes << "," <<
-                info.nodes + info.qnodes - info.ttcuts << ") nodes @" <<
+                std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                 (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
                 std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
                 std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";

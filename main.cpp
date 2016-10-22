@@ -52,19 +52,19 @@ void testbug(TAK::boardstate<5> b) {
 8	17	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 4c5>13 Fe4 4e5-4 ] (1000457,8636558) nodes @570 kNps[16879 ms] EBF=5.29467] fatt 14302 fsucc 10456 ttcuts 562452 TT has ? entries and 188452 collisions and 9331 drops=(4%)
      */
 
-    std::string game3="a5 a1 Fb1 Fb5";
-    std::stringstream moves(game);
-    std::cout<<"Tesing bug\n";
+    std::string game3 = "a5 a1 Fb1 Fb5";
+    std::stringstream moves(game2);
+    std::cout << "Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1")
 
     char tm[20];
     moves >> tm;
-    std::cout<<"placing "<<tm<<'\n';
+    std::cout << "placing " << tm << '\n';
     b.playMove(TAK::construct_place_move(TAK::readSquare(tm), TAK::BLACK_FLAT));
-    std::cout<<"placed\n";
+    std::cout << "placed\n";
     std::cout << b << '\n';
     moves >> tm;
-    std::cout<<"placing "<<tm<<'\n';
+    std::cout << "placing " << tm << '\n';
     b.playMove(TAK::construct_place_move(TAK::readSquare(tm), TAK::WHITE_FLAT));
     std::cout << b << '\n';
 
@@ -82,7 +82,7 @@ void testbug(TAK::boardstate<5> b) {
     std::cout << b << '\n';
     int ms = 0, mse = 0;
     mse = TAK::evaluateInfluence(b);
-    TAK::move m = TAK::search(b, ms, 45000);
+    TAK::move m = TAK::search(b, ms, 450000, 360000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
 }
@@ -228,7 +228,7 @@ int main() {
     cin >> p >> n >> lim;
     //lim = 960;
     //p=n=lim=1;
-    int increment = 0 * 1000;
+    int increment = 20 * 1000;
     lim *= 1000;
     switch (n) {
         case 4:
@@ -260,7 +260,6 @@ int main() {
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
             testbug(b);
-
     }
     return 0;
 }
