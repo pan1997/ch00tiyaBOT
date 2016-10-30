@@ -39,6 +39,14 @@ void testbug(TAK::boardstate<5> b) {
 
     std::string game2 = "e1 a5 Fb5 Cb4 Fa2 Fe3 Fa3 Fa4 Fc4 Fc5 Fd5 Fd4 ";
     game2 += "Fe5 1b4>1 1a5-1 Fe2 1b5>1 2c4+2 Ca5 ";
+
+
+    std::string game4="e1 a1 Fa2 Fb4 Fb2 Fc2 Cb3 Fa4 Fc3 Cc4 ";
+    game4+="1b3+1 Fb5 Fb3 1c4-1 Fc4 2c3<2 Fd4 Fa3 Fe4 Fc3 1a2+1 3b3<3 ";
+
+    game4+="Fb1 Fb3 Fa5 ";
+    game4+="1b5<1 2b4-2 Fb4 Fd3 1c2<1 Fd2 Fc1 3b3-3 5a3-14 ";
+    game4+="4b2<4 Sc2 Fb3 1c3<1 Fd1 1c2>1 Fc2";
     //game2+="Sa1 ";
     /*
      * Current
@@ -52,8 +60,8 @@ void testbug(TAK::boardstate<5> b) {
 8	17	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 4c5>13 Fe4 4e5-4 ] (1000457,8636558) nodes @570 kNps[16879 ms] EBF=5.29467] fatt 14302 fsucc 10456 ttcuts 562452 TT has ? entries and 188452 collisions and 9331 drops=(4%)
      */
 
-    std::string game3 = "a5 a1 Fb1 Fb5";
-    std::stringstream moves(game2);
+    std::string game3 = "a1 a5 Fb5 Fc4 Fc5 Fd4 Fd5 Ce5 Ce4";
+    std::stringstream moves(game3);
     std::cout << "Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1")
 
@@ -81,8 +89,11 @@ void testbug(TAK::boardstate<5> b) {
     //b.flipTurn();
     std::cout << b << '\n';
     int ms = 0, mse = 0;
-    mse = TAK::evaluateInfluence(b);
-    TAK::move m = TAK::search(b, ms, 450000, 360000);
+    mse = TAK::evaluate2(b);
+    if(b.end()){
+        std::cout<<"end "<<TAK::terminalEval(b)<<'\n';
+    }
+    TAK::move m = TAK::search(b, ms, 45000, 36000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
 }
@@ -181,7 +192,10 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         board.playMove(construct_place_move(readSquare(tm + 1), BLACK_FLAT));
         if (std::strcmp(tm, mv.c_str()) != 0)
             std::strcpy(tm, mv.c_str());
-        else std::strcpy(tm, "Fe1");
+        else {
+            std::strcpy(tm, "Fa0");
+            tm[2]+=n;
+        }
         std::cout << tm << "\n";
         board.playMove(construct_place_move(readSquare(tm + 1), WHITE_FLAT));
     }
@@ -199,7 +213,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
             int aim = limit / (board.countEmpty() * 2 + 10);
             std::cerr << "aiming " << aim << " ms\n";
             auto start = std::chrono::system_clock::now();
-            m = search(board, mx, aim);
+            m = search(board, mx, aim, std::min(limit / 3, 90000));
             auto end = std::chrono::system_clock::now();
             printMove(std::cout, m);
             limit -= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -222,7 +236,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
 int main() {
     using namespace std;
     srand(time(NULL));
-    cerr << "ch00tiyaBOT 2.0\n";
+    cerr << "ch00tiyaBOT 2.1\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
@@ -260,6 +274,7 @@ int main() {
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
             testbug(b);
+
     }
     return 0;
 }

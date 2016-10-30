@@ -10,11 +10,13 @@
 #include "boardstate.h"
 namespace TAK {
     extern int scale;
+
     class transpositionTableEntry {
     public:
         transpositionTableEntry() : lower_bound(std::numeric_limits<int>::min()),
-                                    upper_bound(std::numeric_limits<int>::max()), depth(0), bm(-1), generation(-1),
+                                    upper_bound(std::numeric_limits<int>::max()), depth(-1), bm(-1), generation(-1),
                                     hash(0) { }
+
         int lower_bound;
         int upper_bound;
         int depth;
@@ -46,11 +48,11 @@ namespace TAK {
     extern size_t sizeOfTable;
 
     template<int n>
-    transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = false) {
-        size_t h = hash1(b.getHash());
-        size_t index1 = h % sizeOfTable;
+    transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = true) {
+        unsigned long long h = b.getHash();
+        size_t index1 = hash1(h) % sizeOfTable;
         transpositionTableEntry *ans1 = tr + index1;
-        transpositionTableEntry *ans2 = tr + (hash2(b.getHash()) % sizeOfTable);
+        transpositionTableEntry *ans2 = tr + (hash2(h) % sizeOfTable);
         if (ans1->hash == h) {
             ans1->generation = currentGen;
             return ans1;
@@ -76,14 +78,14 @@ namespace TAK {
                 return ans2;
             }
             else {
-                if (ans1->depth < 0) {
+                if (ans1->depth < 0 && create_if_absent) {
                     ans1->generation = currentGen;
                     ans1->hash = h;
                     ans1->depth = std::numeric_limits<int>::min();
                     ans1->bm = -1;
                     return ans1;
                 }
-                else if (ans2->depth < 0) {
+                else if (ans2->depth < 0 && create_if_absent) {
                     ans2->generation = currentGen;
                     ans2->hash = h;
                     ans2->depth = std::numeric_limits<int>::min();
@@ -106,5 +108,4 @@ namespace TAK {
 
     void displayTTinfo();
 }
-
 #endif //A3_TRANSPOSITIONTABLE_H

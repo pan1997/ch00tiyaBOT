@@ -229,6 +229,7 @@ namespace TAK {
 
     void initZobrist() {
         std::default_random_engine generator;
+        generator.seed(time(NULL));
         std::uniform_int_distribution<unsigned long long> dist(0, std::numeric_limits<unsigned long long>::max());
         auto rnd = std::bind(dist, generator);
         for (int i = 0; i < 8; i++)

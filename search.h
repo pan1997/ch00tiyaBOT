@@ -28,6 +28,8 @@ namespace TAK {
         int ttcuts;
         int fatt;
         int fsucc;
+        int patt;
+        int psucc;
         int depth_limit;
         bool stop;
         //turn square place or move
@@ -41,7 +43,7 @@ namespace TAK {
     };
 
     inline int qdepth(int dl) {
-        return std::max(std::min(dl + 3, 9) - dl, 2);
+        return dl % 2 == 1 ? 0 : -1;//std::max(std::min(dl + 3, 7) - dl, dl%2==1?2:1);
     }
 
     inline bool storehistory(int d) {
@@ -51,7 +53,7 @@ namespace TAK {
     template<int n>
     int qsearch(boardstate<n> &b, searchInfo *info, int alpha, int beta, int lim) {
         info->qnodes++;
-        transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
+        transpositionTableEntry *transpositionTableEntry1 = getEntry(b);
         if (transpositionTableEntry1 != nullptr) {
             if (transpositionTableEntry1->depth >= lim - 100) {
                 if (transpositionTableEntry1->lower_bound >= beta) {
@@ -92,7 +94,7 @@ namespace TAK {
                     ms = neg * terminalEval(b);
                 else if (//(((b.getGCW()[n - 1] - b.getGCB()[n - 1]) - pn) * neg > 0 ||
                     // isPlaceMove(bm) && (evaluateTopFlat(b) - flatsc) * neg > scale) &&
-                        lim >= 0)
+                        lim >= 0)//||alpha_backup+1<beta&&lim>=-2)
                     ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                 else
                     ms = stand_pat;
@@ -121,7 +123,7 @@ namespace TAK {
                                 if (b.end())
                                     ms = neg * terminalEval(b);
                                 else if (//neg * ((b.getGCW()[n - 1] - b.getGCB()[n - 1]) - pn) > 0 &&
-                                        lim >= 0)
+                                        lim >= 0)//||alpha_backup+1<beta&&lim>=-2)
                                     ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                 else
                                     ms = stand_pat;
@@ -165,7 +167,8 @@ namespace TAK {
                                             ms = neg * terminalEval(b);
                                         else if (//((b.getGCW()[n - 1] - b.getGCB()[n - 1] - pn) * neg > 1 ||
                                             // (evaluateTopFlat(b) - flatsc) * neg > scale) &&
-                                                lim >= 0)//&& b.getHeight(getSquare(i,j))>1)
+                                                lim >=
+                                                0)//||alpha_backup+1<beta&&lim>=-2)//&& b.getHeight(getSquare(i,j))>1)
                                             ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                         else
                                             ms = stand_pat;
@@ -197,7 +200,7 @@ namespace TAK {
                                                 ms = neg * terminalEval(b);
                                             else if (//((b.getGCW()[n - 1] - b.getGCB()[n - 1] - pn) * neg > 1 ||
                                                 // (evaluateTopFlat(b) - flatsc) * neg > scale) &&
-                                                    lim >= 0)
+                                                    lim >= 0)//||alpha_backup+1<beta&&lim>=-2)
                                                 ms = -qsearch(b, info, -beta, -alpha, lim - 1);
                                             else
                                                 ms = stand_pat;
@@ -238,7 +241,7 @@ namespace TAK {
                 bool show_legal = false) {
         info->nodes++;
         bool clearbounds = false;
-        transpositionTableEntry *transpositionTableEntry1 = getEntry(b, true);
+        transpositionTableEntry *transpositionTableEntry1 = getEntry(b);
         if (transpositionTableEntry1 != nullptr) {
             if (transpositionTableEntry1->depth >= info->depth_limit - d) {
                 if (transpositionTableEntry1->lower_bound >= beta) {
@@ -259,7 +262,6 @@ namespace TAK {
                 //transpositionTableEntry1->upper_bound = std::numeric_limits<int>::max();
             }
         }
-
         if (info->stop)
             return alpha;
 
@@ -268,10 +270,10 @@ namespace TAK {
         if (tp != PV_NODE) {
             bool pruned = false;
 #ifdef NMP_ALLOWED
-            if (info->depth_limit > d + 2 && !in_nm && b.getBlackLeft() > 2 && b.getWhiteLeft() > 2) {
+            if (d > 1 && info->depth_limit > d + 1 && !in_nm && b.getBlackLeft() > 1 && b.getWhiteLeft() > 1) {
                 info->fatt++;
                 b.flipTurn();
-                int bound = beta;//- move_advantage;
+                int bound = beta - move_advantage;
                 int ms = -minimax(b, info, d + 3, -bound, -bound + 1,
                                   (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, true);
                 b.flipTurn();
@@ -280,6 +282,13 @@ namespace TAK {
                     pruned = true;
                 }
             }
+            /*if(info->depth_limit==d+1&&b.getBlackLeft()>1&&b.getWhiteLeft()>1&&transpositionTableEntry1->upper_bound!=std::numeric_limits<int>::max()){
+                info->patt++;
+                if(transpositionTableEntry1->upper_bound+5*scale<=alpha) {
+                    info->psucc++;
+                    pruned = true;
+                }
+            }*/
 #endif
             if (pruned)
                 return beta;
@@ -545,6 +554,7 @@ namespace TAK {
         if (tp == CUT_NODE && alpha == alpha_backup)
             return alpha;
         if (transpositionTableEntry1 != nullptr) {
+            //transpositionTableEntry1->hash=b.getHash();
             if (alpha < scale * 100)
                 transpositionTableEntry1->depth = info->depth_limit - d;
             else transpositionTableEntry1->depth = std::numeric_limits<int>::max();
@@ -563,13 +573,12 @@ namespace TAK {
     void printpv(boardstate<n> &b, bool neg, int lim = 20) {
         transpositionTableEntry *transpositionTableEntry1 = getEntry(b, false);
         if (transpositionTableEntry1 != nullptr && transpositionTableEntry1->bm != -1 && lim > 0) {
-#ifndef ASS
-            printMove(std::cout, transpositionTableEntry1->bm);
-            std::cout << ' ';
-#else
+            if (!b.legal(transpositionTableEntry1->bm)) {
+                std::cerr << "??????????";
+                return;
+            }
             printMove(std::cerr, transpositionTableEntry1->bm);
             std::cerr << ' ';
-#endif
             bool fl = b.playMove(transpositionTableEntry1->bm);
             b.flipTurn();
             if (!b.end())
@@ -622,6 +631,8 @@ namespace TAK {
         info.fatt = 0;
         info.fsucc = 0;
         info.qnodes = 0;
+        info.patt = 0;
+        info.psucc = 0;
         for (int i = 0; i < 64; i++)
             for (int k = 0; k < 2; k++) {
                 info.history[k][0][i] /= 8;
@@ -651,10 +662,11 @@ namespace TAK {
                     tm = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::system_clock::now() - start).count();
                     std::cerr << dl << "?\t[";
-                    printpv(backup, b.getTurn() == BLACK);
+                    printpv(backup, backup.getTurn() == BLACK);
                     std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                     (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
                     std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
+                    //std::cerr << " " << (info.psucc * 100 / (info.patt + 1)) << "% of " << info.patt << " fmt ";
                     displayTTinfo();
                 }
                 count++;
@@ -673,10 +685,11 @@ namespace TAK {
             if (!info.stop) {
                 std::cerr << dl << "\t[";
                 printpv(b, b.getTurn() == BLACK);
-                std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
+                std::cerr << "]" << ms << " (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                 (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
                 std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
                 std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
+                //std::cerr << " " << (info.psucc * 100 / (info.patt + 1)) << "% of " << info.patt << " fmt ";
                 displayTTinfo();
             }
             for (int i = 1; i < n * n; i++)
@@ -685,12 +698,11 @@ namespace TAK {
                         square s = info.order[p][t][i];
                         int x = info.history[p][t][s];
                         int j = i - 1;
-                        for (; j >= 0 && info.history[p][t][info.order[p][t][j]] < x; j--) {
+                        for (; j >= 0 && info.history[p][t][info.order[p][t][j]] < x; j--)
                             info.order[p][t][j + 1] = info.order[p][t][j];
-                        }
                         info.order[p][t][j + 1] = s;
                     }
-            if (tm * (ebf + 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit))
+            if (tm * (ebf + 1) * (dl % 2 == 0 ? 3 : 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit))
                 break;
         }
         return pbm;

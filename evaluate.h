@@ -25,10 +25,10 @@ namespace TAK {
     extern int citadel;   //9
     extern int center;    //10
     extern int underCap;
-    extern int placeThreat;
-    extern int emptyInfluence;
+    //extern int placeThreat;
+    //extern int emptyInfluence;
     extern int endgameCutoff;
-    extern int flatInfluence;
+    //extern int flatInfluence;
     extern bitboard citadels[7][7];
     extern bitboard centerBoard;
     extern bitboard allBoard;
@@ -68,8 +68,8 @@ namespace TAK {
                 score = 1;
             }
             else if (b.getTurn() == BLACK) {//ie white has moved
-                score = groupU[n];
                 winner = WHITE;
+                score=1;
             }
             else {
                 winner = BLACK;
@@ -126,12 +126,13 @@ namespace TAK {
 
     template<int n>
     int evaluateTop(const boardstate<n> &b) {
-        return standingU * (popcnt(b.getWS()) - popcnt(b.getBS()));
+        return standingU * (popcnt(b.getWS()) - popcnt(b.getBS())) +
+               capstoneU * (popcnt(b.getWC()) - popcnt(b.getBC()));
     }
 
     template<int n>
     int evaluateTopFlat(const boardstate<n> &b) {
-        return scale * (popcnt(b.getWF()) - popcnt(b.getBF())) + capstoneU * (popcnt(b.getWC()) - popcnt(b.getBC()));
+        return scale * (popcnt(b.getWF()) - popcnt(b.getBF()));
     }
 
     template<int n>
@@ -167,15 +168,18 @@ namespace TAK {
                                              color_of(b.top(getSquare(i, j))));
                     int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
                     if (isFlat(b.top(getSquare(i, j))))
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * FCaptureU +
+                        score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * FCaptureU +
+                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* FCaptureU+
                                   cnt * FReserveU) *
                                  sign;
                     else if (isCap(b.top(getSquare(i, j))))
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * CCaptureU +
+                        score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * CCaptureU +
+                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* CCaptureU+
                                   cnt * CReserveU) *
                                  sign;
                     else
-                        score += ((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
+                        score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
+                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* SCaptureU+
                                   cnt * SReserveU) *
                                  sign;
 
@@ -205,6 +209,7 @@ namespace TAK {
         return center * (popcnt((b.getWF() | b.getWC()) & centerBoard) - popcnt((b.getBF() | b.getBC()) & centerBoard));
     }
 
+    /*
     template<int n>
     int evaluateInfluence(const boardstate<n> &b) {
         bitboard W = b.getWC() | b.getWF() | b.getWS();
@@ -220,12 +225,13 @@ namespace TAK {
         std::cout << "Black inf empty " << popcnt(binf & ~(W | B)) << '\n';
         std::cout << "White inf flat " << popcnt(winf & (b.getWF() | b.getBF())) << '\n';
         std::cout << "Black inf flat " << popcnt(binf & (b.getWF() | b.getBF())) << '\n';
-*/
-        return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B)));
-        //flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
-    }
 
-    template<int n>void countThreats(const boardstate<n>&b,int&wc,int&bc) {
+        //return emptyInfluence * (popcnt(winf & ~(W | B)) - popcnt(binf & ~(W | B)));
+        //flatInfluence * (popcnt(winf & (b.getWF() | b.getBF())) - popcnt(binf & (b.getWF() | b.getBF())));
+    }*/
+
+    template<int n>
+    void countThreats(const boardstate<n> &b, int &wc, int &bc) {
         bitboard W = b.getWC() | b.getWF();
         bitboard B = b.getBF() | b.getBC();
         bitboard empty = ~(W | B | b.getBS() | b.getWS());
@@ -245,12 +251,79 @@ namespace TAK {
             }
     }
 
+
+    //empty oppflat oppwall oppcap mywall
+    extern int weights[8][5];
+
+    template<int n>int evaluate2(const boardstate<n>&b) {
+        int score = 0;
+        int orig;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++) {
+                square s = getSquare(i, j);
+                bitboard bd = neighbours(getBitboard(s));
+                //bd=b.join(bd,color_of(b.top(s)));
+                if (b.empty(s) || color_of(b.top(s)) == BLACK) {
+                    bitboard gr = b.join(bd, WHITE, orig);// | getBitboard(s);
+                    if (gr != 0) {
+                        gr|=getBitboard(s);
+                        int r = countRows(gr, n);
+                        int c = countCols(gr, n);
+                        if (r <= orig)
+                            r = 0;
+                        if (c <= orig)
+                            c = 0;
+                        if (r != 0 || c != 0) {
+                            //printBitboard(std::cout,gr);
+                            //std::cout<<"Added\n";
+                            if (b.empty(s))
+                                score += std::max(weights[r][0], weights[c][0]);
+                            else if (isFlat(b.top(s)))
+                                score += std::max(weights[r][1], weights[c][1]);
+                            else if (isStanding(b.top(s)))
+                                score += std::max(weights[r][2], weights[c][2]);
+                            else if (isCap(b.top(s)))
+                                score += std::max(weights[r][3], weights[c][3]);
+                        }
+                    }
+                }
+                if (b.empty(s) || color_of(b.top(s)) == WHITE) {
+                    bitboard gr = b.join(bd, BLACK, orig);// | getBitboard(s);
+                    if (gr != 0) {
+                        gr|=getBitboard(s);
+                        int r = countRows(gr, n);
+                        int c = countCols(gr, n);
+                        if (r <= orig)
+                            r = 0;
+                        if (c <= orig)
+                            c = 0;
+                        if (r != 0 || c != 0) {
+                            //printBitboard(std::cout,gr);
+                            //std::cout<<"subtracted\n";
+                            if (b.empty(s))
+                                score -= std::max(weights[r][0], weights[c][0]);
+                            else if (isFlat(b.top(s)))
+                                score -= std::max(weights[r][1], weights[c][1]);
+                            else if (isStanding(b.top(s)))
+                                score -= std::max(weights[r][2], weights[c][2]);
+                            else if (isCap(b.top(s)))
+                                score -= std::max(weights[r][3], weights[c][3]);
+                        }
+                    }
+                }
+            }
+        return score;
+    }
+
+    //extern double r;
+
     template<int n>
-    int evaluate(const boardstate<n> &b,int x) {
-        //int factor = std::min(std::min(b.getWhiteLeft(), b.getBlackLeft()), endgameCutoff);
+    int evaluate(const boardstate<n> &b, int x) {
+        int factor = std::min(std::min(b.getWhiteLeft(), b.getBlackLeft()), endgameCutoff);
         int score = x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage;
         //(3 * endgameCutoff - 2 * factor) * (x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
         //endgameCutoff;
+        score = (2 * endgameCutoff - factor) * (score) / endgameCutoff;
         /*
         5 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
         (3 * n * n + 2*b.countEmpty());
@@ -261,6 +334,7 @@ namespace TAK {
         //score += evaluateCitadels(b);
         //score += evaluateInfluence(b);
         score += evaluateCenter(b);
+        score+=evaluate2(b);
         //countThreats(b, wc, bc);
         //score += placeThreat * (wc - bc);
         return score;
@@ -268,16 +342,27 @@ namespace TAK {
 
     inline void setWeights(int i) {
         //emptyInfluence = i;
+        //weights[5][0]=i;
+        //groupU[3]=i;
+
+        //standingU=i;
+        //CCaptureU=-i;
+        //SReserveU=i;
+        //underCap=i;
+        //groupU[3]=i;
+        //weights[5][0]=i;
+        //weights[5][1]=i;
         //center=i;
-        CReserveU=i;
+        //CReserveU=i;
         //scale=100+i;
-        //capstoneU=95+i;
+        //capstoneU=i;
+        endgameCutoff=i;
         //move_advantage=45+i;
         //groupU[4]=i;
         //placeThreat=i;
         //move_advantage=i;
         //scale=100-i;
-        //capstoneU=96-i;
+        //capstoneU=i;
     }
 }
 #endif //A3_EVALUATE_H
