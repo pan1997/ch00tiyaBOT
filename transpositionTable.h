@@ -50,52 +50,47 @@ namespace TAK {
     template<int n>
     transpositionTableEntry *getEntry(const boardstate<n> &b, bool create_if_absent = true) {
         unsigned long long h = b.getHash();
-        size_t index1 = hash1(h) % sizeOfTable;
-        transpositionTableEntry *ans1 = tr + index1;
-        transpositionTableEntry *ans2 = tr + (hash2(h) % sizeOfTable);
+        transpositionTableEntry *ans1 = tr + (hash1(h) % sizeOfTable);
         if (ans1->hash == h) {
             ans1->generation = currentGen;
             return ans1;
         }
-        else if (ans2->hash == h) {
+        transpositionTableEntry *ans2 = tr + (hash2(h) % sizeOfTable);
+        if (ans2->hash == h) {
             ans2->generation = currentGen;
             return ans2;
         }
-        else if (ans1->generation < currentGen) {
+        if (ans1->generation < currentGen) {
             ans1->generation = currentGen;
             ans1->hash = h;
             ans1->depth = std::numeric_limits<int>::min();
             ans1->bm = -1;
             return ans1;
         }
-        else {
-            collisions++;
-            if (ans2->generation < currentGen) {
-                ans2->generation = currentGen;
-                ans2->hash = h;
-                ans2->depth = std::numeric_limits<int>::min();
-                ans2->bm = -1;
-                return ans2;
-            }
-            else {
-                if (ans1->depth < 0 && create_if_absent) {
-                    ans1->generation = currentGen;
-                    ans1->hash = h;
-                    ans1->depth = std::numeric_limits<int>::min();
-                    ans1->bm = -1;
-                    return ans1;
-                }
-                else if (ans2->depth < 0 && create_if_absent) {
-                    ans2->generation = currentGen;
-                    ans2->hash = h;
-                    ans2->depth = std::numeric_limits<int>::min();
-                    ans2->bm = -1;
-                    return ans2;
-                }
-                dropped++;
-                return nullptr;
-            }
+        if (ans2->generation < currentGen) {
+            ans2->generation = currentGen;
+            ans2->hash = h;
+            ans2->depth = std::numeric_limits<int>::min();
+            ans2->bm = -1;
+            return ans2;
         }
+        collisions++;
+        if (ans1->depth < 0 && create_if_absent) {
+            ans1->generation = currentGen;
+            ans1->hash = h;
+            ans1->depth = std::numeric_limits<int>::min();
+            ans1->bm = -1;
+            return ans1;
+        }
+        if (ans2->depth < 0 && create_if_absent) {
+            ans2->generation = currentGen;
+            ans2->hash = h;
+            ans2->depth = std::numeric_limits<int>::min();
+            ans2->bm = -1;
+            return ans2;
+        }
+        dropped++;
+        return nullptr;
     }
 
     inline void clearTable() {

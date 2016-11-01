@@ -237,7 +237,6 @@ namespace TAK {
                 for (int k = 0; k < 3 * 8 * 8 / 2; k++)
                     for (int l = 0; l < 8; l++)
                         zobristTable[i][j][k][l] = rnd();
-        //std::cout<<zobristTable[i][j][k][l]<<'\n';
         white_to_move = rnd();
     }
 }

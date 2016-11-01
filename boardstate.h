@@ -265,20 +265,24 @@ namespace TAK {
                 group_count_B[i] = b.group_count_B[i];
             }
             hash = b.hash;
-            ngroups[0]=0;
-            ngroups[1]=0;
+            ngroups[0]=b.ngroups[0];
+            ngroups[1]=b.ngroups[1];
+            for(int i=0;i<ngroups[0];i++)
+                groups[0][i]=b.groups[0][i];
+            for(int i=0;i<ngroups[1];i++)
+                groups[1][i]=b.groups[1][i];
         }
 
-        bitboard join(bitboard b,int p,int&m1)const{
-            bitboard ans=0;
-            m1=0;
-            for(int i=0;i<ngroups[p];i++)
-                if((groups[p][i]&b)!=0) {
+        bitboard join(bitboard b,int p,int&mr,int&mc)const {
+            bitboard ans = 0;
+            mr = mc = 0;
+            for (int i = 0; i < ngroups[p]; i++)
+                if ((groups[p][i] & b) != 0) {
                     ans |= groups[p][i];
-                    if(m1<RC_counts[p][i][0])
-                        m1=RC_counts[p][i][0];
-                    if(m1<RC_counts[p][i][1])
-                        m1=RC_counts[p][i][1];
+                    if (mr < RC_counts[p][i][0])
+                        mr = RC_counts[p][i][0];
+                    if (mc < RC_counts[p][i][1])
+                        mc = RC_counts[p][i][1];
                 }
             return ans;
         }

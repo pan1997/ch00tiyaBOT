@@ -12,8 +12,8 @@ namespace TAK {
 
     void transpositionTableInit() {
         //sizeOfTable = 150000000;
-        sizeOfTable=1<<27;
-        //sizeOfTable=200000;
+        //sizeOfTable=1<<27;
+        sizeOfTable=200000;
         if (tr)
             delete[]tr;
         tr = new transpositionTableEntry[sizeOfTable];

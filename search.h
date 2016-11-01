@@ -324,8 +324,6 @@ namespace TAK {
                 else ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));//ms = neg * evaluate(b);
                 b.undoMove(bm, fl);
                 b.flipTurn();
-                //if (fl)
-                //    info->fsucc++;
                 if (ms > alpha) {
                     if (storehistory(info->depth_limit - d))
                         info->history[b.getTurn()][isPlaceMove(bm) ? 1 : 0][bm & 63] +=
@@ -336,7 +334,6 @@ namespace TAK {
         }
 
         bool ff = isPlaceMove(bm);
-        //first flat, then standing then cap
         for (int z = 0; z < 2; z++) {
             if (alpha < beta && ((z == 0) == (ff)))
                 for (int p = 1; p <= 3; p++)
@@ -418,7 +415,12 @@ namespace TAK {
                                         int ms;
                                         if (b.end())
                                             ms = neg * terminalEval(b);
-                                        else if (d < info->depth_limit) {
+                                        else if (lh > 1 || !isFlat(b.top(squareAt(m, dir))) ||
+                                                 b.getHeight(squareAt(m, dir)) > 1 ||
+                                                 b.getWhiteLeft() < 2 ||
+                                                 b.getBlackLeft() < 2)
+                                            //pruning trivial spreads
+                                        if (d < info->depth_limit) {
                                             ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
                                                           (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, false);
                                             if (alpha < ms && ms < beta ||
@@ -434,6 +436,7 @@ namespace TAK {
                                                 ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
                                             }
                                         }
+                                        else ms = alpha;
                                         b.undoMove(m, fl);
                                         b.flipTurn();
                                         if (ms > alpha) {
@@ -657,7 +660,7 @@ namespace TAK {
             std::future_status status;
             int count = 0;
             do {
-                status = future.wait_for(std::chrono::seconds(FREQ));
+                status = future.wait_for(std::chrono::milliseconds(500));
                 if (status == std::future_status::timeout) {
                     tm = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::system_clock::now() - start).count();
@@ -665,13 +668,13 @@ namespace TAK {
                     printpv(backup, backup.getTurn() == BLACK);
                     std::cerr << "] (" << info.nodes << "," << info.qnodes << ") nodes @" <<
                     (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
-                    std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
+                    std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt\n";
                     //std::cerr << " " << (info.psucc * 100 / (info.patt + 1)) << "% of " << info.patt << " fmt ";
-                    displayTTinfo();
+                    //displayTTinfo();
                 }
                 count++;
-            } while (status != std::future_status::ready && count < maxTime / (FREQ * 1000));
-            if (future.wait_for(std::chrono::seconds(2)) == std::future_status::timeout) {
+            } while (status != std::future_status::ready && count < maxTime / (500));
+            if (future.wait_for(std::chrono::milliseconds(5)) == std::future_status::timeout) {
                 info.stop = true;
                 std::cerr << "stopped";
             }
@@ -685,12 +688,14 @@ namespace TAK {
             if (!info.stop) {
                 std::cerr << dl << "\t[";
                 printpv(b, b.getTurn() == BLACK);
-                std::cerr << "]" << ms << " (" << info.nodes << "," << info.qnodes << ") nodes @" <<
-                (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm << " ms] ";
+                std::cerr << "] ms=(" << (ms > 0 ? "+" : "") << ms << ") (" << info.nodes << "," << info.qnodes <<
+                ") nodes @" <<
+                (info.qnodes + info.nodes) / (tm + 1) << " kNps[" << tm <<
+                " ms] ";
                 std::cerr << "EBF=" << (ebf = std::pow((info.nodes - pn), 1.0 / dl));
-                std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt ";
+                std::cerr << " " << (info.fsucc * 100 / (info.fatt + 1)) << "% of " << info.fatt << " nmt\n";
                 //std::cerr << " " << (info.psucc * 100 / (info.patt + 1)) << "% of " << info.patt << " fmt ";
-                displayTTinfo();
+                //displayTTinfo();
             }
             for (int i = 1; i < n * n; i++)
                 for (int p = 0; p < 2; p++)
@@ -702,7 +707,7 @@ namespace TAK {
                             info.order[p][t][j + 1] = info.order[p][t][j];
                         info.order[p][t][j + 1] = s;
                     }
-            if (tm * (ebf + 1) * (dl % 2 == 0 ? 3 : 1) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 > Tlimit))
+            if (tm * (ebf + 1) * (dl % 2 == 0 ? 3 : 1 / 2.0) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 >= Tlimit))
                 break;
         }
         return pbm;

@@ -28,6 +28,16 @@ void testbug(TAK::boardstate<5> b) {
 4	3	 pv [Fd2 Fd3 Fe4 1b3-1 ] (7191,61971) nodes @197 kNps[350 ms] EBF=9.0852] fatt 0 fsucc 0 ttcuts 1156 TT has ? entries and 18 collisions and 0 drops=(0%)
 5	16	 pv [Fc4 1b3-1 2b1<2 Fb3 1c2+1 ] (26128,378463) nodes @524 kNps[770 ms] EBF=7.16906] fatt 241 fsucc 71 ttcuts 3967 TT has ? entries and 409 collisions and 1 drops=(0%)
 6	0	 pv [Fd3 Fd2 Fc4 Fb4 Fe4 1c5-1 Fc5 ] (347263,2456062) nodes @272 kNps[10268 ms] EBF=8.27525] fatt 5257 fsucc 4233 ttcuts 114491 TT has ? entries and 23613 collisions and 394 drops=(1%)
+
+     2.1
+1	[Fd2 Fd3  #(-4)]-4 (1,217) nodes @109 kNps[1 ms] EBF=1 0% of 0 nmt TT drops 0% of 0 colls
+2	[Fd2 Fd3  #(-4)]-4 (87,345) nodes @72 kNps[5 ms] EBF=9.27362 0% of 0 nmt TT drops 0% of 0 colls
+3	[Fd3 1b3-1 Fd2 Fb3  #(-40)]-40 (448,13281) nodes @371 kNps[36 ms] EBF=7.12037 0% of 0 nmt TT drops 0% of 0 colls
+4	[Fd3 1b3-1 Fd2 Fb3  #(-40)]-40 (4020,20648) nodes @160 kNps[153 ms] EBF=7.73086 44% of 84 nmt TT drops 0% of 0 colls
+5	[Fd3 Fd2 Fe4 1b3-1 Fc4 1e3<1  #(-47)]-47 (11420,274439) nodes @376 kNps[758 ms] EBF=5.94082 45% of 239 nmt TT drops 0% of 0 colls
+6	[Fd3 Fd2 Fe4 1b3-1 Fc4 1e3<1  #(-47)]-47 (73374,441029) nodes @186 kNps[2751 ms] EBF=6.2904 61% of 2655 nmt TT drops 0% of 1 colls
+7	[Fd3 1b3-1 Fe4 Fb3 Fb4 1e3<1 1c2+1 Fd2  #(-23)]-23 (167522,3620214) nodes @389 kNps[9712 ms] EBF=5.13505 62% of 5816 nmt TT drops 0% of 399 colls
+8	[Fd3 1b3-1 Fe4 Fd2 Fc4 Fb4 1c2>1 1b4<1  #(-24)]-24 (1109489,6557429) nodes @176 kNps[43377 ms] EBF=5.58155 64% of 38704 nmt TT drops 4% of 2719 colls
      */
 
 
@@ -58,10 +68,21 @@ void testbug(TAK::boardstate<5> b) {
 6	-98	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 Fd3 Fe4 1d3>1 ] (152722,925794) nodes @451 kNps[2386 ms] EBF=7.21876] fatt 2138 fsucc 1455 ttcuts 68287 TT has ? entries and 2642 collisions and 20 drops=(0%)
 7	-25	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 Fb4 4c5>13 ] (382854,3952366) nodes @818 kNps[5294 ms] EBF=5.83441] fatt 5169 fsucc 3538 ttcuts 217326 TT has ? entries and 29362 collisions and 773 drops=(2%)
 8	17	 pv [Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 4c5>13 Fe4 4e5-4 ] (1000457,8636558) nodes @570 kNps[16879 ms] EBF=5.29467] fatt 14302 fsucc 10456 ttcuts 562452 TT has ? entries and 188452 collisions and 9331 drops=(4%)
+     2.1
+1	[Fa1 Fb2  #(-143)]-143 (1,409) nodes @205 kNps[1 ms] EBF=1 0% of 0 nmt TT drops 0% of 0 colls
+2	[Fa1 Fb2  #(-143)]-143 (71,516) nodes @195 kNps[2 ms] EBF=8.3666 0% of 0 nmt TT drops 0% of 0 colls
+3	[Fa1 Fb2 1a1+1 Fb3  #(-171)]-171 (253,12518) nodes @425 kNps[29 ms] EBF=5.66705 0% of 0 nmt TT drops 0% of 0 colls
+4	[Fa1 Fb2 1a1+1 Fb3  #(-171)]-171 (2332,16977) nodes @332 kNps[57 ms] EBF=6.75248 26% of 40 nmt TT drops 0% of 0 colls
+5	[Sa1 Fb2 1a1+1 Fb3 2a2+11 Fb4  #(-140)]-140 (6266,148438) nodes @457 kNps[337 ms] EBF=5.2356 65% of 232 nmt TT drops 0% of 0 colls
+6	[Sa1 Fb2 1a1+1 Fb3 2a2+11 Fc3  #(-135)]-141 (16149,186181) nodes @412 kNps[489 ms] EBF=4.63249 63% of 566 nmt TT drops 0% of 0 colls
+7	[Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 Fe4 1e5-1  #(-28)]-28 (34826,647402) nodes @502 kNps[1357 ms] EBF=4.07555 75% of 2018 nmt TT drops 0% of 0 colls
+8	[Sa1 Fb2 1a1+1 Fb3 2a2+11 1d5-1 Fe4 1e5-1  #(-28)]-28 (72805,951162) nodes @499 kNps[2050 ms] EBF=3.73631 82% of 5373 nmt TT drops 0% of 0 colls
+9	[Sa1 Fb2 1a1+1 Fb3 2a2+11 Fd2 4c5>13 1d2>1 2a4-2 Fb4  #(-42)]-42 (384405,7263440) nodes @503 kNps[15198 ms] EBF=4.07755 77% of 22725 nmt TT drops 0% of 2387 colls
+
      */
 
-    std::string game3 = "a1 a5 Fb5 Fc4 Fc5 Fd4 Fd5 Ce5 Ce4";
-    std::stringstream moves(game3);
+    std::string game3 = "a1 e1 Fe2";
+    std::stringstream moves(game);
     std::cout << "Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1")
 
@@ -93,7 +114,7 @@ void testbug(TAK::boardstate<5> b) {
     if(b.end()){
         std::cout<<"end "<<TAK::terminalEval(b)<<'\n';
     }
-    TAK::move m = TAK::search(b, ms, 45000, 36000);
+    TAK::move m = TAK::search(b, ms, 450000, 360000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
 }
@@ -112,6 +133,7 @@ template<int n>int n_cui() {
             move m = readMove(buf, b.getTurn());
             std::cout<<"playing "<<buf<<' ';
             printMove(std::cout,m);
+            std::cout<<' '<<std::bitset<64>(m);
             std::cout<<'\n';
             bool fl = b.playMove(m);
             b.flipTurn();
@@ -194,23 +216,18 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
             std::strcpy(tm, mv.c_str());
         else {
             std::strcpy(tm, "Fa0");
-            tm[2]+=n;
+            tm[2] += n;
+            tm[1] += (n - 1);
         }
         std::cout << tm << "\n";
         board.playMove(construct_place_move(readSquare(tm + 1), WHITE_FLAT));
     }
     move m;
     for (int i = 0; ; i++) {
-        //std::cout<<"------------------------------------------------------\n";
         std::cerr << board << '\n';
-        {
-            int wc, bc;
-            countThreats(board, wc, bc);
-            std::cerr << "Threats " << wc << ' ' << bc << '\n';
-        }
         int mx = 0;
         if (i % 2 == p) {
-            int aim = limit / (board.countEmpty() * 2 + 10);
+            int aim = int(limit / (board.countEmpty() * 1.5 + 5));
             std::cerr << "aiming " << aim << " ms\n";
             auto start = std::chrono::system_clock::now();
             m = search(board, mx, aim, std::min(limit / 3, 90000));
@@ -236,13 +253,13 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
 int main() {
     using namespace std;
     srand(time(NULL));
-    cerr << "ch00tiyaBOT 2.1\n";
+    cerr << "ch00tiyaBOT 2.2\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
     //lim = 960;
     //p=n=lim=1;
-    int increment = 20 * 1000;
+    int increment = 0 * 1000;
     lim *= 1000;
     switch (n) {
         case 4:
@@ -262,9 +279,9 @@ int main() {
             assignment(TAK::boardstate<8>(), p, lim, increment);
             break;
         default:
-            //TAK::tune();
+            TAK::tune();
             //cui();
-            std::cout << "game not defined. Just autotuning/bug fixing\n";
+            /*std::cout << "game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
             TAK::initInfo(5);
@@ -274,7 +291,7 @@ int main() {
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
             testbug(b);
-
+*/
     }
     return 0;
 }

@@ -257,57 +257,73 @@ namespace TAK {
 
     template<int n>int evaluate2(const boardstate<n>&b) {
         int score = 0;
-        int orig;
+        int origr,origc;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++) {
                 square s = getSquare(i, j);
                 bitboard bd = neighbours(getBitboard(s));
                 //bd=b.join(bd,color_of(b.top(s)));
                 if (b.empty(s) || color_of(b.top(s)) == BLACK) {
-                    bitboard gr = b.join(bd, WHITE, orig);// | getBitboard(s);
+                    bitboard gr = b.join(bd, WHITE, origr, origc);// | getBitboard(s);
                     if (gr != 0) {
-                        gr|=getBitboard(s);
+                        gr |= getBitboard(s);
                         int r = countRows(gr, n);
                         int c = countCols(gr, n);
-                        if (r <= orig)
+                        if (r <= origr)
                             r = 0;
-                        if (c <= orig)
+                        if (c <= origc)
                             c = 0;
                         if (r != 0 || c != 0) {
                             //printBitboard(std::cout,gr);
                             //std::cout<<"Added\n";
-                            if (b.empty(s))
-                                score += std::max(weights[r][0], weights[c][0]);
-                            else if (isFlat(b.top(s)))
-                                score += std::max(weights[r][1], weights[c][1]);
-                            else if (isStanding(b.top(s)))
-                                score += std::max(weights[r][2], weights[c][2]);
-                            else if (isCap(b.top(s)))
-                                score += std::max(weights[r][3], weights[c][3]);
+                            if (b.empty(s)) {
+                                score += weights[r][0];
+                                score += weights[c][0];
+                            }
+                            else if (isFlat(b.top(s))) {
+                                score += weights[r][1];
+                                score += weights[c][1];
+                            }
+                            else if (isStanding(b.top(s))) {
+                                score += weights[r][2];
+                                score += weights[c][2];
+                            }
+                            else if (isCap(b.top(s))) {
+                                score += weights[r][3];
+                                score += weights[c][3];
+                            }
                         }
                     }
                 }
                 if (b.empty(s) || color_of(b.top(s)) == WHITE) {
-                    bitboard gr = b.join(bd, BLACK, orig);// | getBitboard(s);
+                    bitboard gr = b.join(bd, BLACK, origr,origc);// | getBitboard(s);
                     if (gr != 0) {
                         gr|=getBitboard(s);
                         int r = countRows(gr, n);
                         int c = countCols(gr, n);
-                        if (r <= orig)
+                        if (r <= origr)
                             r = 0;
-                        if (c <= orig)
+                        if (c <= origc)
                             c = 0;
                         if (r != 0 || c != 0) {
                             //printBitboard(std::cout,gr);
                             //std::cout<<"subtracted\n";
-                            if (b.empty(s))
-                                score -= std::max(weights[r][0], weights[c][0]);
-                            else if (isFlat(b.top(s)))
-                                score -= std::max(weights[r][1], weights[c][1]);
-                            else if (isStanding(b.top(s)))
-                                score -= std::max(weights[r][2], weights[c][2]);
-                            else if (isCap(b.top(s)))
-                                score -= std::max(weights[r][3], weights[c][3]);
+                            if (b.empty(s)) {
+                                score -= weights[r][0];
+                                score -= weights[c][0];
+                            }
+                            else if (isFlat(b.top(s))) {
+                                score -= weights[r][1];
+                                score -= weights[c][1];
+                            }
+                            else if (isStanding(b.top(s))) {
+                                score -= weights[r][2];
+                                score -= weights[c][2];
+                            }
+                            else if (isCap(b.top(s))) {
+                                score -= weights[r][3];
+                                score -= weights[c][3];
+                            }
                         }
                     }
                 }
@@ -338,31 +354,6 @@ namespace TAK {
         //countThreats(b, wc, bc);
         //score += placeThreat * (wc - bc);
         return score;
-    }
-
-    inline void setWeights(int i) {
-        //emptyInfluence = i;
-        //weights[5][0]=i;
-        //groupU[3]=i;
-
-        //standingU=i;
-        //CCaptureU=-i;
-        //SReserveU=i;
-        //underCap=i;
-        //groupU[3]=i;
-        //weights[5][0]=i;
-        //weights[5][1]=i;
-        //center=i;
-        //CReserveU=i;
-        //scale=100+i;
-        //capstoneU=i;
-        endgameCutoff=i;
-        //move_advantage=45+i;
-        //groupU[4]=i;
-        //placeThreat=i;
-        //move_advantage=i;
-        //scale=100-i;
-        //capstoneU=i;
     }
 }
 #endif //A3_EVALUATE_H
