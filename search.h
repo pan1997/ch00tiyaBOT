@@ -53,7 +53,7 @@ namespace TAK {
     template<int n>
     int qsearch(boardstate<n> &b, searchInfo *info, int alpha, int beta, int lim) {
         info->qnodes++;
-        transpositionTableEntry *transpositionTableEntry1 = getEntry(b);
+        transpositionTableEntry *transpositionTableEntry1 = getEntry(b, false);
         if (transpositionTableEntry1 != nullptr) {
             if (transpositionTableEntry1->depth >= lim - 100) {
                 if (transpositionTableEntry1->lower_bound >= beta) {
@@ -416,24 +416,25 @@ namespace TAK {
                                         if (b.end())
                                             ms = neg * terminalEval(b);
                                         else if (lh > 1 || !isFlat(b.top(squareAt(m, dir))) ||
-                                                 b.getHeight(squareAt(m, dir)) > 1 ||
-                                                 b.getWhiteLeft() < 2 ||
-                                                 b.getBlackLeft() < 2)
+                                                b.getHeight(squareAt(m, dir)) > 1 ||
+                                                b.getWhiteLeft() < 2 ||
+                                                b.getBlackLeft() < 2) {
                                             //pruning trivial spreads
-                                        if (d < info->depth_limit) {
-                                            ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
-                                                          (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, false);
-                                            if (alpha < ms && ms < beta ||
-                                                tp == PV_NODE && ms == beta && beta == alpha + 1) {
-                                                if (ms == alpha + 1)
-                                                    ms = alpha;
-                                                ms = -minimax(b, info, d + 1, -beta, -ms, tp, false);
+                                            if (d < info->depth_limit) {
+                                                ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
+                                                              (tp == CUT_NODE) ? ALL_NODE : CUT_NODE, false);
+                                                if (alpha < ms && ms < beta ||
+                                                    tp == PV_NODE && ms == beta && beta == alpha + 1) {
+                                                    if (ms == alpha + 1)
+                                                        ms = alpha;
+                                                    ms = -minimax(b, info, d + 1, -beta, -ms, tp, false);
+                                                }
                                             }
-                                        }
-                                        else {
-                                            ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
-                                            if (alpha < ms && ms < beta) {
-                                                ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                            else {
+                                                ms = -qsearch(b, info, -alpha - 1, -alpha, qdepth(info->depth_limit));
+                                                if (alpha < ms && ms < beta) {
+                                                    ms = -qsearch(b, info, -beta, -alpha, qdepth(info->depth_limit));
+                                                }
                                             }
                                         }
                                         else ms = alpha;

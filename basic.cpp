@@ -239,4 +239,22 @@ namespace TAK {
                         zobristTable[i][j][k][l] = rnd();
         white_to_move = rnd();
     }
+
+    bitboard spread[8][8][8][4];
+
+    void initSpread() {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                for (int k = 0; k < 8; k++)
+                    for (int l = 0; l < 4; l++) {
+                        spread[i][j][k][l] = 0;
+                        square s = getSquare(i, j);
+                        direction d = (direction) l;
+                        s = squareAt(s, d);
+                        for (int a = 0; a < k && s != -1; a++) {
+                            spread[i][j][k][l] |= getBitboard(s);
+                            s = squareAt(s, d);
+                        }
+                    }
+    }
 }

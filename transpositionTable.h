@@ -23,13 +23,6 @@ namespace TAK {
         move bm;
         int generation;
         unsigned long long hash;
-        //unsigned long long WT;
-    };
-
-    struct hasher {
-        std::size_t operator()(const unsigned long long &l) const {
-            return (size_t) ((l >> 32) ^ (l * 1610612741));
-        }
     };
 
     inline size_t hash1(const unsigned long long &l) {
@@ -40,7 +33,6 @@ namespace TAK {
         return (size_t) (l ^ ((l >> 32) * 1610612741));
     }
 
-    //extern std::unordered_map<unsigned long long, transpositionTableEntry, hasher> transpositionTable;
     extern transpositionTableEntry *tr;
     extern int collisions;
     extern int dropped;

@@ -25,13 +25,11 @@ namespace TAK {
     extern int citadel;   //9
     extern int center;    //10
     extern int underCap;
-    //extern int placeThreat;
-    //extern int emptyInfluence;
     extern int endgameCutoff;
-    //extern int flatInfluence;
     extern bitboard citadels[7][7];
     extern bitboard centerBoard;
     extern bitboard allBoard;
+    extern int potential;
 
     void initGroups(int n);
 
@@ -162,31 +160,44 @@ namespace TAK {
     int evaluateStacks(const boardstate<n> &b) {
         int score = 0;
         for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                if (b.getHeight(getSquare(i, j)) > 1) {
-                    int cnt = b.countStacked(getSquare(i, j), b.getHeight(getSquare(i, j)),
-                                             color_of(b.top(getSquare(i, j))));
-                    int sign = (color_of(b.top(getSquare(i, j))) == WHITE ? 1 : -1);
-                    if (isFlat(b.top(getSquare(i, j))))
+            for (int j = 0; j < n; j++) {
+                square s=getSquare(i,j);
+                if (b.getHeight(s) > 1) {
+                    int cnt = b.countStacked(s, b.getHeight(s),color_of(b.top(s)));
+                    int sign = (color_of(b.top(s)) == WHITE ? 1 : -1);
+                    if (isFlat(b.top(s)))
                         score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * FCaptureU +
-                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* FCaptureU+
-                                  cnt * FReserveU) *
-                                 sign;
-                    else if (isCap(b.top(getSquare(i, j))))
+                                ((b.getHeight(s) - cnt - 1) * FCaptureU + cnt * FReserveU) * sign;
+                    else if (isCap(b.top(s)))
                         score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * CCaptureU +
-                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* CCaptureU+
-                                  cnt * CReserveU) *
-                                 sign;
+                                ((b.getHeight(s) - cnt - 1) * CCaptureU + cnt * CReserveU) * sign;
                     else
                         score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
-                                ((b.getHeight(getSquare(i, j)) - cnt - 1)* SCaptureU+
-                                  cnt * SReserveU) *
-                                 sign;
-
-                    if (isCap(b.top(getSquare(i, j))) && b.getHeight(getSquare(i, j)) > 1) {
-                        if (color_of(b.underTop(getSquare(i, j))) == BLACK)
+                                ((b.getHeight(s) - cnt - 1) * SCaptureU + cnt * SReserveU) * sign;
+                    if (isCap(b.top(s)) && b.getHeight(s) > 1) {
+                        if (color_of(b.underTop(s)) == BLACK)
                             score -= underCap;
                         else score += underCap;
+                    }
+                    cnt = b.countStacked(s, std::min(b.getHeight(s), n), color_of(b.top(s)));
+                    if(cnt>0) {
+                        bitboard bd = b.getBC() | b.getBF() | b.getBS() | b.getWC() | b.getWF() | b.getWS();
+                        bd = ~bd;
+                        if (sign > 0)
+                            bd = bd | b.getBF();
+                        else
+                            bd = bd | b.getWF();
+                        int mx = 0;
+                        for (int d = 0; d < 4; d++) {
+                            square q = squareAt(s, (direction) d);
+                            if (q != -1 && (b.empty(q) || isFlat(b.top(q)))) {
+                                int t = popcnt(spread[i][j][cnt][d] & bd);
+                                //std::cout << i << " " << j << " spread in " << d << " is " << t << '\n';
+                                if (t > mx)
+                                    mx = t;
+                            }
+                        }
+                        score += potential * mx * sign;
                     }
                     /*if (isFlat(b.top(getSquare(i, j)))) {
                         score += sign * Fattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWF()) -
@@ -201,6 +212,7 @@ namespace TAK {
                                                    popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getBC()));
                     }*/
                 }
+            }
         return score;
     }
 
@@ -351,8 +363,6 @@ namespace TAK {
         //score += evaluateInfluence(b);
         score += evaluateCenter(b);
         score+=evaluate2(b);
-        //countThreats(b, wc, bc);
-        //score += placeThreat * (wc - bc);
         return score;
     }
 }

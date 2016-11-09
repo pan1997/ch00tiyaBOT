@@ -10,20 +10,17 @@ namespace TAK {
     int standingU = 52;
     int capstoneU = 90;
     int groupU[8];
-    int FCaptureU = -45;
-    int FReserveU = 50;
-    int SCaptureU = -30;
-    int SReserveU = 70;
+    int FCaptureU = -30;
+    int FReserveU = 30;
+    int SCaptureU = -25;
+    int SReserveU = 45;
     int CCaptureU = -30;
-    int CReserveU = 65;
-    //int placeThreat=44;
+    int CReserveU = 40;
     int citadel = 0;
     int center = 7;
-    //int emptyInfluence = -2;//drop protected squares
-    //int flatInfluence = 0;
     int underCap = 14;
-    int endgameCutoff = 9;
-
+    int potential = 30;
+    int endgameCutoff = 10;
     int weights[8][5];
     bitboard centerBoard;
     bitboard allBoard;
@@ -69,8 +66,8 @@ namespace TAK {
             case 5:
                 groupU[0] = 0;
                 groupU[1] = 0;
-                groupU[2] = 5;
-                groupU[3] = 25;
+                groupU[2] = 6;
+                groupU[3] = 26;
                 groupU[4] = 72;
                 groupU[5] = scale * 2500;
                 weights[0][0] = weights[0][1] = weights[0][2] = weights[0][3] = weights[0][4] = 0;
@@ -88,28 +85,6 @@ namespace TAK {
                 weights[5][2] = 1;
                 weights[5][3] = 0;
                 weights[5][4] = 4;
-                /*
-                 * groupU[0] = 0
-                groupU[1] = 0;
-                groupU[2] = 5;
-                groupU[3] = 25;
-                groupU[4] = 58;
-                groupU[5] = scale * 2500;
-                weights[0][0]=weights[0][1]=weights[0][2]=weights[0][3]=weights[0][4]=0;
-                weights[1][0]=weights[1][1]=weights[1][2]=weights[1][3]=weights[1][4]=0;
-                weights[2][0]=weights[2][1]=weights[2][2]=weights[2][3]=weights[2][4]=0;
-                weights[3][0]=weights[3][1]=weights[3][2]=weights[3][3]=weights[3][4]=0;
-                weights[4][0]=5;
-                weights[4][1]=2;
-                weights[4][2]=1;
-                weights[4][3]=0;
-                weights[4][4]=0;
-                weights[5][0]=85;
-                weights[5][1]=28;
-                weights[5][2]=2;
-                weights[5][3]=0;
-                weights[5][4]=4;
-                 */
                 break;
             case 6:
                 groupU[0] = 0;

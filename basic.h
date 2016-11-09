@@ -168,5 +168,9 @@ namespace TAK {
     extern unsigned long long white_to_move;
 
     void initZobrist();
+
+    extern bitboard spread[8][8][8][4];
+
+    void initSpread();
 }
 #endif // BASIC_H

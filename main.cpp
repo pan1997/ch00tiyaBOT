@@ -82,7 +82,7 @@ void testbug(TAK::boardstate<5> b) {
      */
 
     std::string game3 = "a1 e1 Fe2";
-    std::stringstream moves(game);
+    std::stringstream moves(game2);
     std::cout << "Tesing bug\n";
     //std::strcpy(mv[16],"1a1+1")
 
@@ -110,10 +110,12 @@ void testbug(TAK::boardstate<5> b) {
     //b.flipTurn();
     std::cout << b << '\n';
     int ms = 0, mse = 0;
-    mse = TAK::evaluate2(b);
+    //mse = TAK::evaluateStacks(b);
     if(b.end()){
         std::cout<<"end "<<TAK::terminalEval(b)<<'\n';
     }
+
+    TAK::printBitboard(std::cout,TAK::spread[3][3][2][0]);
     TAK::move m = TAK::search(b, ms, 450000, 360000);
     std::cout << ms << ' ' << mse << " done\n";
     std::cout << b << '\n';
@@ -195,6 +197,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
     initbasic(n);
     initCitadels();
     initInfo(n);
+    initSpread();
     transpositionTableInit();
     p -= 1;
     char tm[50];
@@ -227,7 +230,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
         std::cerr << board << '\n';
         int mx = 0;
         if (i % 2 == p) {
-            int aim = int(limit / (board.countEmpty() * 1.5 + 5));
+            int aim = int(limit / (board.countEmpty() * 1.4 + 3));
             std::cerr << "aiming " << aim << " ms\n";
             auto start = std::chrono::system_clock::now();
             m = search(board, mx, aim, std::min(limit / 3, 90000));
@@ -253,11 +256,11 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
 int main() {
     using namespace std;
     srand(time(NULL));
-    cerr << "ch00tiyaBOT 2.2\n";
+    cerr << "ch00tiyaBOT 2.3\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
-    //lim = 960;
+    //lim = 120;
     //p=n=lim=1;
     int increment = 0 * 1000;
     lim *= 1000;
@@ -279,19 +282,20 @@ int main() {
             assignment(TAK::boardstate<8>(), p, lim, increment);
             break;
         default:
-            TAK::tune();
+            //TAK::tune();
             //cui();
-            /*std::cout << "game not defined. Just autotuning/bug fixing\n";
+            std::cout << "game not defined. Just autotuning/bug fixing\n";
             TAK::initZobrist();
             TAK::initGroups(5);
             TAK::initInfo(5);
             TAK::initSlides();
             TAK::initbasic(5);
+            TAK::initSpread();
             TAK::initCitadels();
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
             testbug(b);
-*/
+
     }
     return 0;
 }

@@ -76,12 +76,14 @@ namespace TAK {
         //weights[5][0]=i;
         //groupU[3]=i;
 
+        //potential=i;
         //standingU=i;
         //CCaptureU=-i;
-        //SReserveU=i;
+        FReserveU=i;
+        FCaptureU=-i;
         //underCap=i;
-        //groupU[3]=i;
-        weights[5][0]=i;
+        //groupU[2]=i;
+        //weights[5][0]=i;
         //weights[5][1]=i;
         //center=i;
         //CReserveU=i;
@@ -103,9 +105,10 @@ namespace TAK {
         initbasic(5);
         TAK::initInfo(5);
         TAK::initCitadels();
+        initSpread();
         transpositionTableInit();
 
-        int w=65;
+        int w=50;
         int delta=2;
 
         for(int n=0;n<1;n++) {
