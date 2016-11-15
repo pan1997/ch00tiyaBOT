@@ -233,7 +233,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
             int aim = int(limit / (board.countEmpty() * 1.4 + 3));
             std::cerr << "aiming " << aim << " ms\n";
             auto start = std::chrono::system_clock::now();
-            m = search(board, mx, aim, std::min(limit / 3, 90000));
+            m = search(board, mx, aim, std::min(limit / 3, 120000));
             auto end = std::chrono::system_clock::now();
             printMove(std::cout, m);
             limit -= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -256,7 +256,7 @@ template <int n> void assignment(TAK::boardstate<n> board,int p,int limit,int in
 int main() {
     using namespace std;
     srand(time(NULL));
-    cerr << "ch00tiyaBOT 2.3\n";
+    cerr << "ch00tiyaBOT 2.3.0\n";
     int p, n, lim;
     cerr << "Enter p n lim\n";
     cin >> p >> n >> lim;
@@ -295,6 +295,7 @@ int main() {
             TAK::transpositionTableInit();
             TAK::boardstate<5> b;
             testbug(b);
+
 
     }
     return 0;

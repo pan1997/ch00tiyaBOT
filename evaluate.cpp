@@ -8,18 +8,18 @@ namespace TAK {
     int scale = 100;
     int move_advantage = 50;
     int standingU = 52;
-    int capstoneU = 90;
+    int capstoneU = 92;
     int groupU[8];
-    int FCaptureU = -30;
+    int FCaptureU = -50;
     int FReserveU = 30;
     int SCaptureU = -25;
     int SReserveU = 45;
-    int CCaptureU = -30;
-    int CReserveU = 40;
+    int CCaptureU = -25;
+    int CReserveU = 42;
     int citadel = 0;
     int center = 7;
     int underCap = 14;
-    int potential = 30;
+    int potential = 25;
     int endgameCutoff = 10;
     int weights[8][5];
     bitboard centerBoard;
@@ -69,7 +69,7 @@ namespace TAK {
                 groupU[2] = 6;
                 groupU[3] = 26;
                 groupU[4] = 72;
-                groupU[5] = scale * 2500;
+                groupU[5] = scale* 2500;
                 weights[0][0] = weights[0][1] = weights[0][2] = weights[0][3] = weights[0][4] = 0;
                 weights[1][0] = weights[1][1] = weights[1][2] = weights[1][3] = weights[1][4] = 0;
                 weights[2][0] = weights[2][1] = weights[2][2] = weights[2][3] = weights[2][4] = 0;
@@ -81,7 +81,7 @@ namespace TAK {
                 weights[4][3] = 0;
                 weights[4][4] = 0;
                 weights[5][0] = 65;
-                weights[5][1] = 19;
+                weights[5][1] = 20;
                 weights[5][2] = 1;
                 weights[5][3] = 0;
                 weights[5][4] = 4;
@@ -89,10 +89,10 @@ namespace TAK {
             case 6:
                 groupU[0] = 0;
                 groupU[1] = 0;
-                groupU[2] = 2;
-                groupU[3] = 5;
-                groupU[4] = 25;
-                groupU[5] = 60;
+                groupU[2] = 4;
+                groupU[3] = 10;
+                groupU[4] = 30;
+                groupU[5] = 75;
                 groupU[6] = scale * 3600;
                 weights[0][0] = weights[0][1] = weights[0][2] = weights[0][3] = weights[0][4] = 0;
                 weights[1][0] = weights[1][1] = weights[1][2] = weights[1][3] = weights[1][4] = 0;
@@ -104,8 +104,8 @@ namespace TAK {
                 weights[5][2] = 1;
                 weights[5][3] = 0;
                 weights[5][4] = 0;
-                weights[6][0] = 68;
-                weights[6][1] = 32;
+                weights[6][0] = 65;
+                weights[6][1] = 19;
                 weights[6][2] = 2;
                 weights[6][3] = 0;
                 weights[6][4] = 4;
@@ -113,11 +113,11 @@ namespace TAK {
             case 7:
                 groupU[0] = 0;
                 groupU[1] = 0;
-                groupU[2] = 0;
-                groupU[3] = 5;
-                groupU[4] = 15;
-                groupU[5] = 25;
-                groupU[6] = 60;
+                groupU[2] = 2;
+                groupU[3] = 8;
+                groupU[4] = 20;
+                groupU[5] = 36;
+                groupU[6] = 80;
                 groupU[7] = scale * 4900;
                 weights[0][0] = weights[0][1] = weights[0][2] = weights[0][3] = weights[0][4] = 0;
                 weights[1][0] = weights[1][1] = weights[1][2] = weights[1][3] = weights[1][4] = 0;
@@ -131,7 +131,7 @@ namespace TAK {
                 weights[6][3] = 0;
                 weights[6][4] = 0;
                 weights[7][0] = 68;
-                weights[7][1] = 32;
+                weights[7][1] = 18;
                 weights[7][2] = 2;
                 weights[7][3] = 0;
                 weights[7][4] = 4;

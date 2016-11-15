@@ -382,6 +382,8 @@ namespace TAK {
                                                     (info->depth_limit - d) * (info->depth_limit - d);
                                         goto eos;
                                     }
+                                    if (transpositionTableEntry1 != nullptr)
+                                        transpositionTableEntry1->bm = bm;
                                 }
                             }
                     }
@@ -416,9 +418,9 @@ namespace TAK {
                                         if (b.end())
                                             ms = neg * terminalEval(b);
                                         else if (lh > 1 || !isFlat(b.top(squareAt(m, dir))) ||
-                                                b.getHeight(squareAt(m, dir)) > 1 ||
-                                                b.getWhiteLeft() < 2 ||
-                                                b.getBlackLeft() < 2) {
+                                                 b.getHeight(squareAt(m, dir)) > 1 ||
+                                                 b.getWhiteLeft() < 2 ||
+                                                 b.getBlackLeft() < 2) {
                                             //pruning trivial spreads
                                             if (d < info->depth_limit) {
                                                 ms = -minimax(b, info, d + 1, -alpha - 1, -alpha,
@@ -449,6 +451,8 @@ namespace TAK {
                                                             (info->depth_limit - d) * (info->depth_limit - d);
                                                 goto eos;
                                             }
+                                            if (transpositionTableEntry1 != nullptr)
+                                                transpositionTableEntry1->bm = bm;
                                         }
                                     }
                                 }
@@ -500,6 +504,8 @@ namespace TAK {
                                                                 (info->depth_limit - d) * (info->depth_limit - d);
                                                     goto eos;
                                                 }
+                                                if (transpositionTableEntry1 != nullptr)
+                                                    transpositionTableEntry1->bm = bm;
                                             }
                                         }
                                     }
@@ -549,6 +555,8 @@ namespace TAK {
                                         (info->depth_limit - d) * (info->depth_limit - d);
                                 goto eos;
                             }
+                            if (transpositionTableEntry1 != nullptr)
+                                transpositionTableEntry1->bm = bm;
                         }
                     }
             }
@@ -708,7 +716,7 @@ namespace TAK {
                             info.order[p][t][j + 1] = info.order[p][t][j];
                         info.order[p][t][j + 1] = s;
                     }
-            if (tm * (ebf + 1) * (dl % 2 == 0 ? 3 : 1 / 2.0) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 >= Tlimit))
+            if (tm * (ebf + 1) * (dl % 2 == 0 ? 2 : 1 / 2.0) > Tlimit * 2 && dl > 2 && (pn > 100) || (tm * 3 >= Tlimit))
                 break;
         }
         return pbm;

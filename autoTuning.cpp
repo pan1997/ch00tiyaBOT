@@ -73,14 +73,16 @@ namespace TAK {
 
     void setWeights(int i) {
         //emptyInfluence = i;
-        //weights[5][0]=i;
+        weights[5][1]=i;
         //groupU[3]=i;
 
+        //groupU[4]=i;
         //potential=i;
         //standingU=i;
         //CCaptureU=-i;
-        FReserveU=i;
-        FCaptureU=-i;
+        //FReserveU=i;
+        //FCaptureU=-i;
+        //weights[5][1]=i;
         //underCap=i;
         //groupU[2]=i;
         //weights[5][0]=i;
@@ -108,8 +110,8 @@ namespace TAK {
         initSpread();
         transpositionTableInit();
 
-        int w=50;
-        int delta=2;
+        int w=18;
+        int delta=1;
 
         for(int n=0;n<1;n++) {
 

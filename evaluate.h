@@ -67,7 +67,7 @@ namespace TAK {
             }
             else if (b.getTurn() == BLACK) {//ie white has moved
                 winner = WHITE;
-                score=1;
+                score = 1;
             }
             else {
                 winner = BLACK;
@@ -157,30 +157,32 @@ namespace TAK {
     }
 
     template<int n>
-    int evaluateStacks(const boardstate<n> &b) {
+    int evaluateStacks(const boardstate<n> &b, int &pot) {
         int score = 0;
+        pot = 0;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++) {
-                square s=getSquare(i,j);
-                if (b.getHeight(s) > 1) {
-                    int cnt = b.countStacked(s, b.getHeight(s),color_of(b.top(s)));
+                square s = getSquare(i, j);
+                int h = b.getHeight(s);
+                if (h > 1) {
+                    int cnt = b.countStacked(s, h, color_of(b.top(s)));
                     int sign = (color_of(b.top(s)) == WHITE ? 1 : -1);
                     if (isFlat(b.top(s)))
                         score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * FCaptureU +
-                                ((b.getHeight(s) - cnt - 1) * FCaptureU + cnt * FReserveU) * sign;
-                    else if (isCap(b.top(s)))
+                                ((h - cnt - 1) * FCaptureU + cnt * FReserveU) * sign;
+                    else if (isCap(b.top(s))) {
                         score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * CCaptureU +
-                                ((b.getHeight(s) - cnt - 1) * CCaptureU + cnt * CReserveU) * sign;
-                    else
-                        score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
-                                ((b.getHeight(s) - cnt - 1) * SCaptureU + cnt * SReserveU) * sign;
-                    if (isCap(b.top(s)) && b.getHeight(s) > 1) {
+                                ((h - cnt - 1) * CCaptureU + cnt * CReserveU) * sign;
                         if (color_of(b.underTop(s)) == BLACK)
                             score -= underCap;
                         else score += underCap;
                     }
-                    cnt = b.countStacked(s, std::min(b.getHeight(s), n), color_of(b.top(s)));
-                    if(cnt>0) {
+                    else
+                        score += //((std::min(n * n, b.getHeight(getSquare(i, j))) - cnt - 1) * SCaptureU +
+                                ((h - cnt - 1) * SCaptureU + cnt * SReserveU) * sign;
+                    if (h > n + 1)
+                        cnt = b.countStacked(s, n + 1, color_of(b.top(s)));
+                    if (cnt > 0) {
                         bitboard bd = b.getBC() | b.getBF() | b.getBS() | b.getWC() | b.getWF() | b.getWS();
                         bd = ~bd;
                         if (sign > 0)
@@ -197,7 +199,7 @@ namespace TAK {
                                     mx = t;
                             }
                         }
-                        score += potential * mx * sign;
+                        pot += potential * mx * sign;
                     }
                     /*if (isFlat(b.top(getSquare(i, j)))) {
                         score += sign * Fattack * (popcnt(neighbours(getBitboard(getSquare(i, j))) & b.getWF()) -
@@ -267,9 +269,10 @@ namespace TAK {
     //empty oppflat oppwall oppcap mywall
     extern int weights[8][5];
 
-    template<int n>int evaluate2(const boardstate<n>&b) {
+    template<int n>
+    int evaluate2(const boardstate<n> &b) {
         int score = 0;
-        int origr,origc;
+        int origr, origc;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++) {
                 square s = getSquare(i, j);
@@ -308,9 +311,9 @@ namespace TAK {
                     }
                 }
                 if (b.empty(s) || color_of(b.top(s)) == WHITE) {
-                    bitboard gr = b.join(bd, BLACK, origr,origc);// | getBitboard(s);
+                    bitboard gr = b.join(bd, BLACK, origr, origc);// | getBitboard(s);
                     if (gr != 0) {
-                        gr|=getBitboard(s);
+                        gr |= getBitboard(s);
                         int r = countRows(gr, n);
                         int c = countCols(gr, n);
                         if (r <= origr)
@@ -351,18 +354,20 @@ namespace TAK {
         int score = x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage;
         //(3 * endgameCutoff - 2 * factor) * (x + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
         //endgameCutoff;
-        score = (2 * endgameCutoff - factor) * (score) / endgameCutoff;
+        score = (3 * endgameCutoff - 1 * factor) * (score) / (2 * endgameCutoff);
         /*
         5 * n * n * (evaluateTopFlat(b) + (b.getTurn() == WHITE ? 1 : -1) * move_advantage) /
         (3 * n * n + 2*b.countEmpty());
          */
         score += evaluateTop(b);
         score += evaluateGroups(b);
-        score += evaluateStacks(b);
+        int pot;
+        score += evaluateStacks(b, pot);
+        score += (3 * endgameCutoff - 1 * factor) * pot / (2 * endgameCutoff);
         //score += evaluateCitadels(b);
         //score += evaluateInfluence(b);
         score += evaluateCenter(b);
-        score+=evaluate2(b);
+        score += evaluate2(b);
         return score;
     }
 }
