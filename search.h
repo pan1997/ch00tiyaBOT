@@ -325,7 +325,7 @@ namespace TAK {
                 b.undoMove(bm, fl);
                 b.flipTurn();
                 if (ms > alpha) {
-                    if (storehistory(info->depth_limit - d))
+                    if (ms>=beta&&storehistory(info->depth_limit - d))
                         info->history[b.getTurn()][isPlaceMove(bm) ? 1 : 0][bm & 63] +=
                                 (info->depth_limit - d) * (info->depth_limit - d);
                     alpha = ms;

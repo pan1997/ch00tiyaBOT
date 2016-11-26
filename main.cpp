@@ -296,7 +296,6 @@ int main() {
             TAK::boardstate<5> b;
             testbug(b);
 
-
     }
     return 0;
 }
