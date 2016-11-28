@@ -658,7 +658,7 @@ namespace TAK {
         double ebf;
         move pbm;
         for (int dl = 1; max < scale * 100 && max > -scale * 100; dl++) {
-            max = -scale * 1000000;
+            max = -scale * scale;
             info.depth_limit = dl;
             int pn = info.nodes;
             int alpha = max;
